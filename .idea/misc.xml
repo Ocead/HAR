@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CMakeWorkspace" PROJECT_DIR="$PROJECT_DIR$" />
+  <component name="CidrRootsConfiguration">
+    <sourceRoots>
+      <file path="$PROJECT_DIR$/include" />
+      <file path="$PROJECT_DIR$/lib/gti/include" />
+      <file path="$PROJECT_DIR$/lib/gti/src" />
+      <file path="$PROJECT_DIR$/lib/gti/test/include" />
+      <file path="$PROJECT_DIR$/lib/gti/test/src" />
+      <file path="$PROJECT_DIR$/lib/har/include" />
+      <file path="$PROJECT_DIR$/lib/har/src" />
+      <file path="$PROJECT_DIR$/lib/har/test/include" />
+      <file path="$PROJECT_DIR$/lib/har/test/src" />
+      <file path="$PROJECT_DIR$/lib/harduino/include" />
+      <file path="$PROJECT_DIR$/lib/harduino/src" />
+      <file path="$PROJECT_DIR$/lib/harduino/test/include" />
+      <file path="$PROJECT_DIR$/lib/harduino/test/src" />
+      <file path="$PROJECT_DIR$/lib/hargui/include" />
+      <file path="$PROJECT_DIR$/lib/hargui/src" />
+      <file path="$PROJECT_DIR$/lib/hargui/test/include" />
+      <file path="$PROJECT_DIR$/lib/hargui/test/src" />
+      <file path="$PROJECT_DIR$/src" />
+      <file path="$PROJECT_DIR$/test" />
+    </sourceRoots>
+    <excludeRoots>
+      <file path="$PROJECT_DIR$/_old" />
+      <file path="$PROJECT_DIR$/docs/html" />
+    </excludeRoots>
+  </component>
+</project>
