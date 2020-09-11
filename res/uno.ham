@@ -1,0 +1,362 @@
+simulation
+version 2
+name "Arduino Uno"
+author "Johannes Milczewski"
+description "The pinout of the Arduino Uno Rev. 3"
+locked false
+
+model
+name ""
+size [0, 0]
+bank
+name "Arduino Uno"
+size [9, 22]
+
+gcell
+at B[8, 20]
+part har:serial_pin
+prop NAME "D0/RX"
+prop COLOR #2e3436ff
+prop DESIGN Socket
+
+gcell
+at B[8, 19]
+part har:serial_pin
+prop NAME "D1/TX"
+prop COLOR #2e3436ff
+prop DESIGN Socket
+
+gcell
+at B[5, 21]
+part har:dummy_pin
+prop COLOR #2e3436ff
+prop __ORIENTATION Horizontal
+
+gcell
+at B[8, 18]
+part har:digital_pin
+prop NAME "D2"
+prop COLOR #2e3436ff
+prop DESIGN Socket
+
+gcell
+at B[4, 21]
+part har:dummy_pin
+prop COLOR #2e3436ff
+prop __ORIENTATION Horizontal
+
+gcell
+at B[5, 20]
+part har:dummy_pin
+prop COLOR #2e3436ff
+prop __ORIENTATION Horizontal
+
+gcell
+at B[8, 17]
+part har:pwm_pin
+prop NAME "~D3"
+prop COLOR #2e3436ff
+prop DESIGN Socket
+
+gcell
+at B[3, 21]
+part har:dummy_pin
+prop COLOR #2e3436ff
+prop __ORIENTATION Horizontal
+
+gcell
+at B[4, 20]
+part har:dummy_pin
+prop COLOR #2e3436ff
+prop __ORIENTATION Horizontal
+
+gcell
+at B[8, 16]
+part har:digital_pin
+prop NAME "D4"
+prop COLOR #2e3436ff
+prop DESIGN Socket
+
+gcell
+at B[3, 20]
+part har:dummy_pin
+prop COLOR #2e3436ff
+prop __ORIENTATION Horizontal
+
+gcell
+at B[5, 18]
+part har:smd_led
+prop NAME "ON"
+prop COLOR #8ae234ff
+prop DESIGN Slim
+
+gcell
+at B[8, 15]
+part har:pwm_pin
+prop NAME "~D5"
+prop COLOR #2e3436ff
+prop DESIGN Socket
+
+gcell
+at B[8, 14]
+part har:pwm_pin
+prop NAME "~D6"
+prop COLOR #2e3436ff
+prop DESIGN Socket
+
+gcell
+at B[0, 6]
+part har:dummy_pin
+prop NAME "NC"
+prop COLOR #2e3436ff
+prop DESIGN Socket
+
+gcell
+at B[5, 1]
+part har:dummy_pin
+prop COLOR #2e3436ff
+
+gcell
+at B[6, 1]
+part har:dummy_pin
+prop COLOR #2e3436ff
+
+gcell
+at B[5, 2]
+part har:dummy_pin
+prop COLOR #2e3436ff
+
+gcell
+at B[0, 7]
+part har:digital_pin
+prop NAME "IOREF"
+prop COLOR #2e3436ff
+prop PIN_MODE Input
+prop DESIGN Socket
+
+gcell
+at B[2, 6]
+part har:smd_led
+prop NAME "RX"
+prop COLOR #fcaf3eff
+prop DESIGN Slim
+
+gcell
+at B[5, 3]
+part har:dummy_pin
+prop COLOR #2e3436ff
+
+gcell
+at B[8, 0]
+part har:smd_button
+prop NAME "RESET"
+prop COLOR #eeeeecff
+
+gcell
+at B[6, 2]
+part har:dummy_pin
+prop COLOR #2e3436ff
+
+gcell
+at B[0, 8]
+part har:digital_pin
+prop NAME "RESET"
+prop COLOR #2e3436ff
+prop PIN_MODE Input
+prop DESIGN Socket
+
+gcell
+at B[3, 6]
+part har:smd_led
+prop NAME "TX"
+prop COLOR #fcaf3eff
+prop DESIGN Slim
+
+gcell
+at B[6, 3]
+part har:dummy_pin
+prop COLOR #2e3436ff
+
+gcell
+at B[0, 9]
+part har:constant_pin
+prop NAME "+3V3"
+prop COLOR #2e3436ff
+prop POWERING_PIN 3.3
+prop DESIGN Socket
+
+gcell
+at B[8, 2]
+part har:serial_pin
+prop NAME "D19/SCL"
+prop COLOR #2e3436ff
+prop DESIGN Socket
+
+gcell
+at B[0, 10]
+part har:constant_pin
+prop NAME "+5V"
+prop COLOR #2e3436ff
+prop POWERING_PIN 5
+prop DESIGN Socket
+
+gcell
+at B[8, 3]
+part har:serial_pin
+prop NAME "D18/SDA"
+prop COLOR #2e3436ff
+prop DESIGN Socket
+
+gcell
+at B[5, 6]
+part har:smd_led
+prop NAME "L"
+prop COLOR #fcaf3eff
+prop DESIGN Slim
+
+gcell
+at B[0, 11]
+part har:analog_pin
+prop NAME "GND"
+prop COLOR #2e3436ff
+prop DESIGN Socket
+
+gcell
+at B[8, 4]
+part har:analog_pin
+prop NAME "AREF"
+prop COLOR #2e3436ff
+prop PIN_MODE Input
+prop DESIGN Socket
+
+gcell
+at B[0, 12]
+part har:analog_pin
+prop NAME "GND"
+prop COLOR #2e3436ff
+prop DESIGN Socket
+
+gcell
+at B[8, 5]
+part har:digital_pin
+prop NAME "GND"
+prop COLOR #2e3436ff
+prop PIN_MODE Input
+prop DESIGN Socket
+
+gcell
+at B[0, 13]
+part har:analog_pin
+prop NAME "VIN"
+prop COLOR #2e3436ff
+prop PIN_MODE Input
+prop DESIGN Socket
+
+gcell
+at B[0, 15]
+part har:analog_pin
+prop NAME "A0"
+prop COLOR #2e3436ff
+prop PIN_MODE Input
+prop DESIGN Socket
+
+gcell
+at B[8, 7]
+part har:digital_pin
+prop NAME "D12"
+prop COLOR #2e3436ff
+prop DESIGN Socket
+
+gcell
+at B[0, 16]
+part har:analog_pin
+prop NAME "A1"
+prop COLOR #2e3436ff
+prop PIN_MODE Input
+prop DESIGN Socket
+
+gcell
+at B[8, 8]
+part har:pwm_pin
+prop NAME "~D11"
+prop COLOR #2e3436ff
+prop DESIGN Socket
+
+gcell
+at B[0, 17]
+part har:analog_pin
+prop NAME "A2"
+prop COLOR #2e3436ff
+prop PIN_MODE Input
+prop DESIGN Socket
+
+gcell
+at B[8, 9]
+part har:pwm_pin
+prop NAME "~D10"
+prop COLOR #2e3436ff
+prop DESIGN Socket
+
+gcell
+at B[0, 18]
+part har:analog_pin
+prop NAME "A3"
+prop COLOR #2e3436ff
+prop PIN_MODE Input
+prop DESIGN Socket
+
+gcell
+at B[8, 10]
+part har:pwm_pin
+prop NAME "~D9"
+prop COLOR #2e3436ff
+prop DESIGN Socket
+
+gcell
+at B[0, 19]
+part har:analog_pin
+prop NAME "A4"
+prop COLOR #2e3436ff
+prop PIN_MODE Input
+prop DESIGN Socket
+
+gcell
+at B[8, 11]
+part har:digital_pin
+prop NAME "D8"
+prop COLOR #2e3436ff
+prop DESIGN Socket
+
+gcell
+at B[0, 20]
+part har:analog_pin
+prop NAME "A5"
+prop COLOR #2e3436ff
+prop PIN_MODE Input
+prop DESIGN Socket
+
+gcell
+at B[8, 12]
+part har:keying_pin
+prop COLOR #2e3436ff
+prop DESIGN Socket
+
+gcell
+at B[8, 13]
+part har:digital_pin
+prop NAME "D7"
+prop COLOR #2e3436ff
+prop DESIGN Socket
+
+gcell
+at B[8, 6]
+part har:digital_pin
+prop NAME "D13"
+prop COLOR #2e3436ff
+prop DESIGN Socket
+
+gcell
+at B[0, 14]
+part har:keying_pin
+prop COLOR #2e3436ff
+prop DESIGN Socket

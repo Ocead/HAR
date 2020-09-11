@@ -1,0 +1,181 @@
+simulation
+version 2
+name "GTI Versuch 3"
+author "Johannes Milczewski"
+description ""
+locked true
+
+model
+name ""
+size [8, 5]
+bank
+name "STM32 Header"
+size [3, 8]
+
+gcell
+at B[2, 7]
+part har:digital_pin
+prop COLOR #2e3436ff
+prop HIGH_VOLTAGE 5
+prop PIN_MODE Input
+
+gcell
+at B[1, 7]
+part har:digital_pin
+prop COLOR #2e3436ff
+prop HIGH_VOLTAGE 5
+prop PIN_MODE Input
+
+gcell
+at B[2, 6]
+part har:digital_pin
+prop COLOR #2e3436ff
+prop HIGH_VOLTAGE 5
+prop PIN_MODE Input
+
+gcell
+at B[1, 6]
+part har:digital_pin
+prop COLOR #2e3436ff
+prop HIGH_VOLTAGE 5
+prop PIN_MODE Input
+
+gcell
+at B[2, 5]
+part har:digital_pin
+prop COLOR #2e3436ff
+prop HIGH_VOLTAGE 5
+prop PIN_MODE Input
+
+gcell
+at B[1, 5]
+part har:digital_pin
+prop COLOR #2e3436ff
+prop HIGH_VOLTAGE 5
+prop PIN_MODE Input
+
+gcell
+at B[0, 7]
+part har:digital_pin
+prop COLOR #babdb6ff
+prop HIGH_VOLTAGE 5
+prop PIN_MODE Output
+
+gcell
+at B[2, 4]
+part har:digital_pin
+prop COLOR #2e3436ff
+prop HIGH_VOLTAGE 5
+prop PIN_MODE Input
+
+gcell
+at B[1, 4]
+part har:digital_pin
+prop COLOR #2e3436ff
+prop HIGH_VOLTAGE 5
+prop PIN_MODE Input
+
+gcell
+at B[0, 0]
+part har:digital_pin
+prop COLOR #babdb6ff
+prop HIGH_VOLTAGE 5
+prop PIN_MODE Output
+
+gcell
+at B[1, 0]
+part har:digital_pin
+prop COLOR #2e3436ff
+prop HIGH_VOLTAGE 5
+prop PIN_MODE Input
+
+gcell
+at B[0, 1]
+part har:digital_pin
+prop COLOR #babdb6ff
+prop HIGH_VOLTAGE 5
+prop PIN_MODE Output
+
+gcell
+at B[1, 1]
+part har:digital_pin
+prop COLOR #2e3436ff
+prop HIGH_VOLTAGE 5
+prop PIN_MODE Input
+
+gcell
+at B[0, 2]
+part har:digital_pin
+prop COLOR #babdb6ff
+prop HIGH_VOLTAGE 5
+prop PIN_MODE Output
+
+gcell
+at B[1, 2]
+part har:digital_pin
+prop COLOR #2e3436ff
+prop HIGH_VOLTAGE 5
+prop PIN_MODE Input
+
+gcell
+at B[0, 5]
+part har:digital_pin
+prop COLOR #babdb6ff
+prop HIGH_VOLTAGE 5
+prop PIN_MODE Output
+
+gcell
+at B[2, 2]
+part har:digital_pin
+prop COLOR #2e3436ff
+prop HIGH_VOLTAGE 5
+prop PIN_MODE Input
+
+gcell
+at B[2, 0]
+part har:digital_pin
+prop COLOR #2e3436ff
+prop HIGH_VOLTAGE 5
+prop PIN_MODE Input
+
+gcell
+at B[0, 3]
+part har:digital_pin
+prop COLOR #babdb6ff
+prop HIGH_VOLTAGE 5
+prop PIN_MODE Output
+
+gcell
+at B[1, 3]
+part har:digital_pin
+prop COLOR #2e3436ff
+prop HIGH_VOLTAGE 5
+prop PIN_MODE Input
+
+gcell
+at B[0, 6]
+part har:digital_pin
+prop COLOR #babdb6ff
+prop HIGH_VOLTAGE 5
+prop PIN_MODE Output
+
+gcell
+at B[2, 3]
+part har:digital_pin
+prop COLOR #2e3436ff
+prop HIGH_VOLTAGE 5
+prop PIN_MODE Input
+
+gcell
+at B[2, 1]
+part har:digital_pin
+prop COLOR #2e3436ff
+prop HIGH_VOLTAGE 5
+prop PIN_MODE Input
+
+gcell
+at B[0, 4]
+part har:digital_pin
+prop COLOR #babdb6ff
+prop HIGH_VOLTAGE 5
+prop PIN_MODE Output
