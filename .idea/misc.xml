@@ -26,6 +26,7 @@
     <excludeRoots>
       <file path="$PROJECT_DIR$/_old" />
       <file path="$PROJECT_DIR$/docs/html" />
+      <file path="$PROJECT_DIR$/lib/harduino/res/binary" />
     </excludeRoots>
   </component>
 </project>
