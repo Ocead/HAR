@@ -21,6 +21,10 @@ sketch_cargo_cell::sketch_cargo_cell(const part & pt) : cargo_cell(context::inva
     _cclb->transit();
 }
 
+void sketch_cargo_cell::transit() {
+    _cclb->transit();
+}
+
 sketch_cargo_cell::~sketch_cargo_cell() noexcept = default;
 
 //endregion
@@ -33,6 +37,18 @@ sketch_grid_cell::sketch_grid_cell(const part & pt) : grid_cell(context::invalid
                                                                 _gclb() {
     _gclb = std::unique_ptr<grid_cell_base>(&as_grid_cell_base());
     pt.init_standard(*_gclb);
+    _gclb->transit();
+}
+
+void sketch_grid_cell::add_connection(direction_t use, sketch_grid_cell & to) {
+    _gclb->add_connection(use, to.as_grid_cell_base());
+}
+
+void sketch_grid_cell::remove_connection(direction_t use) {
+    _gclb->remove_connection(use);
+}
+
+void sketch_grid_cell::transit() {
     _gclb->transit();
 }
 
