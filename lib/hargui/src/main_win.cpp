@@ -154,7 +154,11 @@ void main_win::bind() {
                 return true;
             } else if (ebtn->button == 3u) {
                 auto ctx = _parti.get().request();
-                cell_selected(pos, ctx);
+                if (ebtn->state & Gdk::SHIFT_MASK) {
+                    cell_cycle(pos, ctx);
+                } else {
+                    cell_selected(pos, ctx);
+                }
                 return true;
             } else {
                 return false;
@@ -440,6 +444,11 @@ void main_win::cell_connected(const gcoords_t & from, const gcoords_t & to, part
             cell_selected(from, ctx);
         }
     }
+}
+
+void main_win::cell_cycle(const gcoords_t & pos, participant::context & ctx) {
+    auto fgcl = ctx.at(pos);
+    fgcl.logic().cycle(fgcl);
 }
 
 void main_win::draw(const cell_h & hnd, participant::context & ctx) {

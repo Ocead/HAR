@@ -79,6 +79,8 @@ namespace har::gui_ {
 
         void cell_connected(const gcoords_t & from, const gcoords_t & to, participant::context & ctx);
 
+        void cell_cycle(const gcoords_t & pos, participant::context & ctx);
+
         void draw(const cell_h & hnd, participant::context & ctx);
 
         Glib::RefPtr<const Gdk::Pixbuf> get_cell_image(const gcoords_t & pos);
