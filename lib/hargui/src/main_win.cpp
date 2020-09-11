@@ -31,8 +31,8 @@ main_win::main_win(gui & parti,
                                                                        prop_changed(id, std::forward<value>(val));
                                                                    }),
                                                                    _conn_popover(),
-                                                                   _selected(
-                                                                           gcoords_t{ grid_t::INVALID_GRID, -1, -1 }),
+                                                                   _selected(gcoords_t{ grid_t::INVALID_GRID, -1, -1 }),
+                                                                   _pressed(gcoords_t{ grid_t::INVALID_GRID, -1, -1 }),
                                                                    _selected_img(nullptr),
                                                                    _updating(0),
                                                                    _path(),
@@ -88,8 +88,8 @@ void main_win::bind() {
         });
 
         _headerbar.signal_about_activate().connect([&]() {
-           about dlg{ };
-           dlg.run();
+            about dlg{ };
+            dlg.run();
         });
     }
 
@@ -133,6 +133,15 @@ void main_win::bind() {
 
         _model.drag_begin_fun() =
         _bank.drag_begin_fun() = [this](auto ...) {
+            {
+                auto ctx = _parti.get().request();
+                gcoords_t pressed{ grid_t::INVALID_GRID, 0, 0 };
+                if (_pressed.index() == cell_cat::GRID_CELL) {
+                    pressed = std::get<cell_cat::GRID_CELL>(_pressed);
+                    auto fgcl = ctx.at(pressed);
+                    fgcl.logic().release(fgcl, ccoords_t());
+                }
+            }
             _model.hide_overlay();
             _bank.hide_overlay();
         };
@@ -387,6 +396,7 @@ void main_win::cell_placed(const gcoords_t & pos, const har::part & pt, particip
 
 void main_win::cell_clicked(const gcoords_t & pos, const ccoords_t & at, participant::context & ctx) {
     auto fgcl = ctx.at(pos);
+    _pressed = pos;
     fgcl.logic().press(fgcl, at);
 }
 
@@ -415,6 +425,7 @@ void main_win::cell_selected(const gcoords_t & pos, participant::context & ctx) 
 
 void main_win::cell_released(const gcoords_t & pos, const ccoords_t & at, participant::context & ctx) {
     auto fgcl = ctx.at(pos);
+    _pressed = gcoords_t(grid_t::INVALID_GRID, 0, 0);
     fgcl.logic().release(fgcl, at);
 }
 

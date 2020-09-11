@@ -41,6 +41,7 @@ namespace har::gui_ {
         connection_popover _conn_popover;
 
         cell_h _selected;
+        cell_h _pressed;
         Glib::RefPtr<Gdk::Pixbuf> _selected_img;
         std::atomic<std::uint16_t> _updating;
 
