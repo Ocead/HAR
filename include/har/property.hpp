@@ -62,6 +62,30 @@ namespace har {
             return get<T>(val());
         }
 
+        inline bool_t operator==(const value & val) const {
+            return this->val() == val;
+        }
+
+        inline bool_t operator!=(const value & val) const {
+            return this->val() != val;
+        }
+
+        inline bool_t operator==(const value && val) const {
+            return this->val() == val;
+        }
+
+        inline bool_t operator!=(const value && val) const {
+            return this->val() != val;
+        }
+
+        inline bool_t operator==(const property & ref) const {
+            return this->val() == ref.val();
+        }
+
+        inline bool_t operator!=(const property & ref) const {
+            return this->val() != ref.val();
+        }
+
         /// \brief Assigns a new value to the property
         /// \param [in] ref New value
         /// \return This property
