@@ -128,7 +128,12 @@ include_directories(
 add_executable(${DUINO_TEST_NAME}
         test/src/catch.cpp
 
-        test/src/parts.cpp)
+        test/src/parts.cpp
+
+        test/src/push_button.cpp
+        test/src/switch_button.cpp
+
+        test/src/pwm_pin.cpp)
 
 if (CMAKE_BUILD_TYPE EQUAL "RELEASE")
     set_property(TARGET ${DUINO_TEST_NAME} PROPERTY INTERPROCEDURAL_OPTIMIZATION True)

@@ -2,7 +2,14 @@
 // Created by Johannes on 18.07.2020.
 //
 
+#include <har/duino.hpp>
+#include <har/sketch_cell.hpp>
+
+#include "parts.hpp"
+
 #include <catch2/catch.hpp>
+
+using namespace har;
 
 TEST_CASE("Standard parts", "[!mayfail]") {
 
@@ -10,15 +17,11 @@ TEST_CASE("Standard parts", "[!mayfail]") {
         FAIL("Not implemented");
     }
 
-    SECTION("Push button") {
-        FAIL("Not implemented");
-    }
-
-    SECTION("Switch button") {
-        FAIL("Not implemented");
-    }
-
     SECTION("Lamp") {
+        FAIL("Not implemented");
+    }
+
+    SECTION("RGB Lamp") {
         FAIL("Not implemented");
     }
 
@@ -55,10 +58,6 @@ TEST_CASE("Standard parts", "[!mayfail]") {
     }
 
     SECTION("Analog pin") {
-        FAIL("Not implemented");
-    }
-
-    SECTION("PWM pin") {
         FAIL("Not implemented");
     }
 

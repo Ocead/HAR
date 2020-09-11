@@ -15,7 +15,10 @@ using namespace har::parts;
 part duino::parts::pwm_pin(part_h offset) {
     part pt{ PART[standard_ids::PWM_PIN + offset],
              text("har:pwm_pin"),
-             traits::BOARD_PART | traits::INPUT | traits::OUTPUT | traits::COLORED,
+             traits::BOARD_PART |
+             traits::INPUT |
+             traits::OUTPUT |
+             traits::COLORED,
              text("PWM pin") };
 
     add_properties_for_traits(pt, 5.);
@@ -67,13 +70,44 @@ part duino::parts::pwm_pin(part_h offset) {
             }
             case pin_mode::INPUT: {
                 auto & gcl = cl.as_grid_cell();
-                if (gcl.connected().size() > 1) {
-                    auto ngcl = gcl[direction::PIN[0]];
+                if (!gcl.connected().empty()) {
+                    auto ngcl = gcl[direction::PIN];
                     if (ngcl.has(PWM_VOLTAGE)) {
-                        cl[PWM_VOLTAGE] = ngcl[PWM_VOLTAGE];
-                        cl[PWM_DUTY] = ngcl[PWM_DUTY];
-                        cl[POWERED_PIN] = ngcl[POWERING_PIN];
+                        auto nvolt = double_t(ngcl[PWM_VOLTAGE]);
+                        auto nduty = double_t(ngcl[PWM_DUTY]);
+
+                        cl[PWM_VOLTAGE] = nvolt;
+                        cl[PWM_DUTY] = nduty;
+                        cl[POWERED_PIN] = nvolt * nduty;
+                    } else if (ngcl.has(POWERING_PIN)) {
+                        auto npwrd = double_t(ngcl[POWERING_PIN]);
+
+                        cl[PWM_DUTY] = npwrd / double_t(cl[PWM_VOLTAGE]);
+                        cl[POWERED_PIN] = npwrd;
+                    } else {
+                        if (auto prop = cl[PWM_VOLTAGE]; double_t(prop) != 0.) {
+                            prop = 0.;
+                        }
+                        if (auto prop = cl[PWM_DUTY]; double_t(prop) != 0.) {
+                            prop = 0.;
+                        }
+                        if (auto prop = cl[POWERED_PIN]; double_t(prop) != 0.) {
+                            prop = 0.;
+                        }
                     }
+                } else {
+                    if (auto prop = cl[PWM_VOLTAGE]; double_t(prop) != 0.) {
+                        prop = 0.;
+                    }
+                    if (auto prop = cl[PWM_DUTY]; double_t(prop) != 0.) {
+                        prop = 0.;
+                    }
+                    if (auto prop = cl[POWERED_PIN]; double_t(prop) != 0.) {
+                        prop = 0.;
+                    }
+                }
+                if (auto prop = cl[POWERING_PIN]; double_t(prop) != 0.) {
+                    prop = 0.;
                 }
                 break;
             }
