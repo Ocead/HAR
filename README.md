@@ -109,6 +109,9 @@ Building and running targets that depend on the included GUI additionally requir
 * [libsigc++](https://libsigcplusplus.github.io/libsigcplusplus/) 2.0
 * an implementation for `dlfcn.h` (on Windows)
 
+Building the HARduino library additionally requires (for compiling resources):
+* xxd
+
 The test targets additionally require:
 * [Catch2](https://github.com/catchorg/Catch2)
 
