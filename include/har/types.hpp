@@ -82,10 +82,16 @@ namespace har {
             std::chrono::high_resolution_clock,
             std::chrono::steady_clock>;
 
+#include <cctype>
+
 #if defined(UNICODE)
 #define text(lit) L##lit
+
+#define remove_r(line) lline.erase(std::remove_if(line.begin(), line.end(), [](auto c) { return std::iswcntrl(c); }), line.end());
 #else
 #define text(lit) lit
+
+#define remove_r(line) line.erase(std::remove_if(line.begin(), line.end(), [](auto c) { return std::iscntrl(c); }), line.end());
 #endif
 
     struct model_info {

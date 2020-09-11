@@ -198,8 +198,10 @@ har::operator>>(std::tuple<istream &, const std::map<part_h, part> &> is_inv, st
     bool_t done = false;
 
     std::getline(is, line, text('\n'));
+    remove_r(line);
     if (line.substr(0, 5) == text("model")) {
         std::getline(is, line, text(' '));
+        remove_r(line);
         if (line.substr(0, 4) == text("name")) {
             is >> std::quoted(world._model.title());
         } else {
@@ -207,6 +209,7 @@ har::operator>>(std::tuple<istream &, const std::map<part_h, part> &> is_inv, st
             return is_inv;
         }
         std::getline(is >> std::ws, line, text('\n'));
+        remove_r(line);
         if (line.substr(0, 5) == text("size ")) {
             stringstream ss{ line.substr(5) };
             dcoords_t dim;
@@ -221,8 +224,10 @@ har::operator>>(std::tuple<istream &, const std::map<part_h, part> &> is_inv, st
         return is_inv;
     }
     std::getline(is, line, text('\n'));
+    remove_r(line);
     if (line.substr(0, 4) == text("bank")) {
         std::getline(is, line, text(' '));
+        remove_r(line);
         if (line.substr(0, 4) == text("name")) {
             is >> std::quoted(world._bank.title());
         } else {
@@ -230,6 +235,7 @@ har::operator>>(std::tuple<istream &, const std::map<part_h, part> &> is_inv, st
             return is_inv;
         }
         std::getline(is >> std::ws, line, text('\n'));
+        remove_r(line);
         if (line.substr(0, 5) == text("size ")) {
             stringstream ss{ line.substr(5) };
             dcoords_t dim;
@@ -245,6 +251,7 @@ har::operator>>(std::tuple<istream &, const std::map<part_h, part> &> is_inv, st
     }
 
     std::getline(is, line, text('\n'));
+    remove_r(line);
     while (!is.eof() && !done) {
         char c = is.peek();
         switch (c) {

@@ -100,7 +100,7 @@ model & model::operator=(const model & ref) = default;
 model & model::operator=(model && fref) noexcept {
     if (this != &fref) {
         this->~model();
-        new (this) model(std::forward<model>(fref));
+        new(this) model(std::forward<model>(fref));
     }
     return *this;
 }
@@ -131,31 +131,37 @@ istream & har::operator>>(istream & is, std::tuple<model &, bool_t &> model_ok) 
 
     ok = true;
     std::getline(is >> std::ws, line, text('\n'));
+    remove_r(line);
     if (line == text("simulation")) {
         std::getline(is >> std::ws, line, text('\n'));
+        remove_r(line);
         if (line == text("version 2")) {
             std::getline(is >> std::ws, line, text(' '));
-            if (line.substr(0, 4) == text("name")) {
+            remove_r(line);
+            if (line == text("name")) {
                 is >> std::ws >> std::quoted(model._info.title, text('\"'), text('\\'));
             } else {
                 std::string eline{ line.begin(), line.end() };
                 raise(*new exception::model_format_error("har::operator>>", eline));
             }
             std::getline(is >> std::ws, line, text(' '));
-            if (line.substr(0, 6) == text("author")) {
+            remove_r(line);
+            if (line == text("author")) {
                 is >> std::ws >> std::quoted(model._info.author, text('\"'), text('\\'));
             } else {
                 std::string eline{ line.begin(), line.end() };
                 raise(*new exception::model_format_error("har::operator>>", eline));
             }
             std::getline(is >> std::ws, line, text(' '));
-            if (line.substr(0, 11) == text("description")) {
+            remove_r(line);
+            if (line == text("description")) {
                 is >> std::ws >> std::quoted(model._info.description, text('\"'), text('\\'));
             } else {
                 std::string eline{ line.begin(), line.end() };
                 raise(*new exception::model_format_error("har::operator>>", eline));
             }
             std::getline(is >> std::ws, line, text('\n'));
+            remove_r(line);
             if (line.substr(0, 7) == text("locked ")) {
                 model._info.editable = line.substr(7) == text("true");
             } else {
@@ -163,6 +169,7 @@ istream & har::operator>>(istream & is, std::tuple<model &, bool_t &> model_ok) 
                 raise(*new exception::model_format_error("har::operator>>", eline));
             }
             std::getline(is, line, text('\n'));
+            remove_r(line);
             std::tie(is, model._sim.get().inventory()) >> std::tie(static_cast<world &>(model), ok);
             model._info.titles.try_emplace(grid_t::MODEL_GRID, model.get_model().title());
             model._info.titles.try_emplace(grid_t::BANK_GRID, model.get_bank().title());

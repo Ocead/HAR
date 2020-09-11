@@ -361,13 +361,19 @@ har::operator>>(std::tuple<istream &, const std::map<part_h, part> &> is_inv,
 
     string_t line;
     std::getline(is, line, text('\n'));
+    remove_r(line);
     if (line == text("gcell")) {
         std::getline(is, line, text('\n'));
+        remove_r(line);
         if (line.substr(0, 3) == text("at ")) {
             stringstream ss{ line.substr(3) };
             ss >> cell._position;
             is_inv >> static_cast<class cell_base &>(cell);
-            while (std::getline(is, line, text('\n')) && !line.empty()) {
+            while (std::getline(is, line, text('\n'))) {
+                remove_r(line);
+                if (line.empty()) {
+                    break;
+                }
                 if (line.substr(0, 5) == text("wire ")) {
                     stringstream wss{ line };
                     wss.ignore(5);
