@@ -12,7 +12,7 @@ void parts::add_properties_for_traits(part & pt, double_t voltage_level, ui_acce
     auto changeable = std::clamp(ui_access::CHANGEABLE, minimal_vis, ui_access::CHANGEABLE);
 
     entry::Specifics voltage_spec{ std::array<double_t, 3>{ -voltage_level, voltage_level, .1 }};
-    entry::Specifics moving_spec{ std::array<double_t, 3>{ -1, 1, .01 }};
+    entry::Specifics moving_spec{ std::array<double_t, 3>{ -1., 1., .01 }};
 
     auto part_traits = pt.traits();
 
@@ -285,14 +285,14 @@ void parts::add_properties_for_traits(part & pt, double_t voltage_level, ui_acce
                                 text("Moving from"),
                                 value(direction_t(direction::RIGHT)),
                                 changeable,
-                                serialize::ALWAYS,
+                                serialize::ANYWAY,
                                 dir_cat::CARDINAL_DIRECTIONS });
             pt.add_entry(entry{ of::MOVING_TO,
                                 text("__MOVING_TO"),
                                 text("Moving to"),
                                 value(direction_t(direction::LEFT)),
                                 changeable,
-                                serialize::ALWAYS,
+                                serialize::ANYWAY,
                                 dir_cat::CARDINAL_DIRECTIONS });
         }
         if (part_traits & traits::COMPONENT_PART) {
@@ -518,9 +518,9 @@ void parts::draw_voltage(const Cairo::RefPtr<Cairo::Context> & cr, cell & cl, co
     if (high != 0. && mode != uint_t(pin_mode::TRI_STATE)) {
         cr->save();
         if (int_t(color.r) + int_t(color.g) + int_t(color.b) > 384) {
-            cr->set_source_rgb(0., 0., 0.);
+            cr->set_source_rgba(0., 0., 0., .85);
         } else {
-            cr->set_source_rgb(1., 1., 1.);
+            cr->set_source_rgba(1., 1., 1., .85);
         }
         cr->set_line_width(24.);
         cr->set_line_cap(Cairo::LINE_CAP_ROUND);
@@ -549,9 +549,9 @@ void parts::draw_pwm_voltage(const Cairo::RefPtr<Cairo::Context> & cr, cell & cl
     if (high != 0. && mode != uint_t(pin_mode::TRI_STATE)) {
         cr->save();
         if (int_t(color.r) + int_t(color.g) + int_t(color.b) > 384) {
-            cr->set_source_rgb(0., 0., 0.);
+            cr->set_source_rgba(0., 0., 0., .85);
         } else {
-            cr->set_source_rgb(1., 1., 1.);
+            cr->set_source_rgba(1., 1., 1., .85);
         }
         cr->set_line_width(24.);
         cr->set_line_cap(Cairo::LINE_CAP_ROUND);

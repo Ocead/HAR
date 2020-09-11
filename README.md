@@ -41,7 +41,7 @@ Adds support to run Arduino C programs on HAR simulations
 
 #### Executables
 
-The bulk of this repositories codes compiles to libraries, so to run them, you have to provide some code yourself.
+The bulk of this repository's code compiles to libraries, so to run them, you have to provide some code yourself.
 What this code has to contain needs to match one of these approaches:
 
 * **Arduino-like**: <br/>
@@ -178,6 +178,8 @@ and in some cases type-specific information on allowed values.
 ```c++
 using namespace har;
 
+...
+
 part pin{ PART[1234], //Unique ID
           "eg:pin", //Unique name
           BOARD_PART, //Is placed on the MCU board
@@ -208,6 +210,8 @@ Here's an example for cyclical behaviour of an analog input pin:
 ```c++
 using namespace har;
 
+...
+
 part analog_pin{ PART[4711], //Unique ID
                  "eg:analog_pin", //Unique name
                  BOARD_PART | //Is placed on the MCU board
@@ -234,6 +238,8 @@ The interactive behaviour gets triggered when the user clicks on a cell of this 
 Consider this excerpt from a rudimentary push button:
 ```c++
 using namespace har;
+
+...
 
 part push_button{ PART[ 815], //Unique ID
                   "eg:push_button", //Unique name
