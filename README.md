@@ -3,7 +3,7 @@ Drop-in simulator for C/C++-programmable microcontrollers and hardware models
 
 ![](./res/readme_window.png)
 
-##About
+## About
 
 HAR is a modular set of libraries that aid in simulating hardware models that incorporate microcontrollers. <br/>
 It features a platform independant simulation runtime,
