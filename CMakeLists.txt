@@ -19,6 +19,8 @@ add_subdirectory(lib/hargui)
 
 add_subdirectory(lib/harduino)
 
+add_subdirectory(lib/gti)
+
 #region package
 
 #TODO: Figure out CPack

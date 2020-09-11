@@ -165,6 +165,7 @@ har::operator>>(std::tuple<istream &, const std::map<part_h, part> &> is_inv, ce
     if (is.peek() == 'p') {
         string_t part_line;
         std::getline(is >> std::ws, part_line, text('\n'));
+        remove_r(part_line);
         if (part_line.substr(0, 4) == text("part")) {
             string_t part_name = part_line.substr(5);
             auto pit = std::find_if(inv.begin(), inv.end(), [&part_name](const auto & e) {
@@ -179,12 +180,15 @@ har::operator>>(std::tuple<istream &, const std::map<part_h, part> &> is_inv, ce
                 while (is.peek() == text('p')) {
                     string_t prop_line;
                     std::getline(is, prop_line, text('\n'));
+                    remove_r(prop_line);
 
                     stringstream ss{ prop_line };
                     string_t prop;
                     std::getline(ss >> std::ws, prop, text(' '));
+                    remove_r(prop);
                     if (prop == text("prop")) {
                         std::getline(ss >> std::ws, prop, text(' '));
+                        remove_r(prop);
                         of of = value::from_string(prop);
                         const entry * ent;
                         if (of == of::VOID) {
@@ -203,6 +207,7 @@ har::operator>>(std::tuple<istream &, const std::map<part_h, part> &> is_inv, ce
                         }
                         if (ent) {
                             std::getline(ss >> std::ws, prop, text('\n'));
+                            remove_r(prop);
                             cell.set(ent->id, ent->from_string(prop));
                         } else {
                             std::string eline{ prop_line.begin(), prop_line.end() };

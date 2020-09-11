@@ -7,6 +7,9 @@
 
 #include <har/duino.hpp>
 
+extern unsigned char uno_ham[];
+extern unsigned int uno_ham_len;
+
 using namespace har;
 
 duino::duino() = default;
@@ -41,6 +44,7 @@ full_grid_cell duino::map_cell_interrupt(context & ctx, uint8_t num) {
 }
 
 void duino::on_attach(int argc, char * const * argv, char * const * envp) {
+    bool_t loaded{ false };
     for (auto i = 1; i < argc; ++i) {
         std::string_view model_option{ argv[i - 1] };
         if (model_option == "-m" || model_option == "--model") {
@@ -48,7 +52,12 @@ void duino::on_attach(int argc, char * const * argv, char * const * envp) {
             string_t model_path{ model_path_view.begin(), model_path_view.end() };
             ifstream ifs{ std::filesystem::path(model_path) };
             load_model(ifs);
+            loaded = true;
         }
+    }
+    if (!loaded) {
+        std::string model{ reinterpret_cast<const char *>(uno_ham), uno_ham_len };
+        load_model(model);
     }
 }
 
