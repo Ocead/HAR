@@ -75,7 +75,7 @@ const value & cell_base::get(of id, bool_t now) const {
     }
     debug({
        if (auto it = _properties.find(id); it != _properties.end()) {
-           return _properties.at(id);
+           return it->second;
        } else {
            debug_log("cell has no property with ID " + value::to_string(id) + " (" + std::to_string(id) + ")");
            return value::invalid();
@@ -141,7 +141,7 @@ ostream & har::operator<<(ostream & os, const cell_base & cell) {
         auto eit = model.find(p.first);
         if (eit != model.end()) {
             const entry & ent = eit->second;
-            if (ent.serializable == serialize::ALWAYS || (ent.serializable == serialize::SERIALIZE && !ent.is_standard(p.second))) {
+            if (ent.serializable == serialize::ANYWAY || (ent.serializable == serialize::SERIALIZE && !ent.is_standard(p.second))) {
                 if (p.first < of::NEXT_FREE) {
                     line += value::to_string(p.first);
                 } else {

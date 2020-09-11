@@ -32,9 +32,9 @@ namespace har {
     };
 
     enum serialize : ushort_t {
-        SERIALIZE = 0u,
-        NO_SERIALIZE = 1u,
-        ALWAYS = 2u
+        SERIALIZE = 0u, ///<Serialize if value is not standard
+        NO_SERIALIZE = 1u, ///<Never serialize
+        ANYWAY = 2u ///<Serialize even if value is standard
     };
 
     /// \brief Defines an entry in the property model of a part
@@ -274,6 +274,7 @@ namespace har {
 
         /// \brief Returns thhe traits of this part
         /// \return The traits
+        [[nodiscard]]
         traits_h traits() const;
 
         /// \brief Adds an entry to this part's property model
@@ -309,6 +310,7 @@ namespace har {
 
         /// \brief Gets a map of all defined connection uses
         /// \return The map of defined connection uses
+        [[nodiscard]]
         const decltype(_conn_use) & connection_uses() const;
 
         // \brief Adds a property ID, which's change in this cell changes the appearance of the cell
@@ -321,6 +323,7 @@ namespace har {
 
         /// \brief Gets a set of all waking property IDs
         /// \return Set of waking property IDs
+        [[nodiscard]]
         const decltype(_visual) & visual() const;
 
         /// \brief Adds a property ID, which's change in neighbored and connected cells wakes up cells of this part
@@ -333,6 +336,7 @@ namespace har {
 
         /// \brief Gets a set of all waking property IDs
         /// \return Set of waking property IDs
+        [[nodiscard]]
         const decltype(_waking) & waking() const;
 
         /// \brief Initializes a cell with standard values

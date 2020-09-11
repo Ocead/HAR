@@ -54,7 +54,7 @@ namespace har {
         constexpr color(const color & ref) = default;
 
         /// \brief Move constructor
-        /// \param [in,out] fref Forwawrding reference to the original
+        /// \param [in,out] fref Forwarding reference to the original
         color(color && fref) noexcept = default;
 
         /// \brief Copy assignemnt
@@ -63,7 +63,7 @@ namespace har {
         color & operator=(const color & ref) = default;
 
         /// \brief Move assignemtn
-        /// \param [in,out] fref Forwawrding reference to the original
+        /// \param [in,out] fref Forwarding reference to the original
         /// \return The assigned color
         color & operator=(color && fref) noexcept = default;
 
@@ -95,7 +95,7 @@ namespace har {
 
         /// \brief Converts the color into a tuple
         /// \return The color as a tuple
-        explicit operator std::tuple<char_t, char_t, char_t, char_t>() const {
+        explicit operator std::tuple<std::uint8_t, std::uint8_t, std::uint8_t, std::uint8_t>() const {
             return std::make_tuple(r, g, b, a);
         }
 
