@@ -16,23 +16,6 @@ include_directories(
         ${PROJECT_INCLUDE_DIR}
         include)
 
-set(RESOURCE_COMPILER xxd)
-file(GLOB HAR_RESOURCES "lib/har/include/res/*")
-foreach (INPUT_FILE ${HAR_RESOURCES})
-    if (NOT ${INPUT_FILE} MATCHES ".*.cpp")
-        set(OUTPUT_FILE ${INPUT_FILE}.cpp)
-        get_filename_component(RES_PATH ${INPUT_FILE} DIRECTORY)
-        get_filename_component(INPUT_FILE_NAME ${INPUT_FILE} NAME)
-        add_custom_command(
-                OUTPUT ${OUTPUT_FILE}
-                COMMAND ${RESOURCE_COMPILER} -i ${INPUT_FILE_NAME} ${OUTPUT_FILE}
-                WORKING_DIRECTORY ${RES_PATH}
-                COMMENT "Compiling ${INPUT_FILE_NAME} to binary"
-                DEPENDS ${INPUT_FILE})
-        list(APPEND HAR_RESOURCES ${OUTPUT_FILE})
-    endif ()
-endforeach ()
-
 add_library(${LIBRARY_NAME}
         src/cargo_cell.cpp
         src/coords.cpp
