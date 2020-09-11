@@ -28,6 +28,7 @@ part duino::parts::timer(part_h offset) {
 
     pt.remove_entry(of::DESIGN);
     pt.remove_entry(of::NEXT_FREE + 1);
+    pt.remove_entry(of::NEXT_FREE + 2);
     pt.remove_entry(of::INT_HANDLER);
     pt.remove_entry(of::INT_CONDITION);
 
@@ -45,13 +46,13 @@ part duino::parts::timer(part_h offset) {
                         ui_access::CHANGEABLE,
                         serialize::SERIALIZE,
                         {
-                                { NEVER, text("Never") },
-                                { RISING, text("Rising") },
-                                { FALLING, text("Falling") },
-                                { CHANGE, text("Change") },
-                                { LOW, text("Low") },
-                                { HIGH, text("High") },
-                                { ALWAYS, text("Always") }
+                                { inc_condition::NEVER, text("Never") },
+                                { inc_condition::RISING, text("Rising") },
+                                { inc_condition::FALLING, text("Falling") },
+                                { inc_condition::CHANGE, text("Change") },
+                                { inc_condition::LOW, text("Low") },
+                                { inc_condition::HIGH, text("High") },
+                                { inc_condition::ALWAYS, text("Always") }
                         }});
 
     pt.add_entry(entry{ of::VALUE,
