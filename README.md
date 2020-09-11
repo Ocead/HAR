@@ -4,6 +4,7 @@ Drop-in simulator for C/C++-programmable microcontrollers and hardware models
 ![](./res/readme_window.png)
 
 ##About
+
 HAR is a modular set of libraries that aid in simulating hardware models that incorporate microcontrollers. <br/>
 It features a platform independant simulation runtime,
 an easy to use drag-and-drop editor for creating models, an optional interactive UI
@@ -262,6 +263,7 @@ push_button.delegates.release = [=](cell & cl, const ccoords_t & at) { //When th
 For further examples on how to write parts, see the [part definitions](lib/harduino/src/parts) in the HARduino library.
 
 ### Participants
+
 Participants, as the name suggests, participate in a simulation. They are the primary way to interact with the simulation,
 every access to the simulation's resources is routed through these. This repository already contains some participants:
 * [`har::program`](include/har/program.hpp) : A generic interface to interact with the simulation
@@ -272,6 +274,7 @@ For information on how to implement your own participants,
 see the Doxygen documentation for [`har::participant`](include/har/participant.hpp).
 
 ### Beta
+
 This software is still in development. The  API and implementation are subject to possible change. <br/>
 Suggestions of any kind are welcome.
 
