@@ -116,5 +116,7 @@ part duino::parts::pwm_pin(part_h offset) {
 
     pt.add_waking(of::POWERING_PIN);
 
+    pt.add_connection_use(direction::PIN, text("Input"));
+
     return pt;
 }
