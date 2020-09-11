@@ -16,6 +16,8 @@ namespace har {
     public:
         explicit sketch_cargo_cell(const part & pt);
 
+        void transit();
+
         ~sketch_cargo_cell() noexcept override;
     };
 
@@ -25,6 +27,12 @@ namespace har {
 
     public:
         explicit sketch_grid_cell(const part & pt);
+
+        void add_connection(direction_t use, sketch_grid_cell & to);
+
+        void remove_connection(direction_t use);
+
+        void transit();
 
         ~sketch_grid_cell() noexcept override;
     };
