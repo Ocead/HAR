@@ -275,7 +275,7 @@ void parts::add_properties_for_traits(part & pt, double_t voltage_level, ui_acce
                             text("__MOTOR_DISTANCE"),
                             text("Distance to motor"),
                             value(uint_t(std::numeric_limits<uint_t>::max())),
-                            visible,
+                            invisible,
                             serialize::NO_SERIALIZE,
                             std::array<uint_t, 3>{ 0u, std::numeric_limits<uint_t>::max(), 1u }});
         pt.add_entry(entry{ of::MOTOR_DIRECTION,

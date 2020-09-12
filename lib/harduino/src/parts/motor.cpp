@@ -23,6 +23,7 @@ part duino::parts::motor(part_h offset) {
     pt.remove_entry(of::MOVING_FROM);
     pt.remove_entry(of::MOVING_TO);
     pt.remove_entry(of::MOTOR_DISTANCE);
+    pt.remove_entry(of::MOTOR_DIRECTION);
 
     pt.add_entry(entry{ of::MOTOR_SPEED,
                         text("__MOTOR_SPEED"),
