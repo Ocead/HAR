@@ -71,41 +71,53 @@ part duino::parts::conveyor_belt(part_h offset) {
     pt.delegates.cycle = [](cell & cl) {
         auto & gcl = cl.as_grid_cell();
         uint_t distance = std::numeric_limits<uint_t>::max();
+        direction_t motor_dir = direction::NONE;
 
         for (auto dir : direction::cardinal) {
             double_t speed = 0.;
             auto & ncl = gcl[dir];
 
-            if (ncl.has(of::MOTOR_SPEED)) {
-                speed = double_t(ncl[MOTOR_SPEED]);
-                distance = 0u;
-            } else if (ncl.has(of::MOVING_TO)) {
-                double_t dir_fac;
-                if (ncl[of::MOVING_TO] == value(!dir)) {
-                    dir_fac = 1;
-                } else if (ncl[of::MOVING_FROM] == value(!dir)) {
-                    dir_fac = -1;
-                } else {
-                    continue;
-                }
+            do {
+                if (ncl.has(of::MOTOR_SPEED)) {
+                    speed = double_t(ncl[MOTOR_SPEED]);
+                    distance = 0u;
+                    motor_dir = dir;
+                } else if (ncl.has(of::MOVING_TO)) {
+                    double_t dir_fac;
+                    if (ncl[of::MOVING_TO] == value(!dir)) {
+                        dir_fac = 1;
+                    } else if (ncl[of::MOVING_FROM] == value(!dir)) {
+                        dir_fac = -1;
+                    } else {
+                        speed = 0.;
+                        motor_dir = direction::NONE;
+                        break;
+                    }
 
-                auto ndistance = uint_t(ncl[of::MOTOR_DISTANCE]);
-                if (ndistance + 1 < distance && ndistance != std::numeric_limits<uint_t>::max()) {
-                    speed = double_t(ncl[value::moving(!dir)]) * dir_fac;
-                    distance = ndistance + 1;
+                    auto ndistance = uint_t(ncl[of::MOTOR_DISTANCE]);
+                    if (ndistance + 1 < distance &&
+                        ndistance != std::numeric_limits<uint_t>::max() &&
+                        direction_t(ncl[of::MOTOR_DIRECTION]) != !dir) {
+                        speed = double_t(ncl[value::moving(!dir)]) * dir_fac;
+                        distance = ndistance + 1;
+                        motor_dir = dir;
+                    } else {
+                        speed = 0.;
+                        break;
+                    }
                 } else {
-                    continue;
+                    speed = 0.;
+                    break;
                 }
-            } else {
-                continue;
-            }
+            } while (false);
 
             replace(cl[value::moved(dir)], speed);
             replace(cl[value::moving(direction_t(cl[of::MOVING_TO]))], speed);
             replace(cl[value::moving(direction_t(cl[of::MOVING_FROM]))], -speed);
         }
 
-        replace(cl[of::MOTOR_DISTANCE], distance);
+        replace(cl[of::MOTOR_DISTANCE], (motor_dir != direction::NONE) ? distance : std::numeric_limits<uint_t>::max());
+        replace(cl[of::MOTOR_DIRECTION], motor_dir);
     };
 
     pt.delegates.move = [](cell & cl) {
