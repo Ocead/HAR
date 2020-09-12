@@ -141,6 +141,20 @@ namespace har {
         ~property();
     };
 
+    template<typename T>
+    inline void replace(property & prop, const T & val) {
+        if (T(prop) != val) {
+            prop = val;
+        }
+    }
+
+    template<typename T>
+    inline void replace(property prop, const T & val) {
+        if (T(prop) != val) {
+            prop = val;
+        }
+    }
+
 }
 
 #endif //HAR_PROPERTY_HPP
