@@ -50,10 +50,6 @@ TEST_CASE("Standard parts", "[!mayfail]") {
         FAIL("Not implemented");
     }
 
-    SECTION("Digital pin") {
-        FAIL("Not implemented");
-    }
-
     SECTION("Analog pin") {
         FAIL("Not implemented");
     }

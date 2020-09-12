@@ -133,6 +133,7 @@ add_executable(${DUINO_TEST_NAME}
         test/src/push_button.cpp
         test/src/switch_button.cpp
 
+        test/src/digital_pin.cpp
         test/src/pwm_pin.cpp)
 
 if (CMAKE_BUILD_TYPE EQUAL "RELEASE")
