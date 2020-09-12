@@ -453,10 +453,14 @@ namespace har {
         /// <b>Values:</b><br/><tt>direction::UP</tt>, <br/> <tt>direction::DOWN</tt>, <br/> <tt>direction::RIGHT</tt>, <br/> <tt>direction::LEFT</tt>, <br/>
         /// \brief The direction from which the cell propagates movement
         MOVING_TO,
+        /// <b>Type:</b><br/><tt>har::double_t</tt>
+        /// \brief The speed that a motor transfers to other moving parts
+        MOTOR_SPEED,
         /// This can be used for loop detection in complex models<br/>
         /// <b>Type:</b><br/><tt>har::uint_t</tt>
         /// \brief The distance to the next movement source
         MOTOR_DISTANCE,
+
 
         /// <b>Type:</b><br/><tt>har::double_t</tt>
         /// \brief The weight of a cargo cell

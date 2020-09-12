@@ -71,6 +71,7 @@ of value::from_string(string_t & str) {
             { text("MOVING_FIRST"),      of::MOVING_FIRST },
             { text("MOVING_FROM"),       of::MOVING_FROM },
             { text("MOVING_TO"),         of::MOVING_TO },
+            { text("MOTOR_SPEED"),       of::MOTOR_SPEED },
             { text("MOTOR_DISTANCE"),    of::MOTOR_DISTANCE },
 
             { text("HAS_CARGO"),         of::HAS_CARGO },
@@ -148,6 +149,7 @@ string_t value::to_string(of of) {
             { of::MOVING_FIRST,      text("MOVING_FIRST") },
             { of::MOVING_FROM,       text("MOVING_FROM") },
             { of::MOVING_TO,         text("MOVING_TO") },
+            { of::MOTOR_SPEED,       text("MOTOR_SPEED") },
             { of::MOTOR_DISTANCE,    text("MOTOR_DISTANCE") },
 
             { of::HAS_CARGO,         text("HAS_CARGO") },
