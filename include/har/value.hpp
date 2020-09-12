@@ -461,6 +461,11 @@ namespace har {
         /// \brief The distance to the next movement source
         MOTOR_DISTANCE,
 
+        /// <b>Type:</b><br/><tt>har::direction_t</tt><br/>
+        /// <b>Values:</b><br/><tt>direction::UP</tt>, <br/> <tt>direction::DOWN</tt>, <br/> <tt>direction::RIGHT</tt>, <br/> <tt>direction::LEFT</tt>, <br/>
+        /// \brief The direction to the nearest motor
+        MOTOR_DIRECTION,
+
 
         /// <b>Type:</b><br/><tt>har::double_t</tt>
         /// \brief The weight of a cargo cell

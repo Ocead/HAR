@@ -165,7 +165,7 @@ property_row::property_row(const entry & ent,
             auto & child = *new Gtk::ComboBoxText();
             auto & spec = std::get<5>(ent.specifics);
             if (spec == dir_cat::ALL_DIRECTIONS) {
-                child.append(std::to_string(uint_t(direction::NONE)), "None");
+                child.append(std::to_string(int_t(direction::NONE)), "None");
             }
             if (spec == dir_cat::ALL_DIRECTIONS || spec == dir_cat::CARDINAL_DIRECTIONS) {
                 child.append(std::to_string(int_t(direction::UP)), "Up");
@@ -319,9 +319,18 @@ void property_row::set_value(value && val) {
             break;
         }
         case datatype::DIRECTION: {
+            auto dir = get<direction_t>(val);
+            dynamic_cast<Gtk::ComboBoxText &>(*_child).set_active_id(std::to_string(int_t(dir)));
             break;
         }
         case datatype::COLOR: {
+            auto color = get<color_t>(val);
+            Gdk::RGBA rgba;
+            rgba.set_rgba_u(color.r * 256u,
+                            color.g * 256u,
+                            color.b * 256u,
+                            color.a * 256u);
+            dynamic_cast<Gtk::ColorButton &>(*_child).set_rgba(rgba);
             break;
         }
         case datatype::SPECIAL: {

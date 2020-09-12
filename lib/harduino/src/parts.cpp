@@ -278,6 +278,13 @@ void parts::add_properties_for_traits(part & pt, double_t voltage_level, ui_acce
                             visible,
                             serialize::NO_SERIALIZE,
                             std::array<uint_t, 3>{ 0u, std::numeric_limits<uint_t>::max(), 1u }});
+        pt.add_entry(entry{ of::MOTOR_DIRECTION,
+                            text("__MOTOR_DIRECTION"),
+                            text("Direction to motor"),
+                            value(direction_t(direction::NONE)),
+                            invisible,
+                            serialize::NO_SERIALIZE,
+                            dir_cat::ALL_DIRECTIONS });
     }
 
     if (part_traits & traits::ORIENTABLE) {
