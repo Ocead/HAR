@@ -83,6 +83,9 @@ namespace har::parts {
 
     void
     draw_pwm_voltage(const Cairo::RefPtr<Cairo::Context> & cr, cell & cl, const color & color);
+
+    void
+    rotate_cardinal(const Cairo::RefPtr<Cairo::Context> & cr, direction_t dir);
 }
 
 #endif //HAR_PARTS_HPP

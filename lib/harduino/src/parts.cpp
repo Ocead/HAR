@@ -96,27 +96,29 @@ void parts::add_properties_for_traits(part & pt, double_t voltage_level, ui_acce
                             serialize::NO_SERIALIZE,
                             voltage_spec });
 
-        pt.add_entry(entry{ of::INT_HANDLER,
-                            text("__INT_HANDLER"),
-                            text("Interrupt handler"),
-                            value(callback_t()),
-                            visible,
-                            serialize::SERIALIZE });
+        if (part_traits & traits::BOARD_PART) {
+            pt.add_entry(entry{ of::INT_HANDLER,
+                                text("__INT_HANDLER"),
+                                text("Interrupt handler"),
+                                value(callback_t()),
+                                visible,
+                                serialize::SERIALIZE });
 
-        pt.add_entry(entry{ of::INT_CONDITION,
-                            text("__INT_CONDITION"),
-                            text("Interrupt condition"),
-                            value(uint_t()),
-                            changeable,
-                            serialize::SERIALIZE,
-                            {
-                                    { 0u, text("None") },
-                                    { 1u, text("Rising") },
-                                    { 2u, text("Falling") },
-                                    { 3u, text("Change") },
-                                    { 4u, text("Low") },
-                                    { 5u, text("High") },
-                            }});
+            pt.add_entry(entry{ of::INT_CONDITION,
+                                text("__INT_CONDITION"),
+                                text("Interrupt condition"),
+                                value(uint_t()),
+                                changeable,
+                                serialize::SERIALIZE,
+                                {
+                                        { 0u, text("None") },
+                                        { 1u, text("Rising") },
+                                        { 2u, text("Falling") },
+                                        { 3u, text("Change") },
+                                        { 4u, text("Low") },
+                                        { 5u, text("High") },
+                                }});
+        }
     }
 
     if (part_traits & traits::OUTPUT) {
@@ -272,7 +274,7 @@ void parts::add_properties_for_traits(part & pt, double_t voltage_level, ui_acce
         pt.add_entry(entry{ of::MOTOR_DISTANCE,
                             text("__MOTOR_DISTANCE"),
                             text("Distance to motor"),
-                            value(uint_t()),
+                            value(uint_t(std::numeric_limits<uint_t>::max())),
                             visible,
                             serialize::NO_SERIALIZE,
                             std::array<uint_t, 3>{ 0u, std::numeric_limits<uint_t>::max(), 1u }});
@@ -299,7 +301,7 @@ void parts::add_properties_for_traits(part & pt, double_t voltage_level, ui_acce
             pt.add_entry(entry{ of::FACING,
                                 text("__FACING"),
                                 text("Facing"),
-                                value(direction_t()),
+                                value(direction_t(direction::RIGHT)),
                                 changeable,
                                 serialize::SERIALIZE,
                                 dir_cat::CARDINAL_DIRECTIONS });
@@ -582,4 +584,29 @@ void parts::draw_pwm_voltage(const Cairo::RefPtr<Cairo::Context> & cr, cell & cl
         cr->stroke();
         cr->restore();
     }
+}
+
+void parts::rotate_cardinal(const Cairo::RefPtr<Cairo::Context> & cr, direction_t dir) {
+    cr->translate(128., 128.);
+    switch (dir) {
+        case raw_direction::UP: {
+            cr->rotate(-M_PI_2);
+            break;
+        }
+        case raw_direction::DOWN: {
+            cr->rotate(M_PI_2);
+            break;
+        }
+        case raw_direction::RIGHT: {
+            break;
+        }
+        case raw_direction::LEFT: {
+            cr->rotate(M_PI);
+            break;
+        }
+        default: {
+            break;
+        }
+    }
+    cr->translate(-128., -128.);
 }
