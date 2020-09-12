@@ -74,7 +74,8 @@ TEST_CASE("PWM pin") {
                     pt.cycle(sgcl);
                     sgcl.transit();
 
-                    REQUIRE(double_t(sgcl[of::PWM_DUTY]) == duty);
+                    REQUIRE(double_t(sgcl[of::PWM_VOLTAGE]) == volt * duty);
+                    REQUIRE(double_t(sgcl[of::PWM_DUTY]) == (duty == 0. ? 0. : 1.));
                     REQUIRE(double_t(sgcl[of::POWERED_PIN]) == volt * duty);
                 }
             }

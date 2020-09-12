@@ -3,9 +3,6 @@
 //
 
 #include <har/duino.hpp>
-#include <har/sketch_cell.hpp>
-
-#include "parts.hpp"
 
 #include <catch2/catch.hpp>
 

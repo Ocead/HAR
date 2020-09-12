@@ -82,7 +82,8 @@ part duino::parts::pwm_pin(part_h offset) {
                     } else if (ngcl.has(POWERING_PIN)) {
                         auto npwrd = double_t(ngcl[POWERING_PIN]);
 
-                        cl[PWM_DUTY] = npwrd / double_t(cl[PWM_VOLTAGE]);
+                        cl[PWM_VOLTAGE] = npwrd;
+                        cl[PWM_DUTY] = (npwrd == 0. ? 0. : 1.);
                         cl[POWERED_PIN] = npwrd;
                     } else {
                         if (auto prop = cl[PWM_VOLTAGE]; double_t(prop) != 0.) {
