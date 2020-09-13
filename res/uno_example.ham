@@ -23,10 +23,52 @@ part har:switch_button
 prop COLOR #73d216ff
 
 gcell
+at M[6, 0]
+part har:conveyor_belt
+prop MOVING_FROM LEFT
+prop MOVING_TO RIGHT
+
+gcell
+at M[5, 0]
+part har:conveyor_belt
+prop MOVING_FROM LEFT
+prop MOVING_TO RIGHT
+
+gcell
 at M[1, 1]
 part har:conveyor_belt
 prop MOVING_FROM DOWN
 prop MOVING_TO UP
+
+gcell
+at M[4, 0]
+part har:conveyor_belt
+prop MOVING_FROM LEFT
+prop MOVING_TO RIGHT
+
+gcell
+at M[3, 0]
+part har:conveyor_belt
+prop MOVING_FROM LEFT
+prop MOVING_TO RIGHT
+
+gcell
+at M[2, 0]
+part har:conveyor_belt
+prop MOVING_FROM LEFT
+prop MOVING_TO RIGHT
+
+gcell
+at M[7, 0]
+part har:conveyor_belt
+prop MOVING_FROM LEFT
+prop MOVING_TO DOWN
+
+gcell
+at M[1, 0]
+part har:conveyor_belt
+prop MOVING_FROM DOWN
+prop MOVING_TO RIGHT
 
 gcell
 at M[7, 1]
@@ -38,6 +80,11 @@ gcell
 at M[1, 4]
 part har:push_button
 prop COLOR #cc0000ff
+
+gcell
+at M[8, 1]
+part har:motor
+prop FACING LEFT
 
 gcell
 at M[1, 2]
