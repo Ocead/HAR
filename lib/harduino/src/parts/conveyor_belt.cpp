@@ -23,6 +23,8 @@ part duino::parts::conveyor_belt(part_h offset) {
 
     pt.delegates.init_relative = [](cell & cl) {
         auto & gcl = cl.as_grid_cell();
+        direction_t from = direction_t(cl[of::MOVING_FROM]);
+        direction_t to = direction_t(cl[of::MOVING_TO]);
         uint_t from_dist = std::numeric_limits<uint_t>::max();
         uint_t to_dist = std::numeric_limits<uint_t>::max();
 
@@ -34,10 +36,8 @@ part duino::parts::conveyor_belt(part_h offset) {
                         auto nfrom_dist = uint_t(ncl[of::MOTOR_DISTANCE]);
                         if (nfrom_dist + 1 < from_dist) {
                             from_dist = nfrom_dist + 1;
-                            cl[of::MOVING_FROM] = dir;
+                            from = dir;
                         }
-                    } else {
-                        cl[of::MOVING_FROM] = dir;
                     }
                 }
                 if (ncl.has(of::MOVING_FROM) && direction_t(ncl[of::MOVING_FROM]) == !dir) {
@@ -45,27 +45,25 @@ part duino::parts::conveyor_belt(part_h offset) {
                         auto nto_dist = uint_t(ncl[of::MOTOR_DISTANCE]);
                         if (nto_dist + 1 < to_dist) {
                             to_dist = nto_dist + 1;
-                            cl[of::MOVING_TO] = dir;
+                            to = dir;
                         }
-                    } else {
-                        cl[of::MOVING_TO] = dir;
                     }
                 }
             }
         }
-        if (from_dist == std::numeric_limits<uint_t>::max() && !to_dist) {
-            cl[of::MOVING_FROM] = !direction_t(cl.get(of::MOVING_TO, true));
-        }
-        if (to_dist == std::numeric_limits<uint_t>::max() && !from_dist) {
-            cl[of::MOVING_TO] = !direction_t(cl.get(of::MOVING_FROM, true));
-        }
-        if (!from_dist) {
-            cl[of::MOTOR_DISTANCE] = (!to_dist) ? std::numeric_limits<uint_t>::max() : to_dist;
-        } else if (!to_dist) {
-            cl[of::MOTOR_DISTANCE] = from_dist;
+        if ((from_dist == std::numeric_limits<uint_t>::max() || from_dist == 0u) && ~to_dist) {
+            cl[of::MOVING_FROM] = !to;
         } else {
-            cl[of::MOTOR_DISTANCE] = std::numeric_limits<uint_t>::max();
+            cl[of::MOVING_FROM] = from;
         }
+        if ((to_dist == std::numeric_limits<uint_t>::max() || to_dist == 0u) && ~from_dist) {
+            cl[of::MOVING_TO] = !from;
+        } else {
+            cl[of::MOVING_TO] = to;
+        }
+
+        auto distance = std::min(from_dist, to_dist);
+        cl[of::MOTOR_DISTANCE] = distance ? distance : std::numeric_limits<uint_t>::max();
     };
 
     pt.delegates.cycle = [](cell & cl) {
@@ -177,6 +175,29 @@ part duino::parts::conveyor_belt(part_h offset) {
                 cr->arc(256., 256., 256. - 32., 0., 2 * M_PI);
                 cr->arc(256., 256., 32., 0., 2 * M_PI);
                 cr->set_line_width(16.);
+                cr->stroke();
+            }
+
+            auto speed = double_t(cl[value::moving(to)]);
+            if (from == !to) {
+
+            } else if (from == cw(to)) {
+                rotate_cardinal(cr, direction::DOWN);
+            } else if (from == ccw(to)) {
+                rotate_cardinal(cr, direction::UP);
+            }
+            if (speed > 0.) {
+                rotate_cardinal(cr, direction::LEFT);
+            }
+            if (speed != 0.) {
+                cr->set_source_rgb(237. / 255., 212. / 255., 0. / 255.);
+                cr->move_to(32., 64.);
+                cr->line_to(32. + 64., 128.);
+                cr->line_to(32., 256. - 64.);
+                cr->move_to(160., 64.);
+                cr->line_to(160. + 64., 128.);
+                cr->line_to(160., 256. - 64.);
+                cr->fill();
                 cr->stroke();
             }
 
