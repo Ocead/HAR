@@ -47,7 +47,8 @@ part duino::parts::motor(part_h offset) {
 
         for (auto &[use, ncl] : cl.as_grid_cell().connected()) {
             if (use == direction::PIN[0]) {
-                speed = double_t(cl[of::SPEED_FACTOR]) * (double_t(ncl[of::POWERING_PIN]) / double_t(cl[of::HIGH_VOLTAGE]));
+                speed = double_t(cl[of::SPEED_FACTOR]) *
+                        (double_t(ncl[of::POWERING_PIN]) / double_t(cl[of::HIGH_VOLTAGE]));
             } else if (use == direction::PIN[1]) {
                 if (double_t(ncl[of::POWERING_PIN]) > double_t(cl[of::HIGH_VOLTAGE])) {
                     dir = -1;
@@ -106,11 +107,32 @@ part duino::parts::motor(part_h offset) {
             cr->set_line_width(8.);
             cr->stroke();
 
+            rotate_cardinal(cr, direction::UP);
+            cr->translate(0., -16.);
+            auto speed = double_t(cl[of::MOTOR_SPEED]);
+            if (speed < 0) {
+                rotate_cardinal(cr, direction::LEFT);
+            }
+            if (speed != 0) {
+                cr->set_source_rgb(252. / 255., 233. / 255., 79. / 255.);
+                cr->move_to(92., 108.);
+                cr->line_to(256. - 92. - 32., 108.);
+                cr->line_to(256. - 92. - 32.,  92.);
+                cr->line_to(256. - 92.,  128.);
+                cr->line_to(256. - 92. - 32.,  256. - 92.);
+                cr->line_to(256. - 92. - 32., 256. - 108.);
+                cr->line_to(92., 256. - 108.);
+                cr->close_path();
+                cr->fill();
+                cr->stroke();
+            }
+
             im = std::make_tuple(sf, uint_t(256u));
         }
     };
 
-    pt.add_visuals({ of::FACING });
+    pt.add_visuals({ of::FACING,
+                     of::MOTOR_SPEED });
 
     pt.add_connection_uses({{ direction::PIN[0], text("Enable") },
                             { direction::PIN[1], text("Direction") }});
