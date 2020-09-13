@@ -25,7 +25,7 @@ namespace har {
 
     class part;
 
-    /// \brief class for access to grid cell cell and cargo cells
+    /// \brief Class for access to grid cell cell and cargo cells
     class cell {
     protected:
         context & _ctx; ///<Inner cell object
@@ -34,27 +34,37 @@ namespace har {
 
     public:
 
-        /// This constructor is only called by the automaton when a part or participant wants to operate on a base.
         /// \brief Creates a base over a base for parts and participants to operate upon
         /// \param [in,out] ctx Inner base that connects to the logic of the automaton
         /// \param [in] base The base to be accessed
+        ///
+        /// This constructor is only called by the automaton when a part or participant wants to operate on a base.
         cell(context & ctx, cargo_cell_base & base);
 
-        /// This constructor is only called by the automaton when a part or participant wants to operate on a base.
         /// \brief Creates a base over a base for parts and participants to operate upon
         /// \param [in,out] ctx Inner base that connects to the logic of the automaton
         /// \param [in] base The base to be accessed
+        ///
+        /// This constructor is only called by the automaton when a part or participant wants to operate on a base.
         cell(context & ctx, grid_cell_base & base);
 
+        /// \brief Casts this cell into a cargo cell
+        /// \return This cell as a cargo cell
         [[nodiscard]]
         cargo_cell & as_cargo_cell();
 
+        /// \brief Casts this cell into a cargo cell
+        /// \return This cell as a cargo cell
         [[nodiscard]]
         const cargo_cell & as_cargo_cell() const;
 
+        /// \brief Casts this cell into a grid cell
+        /// \return This cell as a grid cell
         [[nodiscard]]
         grid_cell & as_grid_cell();
 
+        /// \brief Casts this cell into a grid cell
+        /// \return This cell as a grid cell
         [[nodiscard]]
         const grid_cell & as_grid_cell() const;
 
@@ -63,28 +73,34 @@ namespace har {
         [[nodiscard]]
         const part & logic();
 
-        /// 
-        /// \return
+        /// \brief Checks for the category of this cell.
+        /// \return The category of this cell
+        ///
+        /// This check should precede a cast of this cell, when in doubt
         [[nodiscard]]
         cell_cat cat() const;
 
+        /// \brief Gets the traits of the part this cell is an instance of
+        /// \return The traits of this cells part definition
         [[nodiscard]]
         traits_h traits() const;
 
-        /// \brief
-        /// \param id
-        /// \return
+        /// \brief Checks if a cell has a certain property
+        /// \param id ID of the property in question
+        /// \return <tt>TRUE</tt>, if the cell has this property
         [[nodiscard]]
         bool_t has(of id) const;
 
-        /// Effectively calls `_cell.set` for each property in `ref`
-        /// \brief Copies all properties of a `har::cell_base` into this cell
-        /// \param [in] ref `har::cell_base` to copy from
+        /// \brief Copies all properties of a <tt>har::cell_base</tt> into this cell
+        /// \param [in] ref <tt>har::cell_base</tt> to copy from
+        ///
+        /// Effectively calls <tt>this->set</tt> for each property in <tt>ref</tt>
         void adopt(const cell_base & ref);
 
-        /// Effectively calls `_cell.set` for each property in `fref`
-        /// \brief Moves all properties of a `har::cell_base` into this cell
-        /// \param [in] ref `har::cell_base` to move from
+        /// \brief Moves all properties of a <tt>har::cell_base</tt> into this cell
+        /// \param [in] fref <tt>har::cell_base</tt> to move from
+        ///
+        /// Effectively calls <tt>this->set</tt> for each property in <tt>fref</tt>
         void adopt(cell_base && fref);
 
         /// \brief Sends a message to all participants of the simulation
