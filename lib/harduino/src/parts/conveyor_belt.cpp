@@ -23,8 +23,8 @@ part duino::parts::conveyor_belt(part_h offset) {
 
     pt.delegates.init_relative = [](cell & cl) {
         auto & gcl = cl.as_grid_cell();
-        direction_t from = direction_t(cl[of::MOVING_FROM]);
-        direction_t to = direction_t(cl[of::MOVING_TO]);
+        direction_t from = direction::NONE;
+        direction_t to = direction::NONE;
         uint_t from_dist = std::numeric_limits<uint_t>::max();
         uint_t to_dist = std::numeric_limits<uint_t>::max();
 
@@ -51,14 +51,24 @@ part duino::parts::conveyor_belt(part_h offset) {
                 }
             }
         }
-        if ((from_dist == std::numeric_limits<uint_t>::max() || from_dist == 0u) && ~to_dist) {
-            cl[of::MOVING_FROM] = !to;
+
+        if (from == direction::NONE || to == direction::NONE) {
+            if ((from_dist == std::numeric_limits<uint_t>::max() || from_dist == 0u) && ~to_dist) {
+                if (to != direction::NONE)
+                    cl[of::MOVING_FROM] = !to;
+            } else {
+                if (from != direction::NONE)
+                    cl[of::MOVING_FROM] = from;
+            }
+            if ((to_dist == std::numeric_limits<uint_t>::max() || to_dist == 0u) && ~from_dist) {
+                if (from != direction::NONE)
+                    cl[of::MOVING_TO] = !from;
+            } else {
+                if (to != direction::NONE)
+                    cl[of::MOVING_TO] = to;
+            }
         } else {
             cl[of::MOVING_FROM] = from;
-        }
-        if ((to_dist == std::numeric_limits<uint_t>::max() || to_dist == 0u) && ~from_dist) {
-            cl[of::MOVING_TO] = !from;
-        } else {
             cl[of::MOVING_TO] = to;
         }
 
@@ -179,9 +189,7 @@ part duino::parts::conveyor_belt(part_h offset) {
             }
 
             auto speed = double_t(cl[value::moving(to)]);
-            if (from == !to) {
-
-            } else if (from == cw(to)) {
+            if (from == cw(to)) {
                 rotate_cardinal(cr, direction::DOWN);
             } else if (from == ccw(to)) {
                 rotate_cardinal(cr, direction::UP);
@@ -191,9 +199,11 @@ part duino::parts::conveyor_belt(part_h offset) {
             }
             if (speed != 0.) {
                 cr->set_source_rgb(237. / 255., 212. / 255., 0. / 255.);
-                cr->move_to(32., 64.);
-                cr->line_to(32. + 64., 128.);
-                cr->line_to(32., 256. - 64.);
+                if (from == !to) {
+                    cr->move_to(32., 64.);
+                    cr->line_to(32. + 64., 128.);
+                    cr->line_to(32., 256. - 64.);
+                }
                 cr->move_to(160., 64.);
                 cr->line_to(160. + 64., 128.);
                 cr->line_to(160., 256. - 64.);
