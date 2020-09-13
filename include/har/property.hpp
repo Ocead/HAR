@@ -46,10 +46,10 @@ namespace har {
         [[nodiscard]]
         const value & val() const;
 
-        /// \brief If the referenced value is not of type `har::special_t`,
-        /// returns a copy of it in an instance of `har::special_t`.
-        /// Returns the contained `har::special_t` otherwise
-        /// \return contained value as `har::special_t`
+        /// \brief If the referenced value is not of type <tt>har::special_t</tt>,
+        /// returns a copy of it in an instance of <tt>har::special_t</tt>.
+        /// Returns the contained <tt>har::special_t</tt> otherwise
+        /// \return contained value as <tt>har::special_t</tt>
         [[nodiscard]]
         special_t any() const;
 

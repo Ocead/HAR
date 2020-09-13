@@ -131,7 +131,7 @@ namespace har {
 
         /// \brief Determines whether a value is a standard value in the constraints of this entry
         /// \param [in] val Value in question
-        /// \return `TRUE`, if the value is a standard value
+        /// \return <tt>TRUE</tt>, if the value is a standard value
         [[nodiscard]]
         bool_t is_standard(const value & val) const;
 
@@ -192,7 +192,7 @@ namespace har {
             /// \param [out] cl The cell
             std::function<void(cell & cl)> init_static;
             /// This delegate is invoked after a cell of this type has been placed within a model's grid
-            /// and has been initialized with `har::part::init_standard`
+            /// and has been initialized with <tt>har::part::init_standard</tt>
             /// \brief Delegate called to initialize a cell in relation to it's neighbors
             /// \param [in,out] cl The cell
             std::function<void(cell & cl)> init_relative;

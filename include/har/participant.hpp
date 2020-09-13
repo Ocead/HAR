@@ -177,13 +177,13 @@ namespace har {
         /// \brief Called every time the information about the model is changed
         virtual void on_info_updated(const model_info & info) = 0;
 
-        /// \brief Called every time the automaton's state is set to `RUN`
+        /// \brief Called every time the automaton's state is set to <tt>RUN</tt>
         virtual void on_run() = 0;
 
-        /// \brief Called every time the automaton's state is set to `STEP`
+        /// \brief Called every time the automaton's state is set to <tt>STEP</tt>
         virtual void on_step() = 0;
 
-        /// \brief Called every time the automaton's state is set to `STOP`
+        /// \brief Called every time the automaton's state is set to <tt>STOP</tt>
         virtual void on_stop() = 0;
 
         /// \brief Called every time a message to the user is to be displayed

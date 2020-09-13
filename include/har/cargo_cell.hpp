@@ -13,7 +13,7 @@
 
 namespace har {
 
-    /// This class provides an interface to `part` and `participant` objects
+    /// This class provides an interface to <tt>part</tt> and <tt>participant</tt> objects
     /// to read and modify cargo of a simulated model
     /// \brief A cargo cell in a simulation
     class cargo_cell : public cell {

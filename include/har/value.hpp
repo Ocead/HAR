@@ -72,7 +72,7 @@ namespace har {
 
         /// \brief Compares two colors for equality
         /// \param [in] rhs Other color
-        /// \return `TRUE`, if both colors are equal
+        /// \return <tt>TRUE</tt>, if both colors are equal
         constexpr bool_t operator==(const color & rhs) const {
             return (r == rhs.r)
                    && (g == rhs.g)
@@ -82,7 +82,7 @@ namespace har {
 
         /// \brief Compares two colors for inequality
         /// \param [in] rhs Other color
-        /// \return `TRUE`, if both colors are not equal
+        /// \return <tt>TRUE</tt>, if both colors are not equal
         constexpr bool_t operator!=(const color & rhs) const {
             return !(*this == rhs);
         }
@@ -144,7 +144,7 @@ namespace har {
 
         /// Compares two functions for equality
         /// \param [in] rhs Other function
-        /// \return `TRUE`, if both objects have the same function pointer
+        /// \return <tt>TRUE</tt>, if both objects have the same function pointer
         inline bool_t operator==(const function & rhs) const noexcept {
             using Sig = R(*)(Args...);
             return this->template target<Sig>() == rhs.template target<Sig>();
@@ -152,7 +152,7 @@ namespace har {
 
         /// Compares two functions for inequality
         /// \param [in] rhs Other function
-        /// \return `TRUE`, if both objects have different function pointers
+        /// \return <tt>TRUE</tt>, if both objects have different function pointers
         inline bool_t operator!=(const function & rhs) const noexcept {
             return !operator==(rhs);
         }
@@ -188,11 +188,11 @@ namespace har {
         return part_h(std::size_t(lhs) + std::size_t(rhs));
     }
 
-    /// To reduce the size of `har::value`,
+    /// To reduce the size of <tt>har::value</tt>,
     /// values of greater size than two times the target architectures bit width are stored via a pointer
-    /// \brief Size invariant wrapper for objects to be stored in the `har::value` variant
+    /// \brief Size invariant wrapper for objects to be stored in the <tt>har::value</tt> variant
     /// \tparam T Outer type
-    /// \tparam Ptr Pointer type of `T`
+    /// \tparam Ptr Pointer type of <tt>T</tt>
     /// \sa har::value
     template<typename T, typename Ptr = std::unique_ptr<T>>
     struct possibly_pointed {
@@ -345,7 +345,7 @@ namespace har {
         ~possibly_pointed() = default;
     };
 
-    /// \brief Determines whether a type can be stored in `har::value`
+    /// \brief Determines whether a type can be stored in <tt>har::value</tt>
     /// \tparam T Type to check
     /// \sa har::value
     template<typename T>
@@ -573,7 +573,7 @@ namespace har {
     template<typename... Tps>
     using possibly_pointed_variant = std::variant<std::monostate, possibly_pointed<Tps>...>;
 
-    /// \brief Base class for `har::value`
+    /// \brief Base class for <tt>har::value</tt>
     using value_base = possibly_pointed_variant<
             har::bool_t,
             har::int_t,
@@ -627,7 +627,7 @@ namespace har {
     public:
         static value & invalid();
 
-        /// \brief The `I`th variant type of this class
+        /// \brief The <tt>I</tt>th variant type of this class
         /// \tparam I Index
         template<std::size_t I>
         using dtype = std::variant_alternative_t<I, value_base>;
@@ -635,21 +635,21 @@ namespace har {
         /// \brief Enumeration for supported datatypes
         enum class datatype : ushort_t {
             VOID = 0u, ///<Void or invalid type
-            BOOLEAN = 1u, ///<Boolean type (`har::bool_t`)
-            INTEGER = 2u, ///<Signed integer type (`har::int_t`)
-            UNSIGNED = 3u, ///<Unsigned integer type (`har::uint_t`)
-            DOUBLE = 4u, ///<Double precision floating point type (`har::double_t`)
-            STRING = 5u, ///<String type (`har::string_t`)
-            C_COORDINATES = 6u, ///<Continous coordinates (`har::ccoords_t`)
-            D_COORDINATES = 7u, ///<Discrete coordinates (`har::dcoords_t`)
-            DIRECTION = 8u, ///<Direction type (`har::direction_t`)
-            COLOR = 9u, ///<Color type (`har::color_t`)
-            SPECIAL = 10u, ///<Arbitrary type (`har::special_t`)
-            CALLBACK = 11u, ///<Callback function type (`har::callback_t`)
-            HASH = 12u ///<Type for hashes and handles (`har::part_h`)
+            BOOLEAN = 1u, ///<Boolean type (<tt>har::bool_t</tt>)
+            INTEGER = 2u, ///<Signed integer type (<tt>har::int_t</tt>)
+            UNSIGNED = 3u, ///<Unsigned integer type (<tt>har::uint_t</tt>)
+            DOUBLE = 4u, ///<Double precision floating point type (<tt>har::double_t</tt>)
+            STRING = 5u, ///<String type (<tt>har::string_t</tt>)
+            C_COORDINATES = 6u, ///<Continous coordinates (<tt>har::ccoords_t</tt>)
+            D_COORDINATES = 7u, ///<Discrete coordinates (<tt>har::dcoords_t</tt>)
+            DIRECTION = 8u, ///<Direction type (<tt>har::direction_t</tt>)
+            COLOR = 9u, ///<Color type (<tt>har::color_t</tt>)
+            SPECIAL = 10u, ///<Arbitrary type (<tt>har::special_t</tt>)
+            CALLBACK = 11u, ///<Callback function type (<tt>har::callback_t</tt>)
+            HASH = 12u ///<Type for hashes and handles (<tt>har::part_h</tt>)
         };
 
-        /// \brief Gets the unmangled name of a datatype used in `har::value`
+        /// \brief Gets the unmangled name of a datatype used in <tt>har::value</tt>
         /// \param type Enum value for a datatype
         /// \return Name of the datatype
         static string_t datatype_name(datatype type);
@@ -739,7 +739,7 @@ namespace har {
         static value get_standard(datatype type);
 
         /// Checks if the contained value is equal to a default constructed value of same type
-        /// \return `TRUE`, if the contained value is equal to a default constructed
+        /// \return <tt>TRUE</tt>, if the contained value is equal to a default constructed
         bool_t is_standard();
 
         /// \brief Default constructor
@@ -758,11 +758,11 @@ namespace har {
         explicit value(T && fref) : value_base(possibly_pointed<T>(std::forward<T>(fref))) { } //NOLINT
 
         /// \brief Constructs a value that holds no value
-        /// \param [in] ref Instance of `std::monostate`
+        /// \param [in] ref Instance of <tt>std::monostate</tt>
         explicit value(const std::monostate & ref) : value_base(ref) { }
 
         /// \brief Constructs a value that holds no value
-        /// \param [in] ref Instance of `std::monostate`
+        /// \param [in] ref Instance of <tt>std::monostate</tt>
         explicit value(std::monostate && fref) : value_base(fref) { }
 
         /// \brief Copy constructor
@@ -877,7 +877,7 @@ namespace har {
         };
     }
 
-    /// \brief Gets the object of type `T` held by a `val`, if this type is currently held by `val`
+    /// \brief Gets the object of type <tt>T</tt> held by a <tt>val</tt>, if this type is currently held by <tt>val</tt>
     /// \tparam T The type of the object to get
     /// \param [in] val The containing value
     /// \return Reference to the contained object
@@ -892,7 +892,7 @@ namespace har {
         }
     }
 
-    /// \brief Gets the object of type `T` held by a `val`, if this type is currently held by `val`
+    /// \brief Gets the object of type <tt>T</tt> held by a <tt>val</tt>, if this type is currently held by <tt>val</tt>
     /// \tparam T The type of the object to get
     /// \param [in] val The containing value
     /// \return Const reference to the contained object
@@ -907,7 +907,7 @@ namespace har {
         }
     }
 
-    /// \brief Gets the object of type `T` held by a `val`, if this type is currently held by `val`
+    /// \brief Gets the object of type <tt>T</tt> held by a <tt>val</tt>, if this type is currently held by <tt>val</tt>
     /// \tparam T The type of the object to get
     /// \param [in] val The containing value
     /// \return Reference to the contained object
@@ -922,7 +922,7 @@ namespace har {
         }
     }
 
-    /// \brief Gets the object of type `T` held by a `val`, if this type is currently held by `val`
+    /// \brief Gets the object of type <tt>T</tt> held by a <tt>val</tt>, if this type is currently held by <tt>val</tt>
     /// \tparam T The type of the object to get
     /// \param [in] val The containing value
     /// \return Const reference to the contained object

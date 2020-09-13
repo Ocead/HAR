@@ -18,7 +18,7 @@
 
 namespace har {
 
-    /// For your convenience, please use the `har::direction` struct instead of this enum
+    /// For your convenience, please use the <tt>har::direction</tt> struct instead of this enum
     /// when writing code that utilizes directions.
     /// \brief Encodes directions from one cell to another
     /// \sa har::direction
@@ -33,7 +33,7 @@ namespace har {
         LEFT = std::numeric_limits<int_t>::min() + 3,
         ///In no direction, corresponds to relative coordinates [0, 0]
         NONE = std::numeric_limits<int_t>::min() + 4,
-        ///In direction of the `n`th connected cell, where `n` is the numeric value of this enum
+        ///In direction of the <tt>n</tt>th connected cell, where <tt>n</tt> is the numeric value of this enum
         PIN = 0
     };
 
@@ -69,11 +69,11 @@ namespace har {
 
     /// This struct is used to encode the spatial relations between cells in raw values.<br/>
     /// Cells on the same grid can address their adjacent neighbors with cardinal directions
-    /// `UP`, `DOWN`, `RIGHT` and `LEFT`.
-    /// Cells that share a connection between each other can be addressed via `PIN` and indexes on it.
-    /// The implicit direction `NONE` was added to streamline the access of cell properties,
+    /// <tt>UP</tt>, <tt>DOWN</tt>, <tt>RIGHT</tt> and <tt>LEFT</tt>.
+    /// Cells that share a connection between each other can be addressed via <tt>PIN</tt> and indexes on it.
+    /// The implicit direction <tt>NONE</tt> was added to streamline the access of cell properties,
     /// regardless of whether a cell's neighbor's properties or it's own properties are targeted.<br/>
-    /// \brief Helper struct for writing code using the `direction_t` type
+    /// \brief Helper struct for writing code using the <tt>direction_t</tt> type
     struct direction final {
     public:
         static constexpr direction_t UP = direction_t::UP; ///<In upward direction, corresponds to relative coordinates [0, -1]
@@ -86,7 +86,7 @@ namespace har {
         static constexpr struct {
             ///In direction of a cell connected to this one
             /// \param [in] n Ordinal value of the cell to be addressed, must be >= 0
-            /// \return The direction of the cell, specified through `n`
+            /// \return The direction of the cell, specified through <tt>n</tt>
             constexpr direction_t operator[](const int_t n) const {
                 if (n < 0)
                     raise(std::logic_error("n must be greater than or equal zero"));
@@ -94,7 +94,7 @@ namespace har {
             }
 
             /// \brief Implicit cast
-            /// \return A direction equivalent to `PIN[0]`
+            /// \return A direction equivalent to <tt>PIN[0]</tt>
             constexpr operator direction_t() const { //NOLINT
                 return direction::PIN[0];
             }
@@ -158,7 +158,7 @@ namespace har {
 
     /// Inverts a cardinal direction, does nothing otherwise
     /// \param [in] d A direction
-    /// \return The inverse of `d`, if `d` is a cardinal direction
+    /// \return The inverse of <tt>d</tt>, if <tt>d</tt> is a cardinal direction
     static constexpr direction_t operator!(const direction_t & d) {
         switch (d) {
             case direction::UP:
@@ -176,8 +176,8 @@ namespace har {
 
     /// \brief Rotates a cardinal direction by 90° clockwise
     /// \param [in] d A cardinal direction
-    /// \return `d`, rotated 90° clockwise
-    /// \throws invalid_direction if `d` is not a cardinal direction
+    /// \return <tt>d</tt>, rotated 90° clockwise
+    /// \throws invalid_direction if <tt>d</tt> is not a cardinal direction
     static constexpr direction_t cw(direction_t d) {
         switch (d) {
             case direction::UP:
@@ -195,8 +195,8 @@ namespace har {
 
     /// \brief Rotates a cardinal direction by 90° counter-clockwise
     /// \param [in] d A cardinal direction
-    /// \return `d`, rotated 90° counter-clockwise
-    /// \throws invalid_direction if `d` is not a cardinal direction
+    /// \return <tt>d</tt>, rotated 90° counter-clockwise
+    /// \throws invalid_direction if <tt>d</tt> is not a cardinal direction
     static constexpr direction_t ccw(direction_t d) {
         switch (d) {
             case direction::UP:
@@ -453,7 +453,7 @@ namespace har {
 
         /// Concatenates this coordinate with another coordinate to a two-dimensional coordinate
         /// \param sec Other coordinate
-        /// \return Two-dimensional coordinate with `[*this, sec]`
+        /// \return Two-dimensional coordinate with <tt>[*this, sec]</tt>
         inline constexpr coords<T, nullptr> operator,(const coord & sec) const noexcept {
             return coords(v, sec.v);
         }
@@ -485,7 +485,7 @@ namespace har {
     };
 
     /// \brief Represents two-dimensional coordinates of variable underlying type
-    /// \tparam T to be used as mathematical field for each component of the coordinate. Must fulfill `std::is_arithmetic`
+    /// \tparam T to be used as mathematical field for each component of the coordinate. Must fulfill <tt>std::is_arithmetic</tt>
     template<typename T, typename std::enable_if<std::is_arithmetic<T>::value>::type * = nullptr>
     struct coords {
         using dim = T;
@@ -509,7 +509,7 @@ namespace har {
 
         /// Constructs a new coordinate from a cardinal direction
         /// \param d A cardinal direction
-        /// \throws invalid_direction if `d` is not cardinal
+        /// \throws invalid_direction if <tt>d</tt> is not cardinal
         constexpr explicit coords(direction_t d) {
             switch (d) {
                 case direction_t::UP:
@@ -743,23 +743,23 @@ namespace har {
         }
 
         inline friend ostream & operator<<(ostream & os, const coords & c) {
-            os << "[" << c.x << ", " << c.y << "]";
+            os << text("[") << c.x << text(", ") << c.y << text("]");
             return os;
         }
 
         friend istream & operator>>(istream & is, coords & c) {
             char_t b[2];
             is.readsome(b, 1);
-            if (b[0] != '[')
+            if (b[0] != text('['))
                 raise(std::invalid_argument(std::string(1, b[0])));
             is >> c.x;
             is.readsome(b, 1);
-            if (b[0] != ',')
+            if (b[0] != text(','))
                 raise(std::invalid_argument(std::string(1, b[0])));
             is >> std::ws;
             is >> c.y;
             is.readsome(b, 1);
-            if (b[0] != ']')
+            if (b[0] != text(']'))
                 raise(std::invalid_argument(std::string(1, b[0])));
             return is;
         }
@@ -773,10 +773,10 @@ namespace har {
             return bool(x) || bool(y);
         }
 
-        /// Sets this coordinate to the next integral position in a rectangle from including `tl` to not including `br`.
+        /// Sets this coordinate to the next integral position in a rectangle from including <tt>tl</tt> to not including <tt>br</tt>.
         /// The coordinate moves line by line from left to right, then from top to bottom.<br/>
-        /// When finished, the coordinate is set to `br`.<br/>
-        /// If the coordinate isn't in the rectangle to begin with, it is set to `tl`.
+        /// When finished, the coordinate is set to <tt>br</tt>.<br/>
+        /// If the coordinate isn't in the rectangle to begin with, it is set to <tt>tl</tt>.
         /// \brief Iterates a coordinate over a rectangle
         /// \param [in] tl Top-left corner of the rectangle (included)
         /// \param [in] br Bottom-right corner of the rectangle (not included)
@@ -798,9 +798,9 @@ namespace har {
             return (*this = tl);
         }
 
-        /// \brief Checks whether the coordinate is in a rectangle from [0, 0] to `br`
+        /// \brief Checks whether the coordinate is in a rectangle from [0, 0] to <tt>br</tt>
         /// \param [in] br Bottom-right corner of the rectangle (not included)
-        /// \return `true`, if the coordinate is in the rectangle, `false` otherwise
+        /// \return <tt>true</tt>, if the coordinate is in the rectangle, <tt>false</tt> otherwise
         [[nodiscard]]
         constexpr bool_t in(const coords & br) const {
             return (x >= 0 && x < br.x &&
@@ -808,10 +808,10 @@ namespace har {
                                             y <= 0 && y > br.y);
         }
 
-        /// \brief Checks whether the coordinate is in a rectangle from `tl` to `br`
+        /// \brief Checks whether the coordinate is in a rectangle from <tt>tl</tt> to <tt>br</tt>
         /// \param [in] tl Top-left corner of the rectangle (included)
         /// \param [in] br Bottom-right corner of the rectangle (not included)
-        /// \return `true`, if the coordinate is in the rectangle, `false` otherwise
+        /// \return <tt>true</tt>, if the coordinate is in the rectangle, <tt>false</tt> otherwise
         [[nodiscard]]
         constexpr bool_t in(const coords & tl, const coords & br) const {
             return (x >= tl.x && x < br.x &&
@@ -914,13 +914,13 @@ namespace har {
         inline friend ostream & operator<<(ostream & os, const gcoords & gc) {
             switch (gc.cat) {
                 case grid_t::MODEL_GRID:
-                    os << "M";
+                    os << text("M");
                     break;
                 case grid_t::BANK_GRID:
-                    os << "B";
+                    os << text("B");
                     break;
                 case grid_t::INVALID_GRID:
-                    os << "I";
+                    os << text("I");
                     break;
             }
             return os << gc.pos;
@@ -929,15 +929,15 @@ namespace har {
         inline friend istream & operator>>(istream & is, gcoords & gc) {
             char_t g = is.get();
             switch (g) {
-                case 'M': {
+                case text('M'): {
                     gc.cat = grid_t::MODEL_GRID;
                     break;
                 }
-                case 'B': {
+                case text('B'): {
                     gc.cat = grid_t::BANK_GRID;
                     break;
                 }
-                case 'I': {
+                case text('I'): {
                     gc.cat = grid_t::INVALID_GRID;
                     break;
                 }
@@ -952,16 +952,20 @@ namespace har {
 
     typedef gcoords gcoords_t;
 
+    /// \brief A handle that addresses a cell of any kind
     ///
+    /// Either by global coordinates for grid cells, or by unique ID for cargo cells
     class cell_h : public std::variant<std::monostate, gcoords_t, cargo_h> {
     public:
-        using std::variant<std::monostate, gcoords_t, cargo_h>::variant;
-        using std::variant<std::monostate, gcoords_t, cargo_h>::operator=;
+        using Base = std::variant<std::monostate, gcoords_t, cargo_h>;
+
+        using Base::variant;
+        using Base::operator=;
     };
 }
 
 namespace std {
-    /// Specialization of `std::hash` for coordinates of given type
+    /// Specialization of <tt>std::hash</tt> for coordinates of given type
     /// \tparam T Template type of the coordinate
     template<typename T>
     struct hash<har::coords<T>> {

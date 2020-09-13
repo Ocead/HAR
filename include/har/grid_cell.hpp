@@ -19,7 +19,7 @@ namespace har {
 
     class connection_iterable;
 
-    /// This class provides an interface to `har::part` and `har::participant` objects
+    /// This class provides an interface to <tt>har::part</tt> and <tt>har::participant</tt> objects
     /// to read and modify cells of a simulated model
     /// \brief Context over a grid's cell in a simulation
     class grid_cell : public cell {
@@ -50,8 +50,8 @@ namespace har {
         connection_iterable connected();
 
         /// This method creates a new cargo of specified type and position over the cell.
-        /// The retured `har::cargo_cell` object is for the current cycle the only reference to the cargo,
-        /// it won't appear in `har::cell::cargo` immediately.
+        /// The retured <tt>har::cargo_cell</tt> object is for the current cycle the only reference to the cargo,
+        /// it won't appear in <tt>har::cell::cargo</tt> immediately.
         /// \brief Spawns new cargo over the cell
         /// \param [in] pt Part type of the new cargo
         /// \param [in] pos Relative position of the cargo on the cell ((0, 0) <= (x, y) < (1, 1))
@@ -236,21 +236,21 @@ namespace har {
     private:
         context & _ctx; ///<Inner context that connects to the logic of the automaton
         grid_cell_base & _gclb; ///<Grid cell, which's cargo are viewed
-        cargo_cat _cat; ///<Whether the `har::cargo_cell`s centered over the grid cell are targeted or not
-        size_t _pos; ///<The ordinal of the `har::cargo_cell` over the `har::grid_cell`, this iterator currently points to
-        std::optional<overlay> _cell; ///<Storage for the `har::cell` over the `cargo_cell_base` pointed to
+        cargo_cat _cat; ///<Whether the <tt>har::cargo_cell</tt>s centered over the grid cell are targeted or not
+        size_t _pos; ///<The ordinal of the <tt>har::cargo_cell</tt> over the <tt>har::grid_cell</tt>, this iterator currently points to
+        std::optional<overlay> _cell; ///<Storage for the <tt>har::cell</tt> over the <tt>cargo_cell_base</tt> pointed to
 
     protected:
         /// \brief Creates a cell object representing the cargo
-        /// \return The `har::cargo_cell` over the `har::cargo_cell_base` pointed to
+        /// \return The <tt>har::cargo_cell</tt> over the <tt>har::cargo_cell_base</tt> pointed to
         overlay & build_cell();
 
     public:
         /// \brief Constructor
         /// \param [in,out] ctx Inner context that connects to the logic of the automaton
         /// \param [in] cell Grid cell, which's cargo are viewed
-        /// \param [in] cat Whether the `har::cargo_cell`s centered over the grid cell are targeted or not
-        /// \param [in] pos The ordinal of the `har::cargo_cell` over the `har::grid_cell`, this iterator currently points to
+        /// \param [in] cat Whether the <tt>har::cargo_cell</tt>s centered over the grid cell are targeted or not
+        /// \param [in] pos The ordinal of the <tt>har::cargo_cell</tt> over the <tt>har::grid_cell</tt>, this iterator currently points to
         cargo_base_iterator(context & ctx, grid_cell_base & cell, cargo_cat cat, size_t pos = size_t());
 
         /// \brief Lets the iterator point to the next element
@@ -259,12 +259,12 @@ namespace har {
 
         /// \brief Compares for equality with another iterator
         /// \param [in] rhs Other iterator
-        /// \return `TRUE`, if both iterators point to the same `har::cargo_cell` from the same `har::grid_cell`
+        /// \return <tt>TRUE</tt>, if both iterators point to the same <tt>har::cargo_cell</tt> from the same <tt>har::grid_cell</tt>
         bool_t operator==(const cargo_base_iterator & rhs) const;
 
         /// \brief Compares for inequality with another iterator
         /// \param [in] rhs Other iterator
-        /// \return `TRUE`, if both iterators don't point to the same `har::cargo_cell` from the same `har::grid_cell`
+        /// \return <tt>TRUE</tt>, if both iterators don't point to the same <tt>har::cargo_cell</tt> from the same <tt>har::grid_cell</tt>
         bool_t operator!=(const cargo_base_iterator & rhs) const;
 
         /// \brief Default destructor
@@ -276,12 +276,12 @@ namespace har {
     public:
         using cargo_base_iterator::cargo_base_iterator;
 
-        /// \Returns the `har::cargo_cell` currently pointed to per reference
-        /// \return Reference to the `har::cargo_cell`currently pointed to
+        /// \Returns the <tt>har::cargo_cell</tt> currently pointed to per reference
+        /// \return Reference to the <tt>har::cargo_cell</tt>currently pointed to
         overlay & operator*();
 
-        /// \Returns the current pointer to a `har::cargo_cell`
-        /// \return Current pointer to a `har::cargo_cell`
+        /// \Returns the current pointer to a <tt>har::cargo_cell</tt>
+        /// \return Current pointer to a <tt>har::cargo_cell</tt>
         overlay * operator->();
 
         /// \brief Default destructor
@@ -293,12 +293,12 @@ namespace har {
     public:
         using cargo_base_iterator::cargo_base_iterator;
 
-        /// \Returns the `har::cargo_cell` currently pointed to per const reference
-        /// \return Const reference to the `har::cargo_cell`currently pointed to
+        /// \Returns the <tt>har::cargo_cell</tt> currently pointed to per const reference
+        /// \return Const reference to the <tt>har::cargo_cell</tt>currently pointed to
         const overlay & operator*();
 
-        /// \Returns the current const pointer to a `har::cargo_cell`
-        /// \return Current const pointer to a `har::cargo_cell`
+        /// \Returns the current const pointer to a <tt>har::cargo_cell</tt>
+        /// \return Current const pointer to a <tt>har::cargo_cell</tt>
         const overlay * operator->();
 
         /// \brief Default destructor
@@ -329,7 +329,7 @@ namespace har {
         cargo_iterable(context & ctx, grid_cell_base & cell, cargo_cat cat);
 
         /// \brief Checks, wheter the is cargo in the category provided at construction
-        /// \return `TRUE`, if there is no cargo in the provided category
+        /// \return <tt>TRUE</tt>, if there is no cargo in the provided category
         [[nodiscard]]
         bool_t empty() const;
 

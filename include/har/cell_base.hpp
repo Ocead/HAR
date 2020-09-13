@@ -73,7 +73,7 @@ namespace har {
 
         /// \brief Gets the value of a property
         /// \param [in] id ID of the property
-        /// \param [in] now `TRUE`, if intermediate properties, if existent, should be heeded
+        /// \param [in] now <tt>TRUE</tt>, if intermediate properties, if existent, should be heeded
         /// \return The requested value
         const value & get(of id, bool_t now = false) const;
 
@@ -98,17 +98,17 @@ namespace har {
 
         /// \brief Adopts all properties of another cell
         /// \param [in] cell Another cell
-        /// \return `TRUE`, if any properties were adopted
+        /// \return <tt>TRUE</tt>, if any properties were adopted
         bool_t adopt(const cell_base & cell);
 
         /// \brief Adopts all properties of another cell
         /// \param [in] cell Another cell
-        /// \return `TRUE`, if any properties were adopted
+        /// \return <tt>TRUE/, if any properties were adopted
         bool_t adopt(cell_base && cell);
 
         /// \brief Compares two cell for equality
         /// \param [in] rhs Another cell
-        /// \return `TRUE`, if both cells are equal
+        /// \return <tt>TRUE</tt>, if both cells are equal
         bool_t operator==(const cell_base & rhs) const;
 
         /// \brief Copy assignment
