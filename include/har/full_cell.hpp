@@ -80,6 +80,9 @@ namespace har {
         /// \param use
         void remove_connection(direction_t use);
 
+        /// \brief Removes all connections of the cell
+        void remove_all_connections();
+
         ///
         /// \param fgcl
         void swap_with(full_grid_cell & fgcl);

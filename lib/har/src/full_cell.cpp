@@ -79,6 +79,13 @@ void full_grid_cell::remove_connection(direction_t use) {
     _ctx.disconnect({ as_grid_cell_base(), use, gcoords_t() });
 }
 
+void full_grid_cell::remove_all_connections() {
+    auto & gclb = as_grid_cell_base();
+    for (auto &[use, cclb] : gclb.connected()) {
+        _ctx.disconnect({ gclb, use, gcoords_t() });
+    }
+}
+
 void full_grid_cell::swap_with(full_grid_cell & fgcl) {
     as_grid_cell_base().swap_with(fgcl.as_grid_cell_base());
     _ctx.change(position());
