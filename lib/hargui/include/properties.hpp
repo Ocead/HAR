@@ -30,7 +30,7 @@ namespace har::gui_ {
     public:
         explicit properties(std::function<void(of, value &&)> propcb);
 
-        void set_cell(full_grid_cell & gcl, prop_cb_t && callback, bool lock = false);
+        void set_cell(full_grid_cell & gcl, prop_cb_t && prop_cb, const conn_cb_t && conn_cb, bool lock = false);
 
         void set_cell(full_cargo_cell & ccl, prop_cb_t && callback, bool lock = false);
 

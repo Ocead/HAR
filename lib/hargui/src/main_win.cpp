@@ -393,6 +393,8 @@ void main_win::prop_changed(of id, value && val) {
 void main_win::cell_placed(const gcoords_t & pos, const har::part & pt, participant::context & ctx) {
     auto fgcl = ctx.at(pos);
     cell_selected(pos, ctx);
+    fgcl.remove_all_connections();
+    ctx.commit();
     fgcl.set_part(pt);
     ctx.commit();
     cell_selected(pos, ctx);
@@ -411,6 +413,8 @@ void main_win::cell_selected(const gcoords_t & pos, participant::context & ctx) 
         auto fgcl = ctx.at(pos);
         _properties.set_cell(fgcl, [&](of id, value && val) {
             prop_changed(id, std::forward<value>(val));
+        }, [pos, this](direction_t use) {
+            cell_disconnected(pos, use);
         }, _model_info.editable);
         draw(_selected, ctx);
         if (old_selected.index() == 1 && std::get<1>(old_selected).cat != grid_t::INVALID_GRID) {
@@ -443,6 +447,14 @@ void main_win::cell_connected(const gcoords_t & from, const gcoords_t & to, part
         if (from == std::get<uint_t(cell_cat::GRID_CELL)>(_selected)) {
             cell_selected(from, ctx);
         }
+    }
+}
+
+void main_win::cell_disconnected(const gcoords_t & pos, direction_t use) {
+    auto ctx = _parti.get().request();
+    auto fgcl = ctx.at(pos);
+    if (fgcl.has_connection(use)) {
+        fgcl.remove_connection(use);
     }
 }
 
@@ -535,6 +547,19 @@ bool main_win::on_key_release_event(GdkEventKey * key_event) {
             cell_selected({ grid_t::INVALID_GRID, dcoords_t(-1, -1) }, ctx);
             return true;
         }
+        case GDK_KEY_Delete: {
+            if (_selected.index() == cell_cat::GRID_CELL) {
+                gcoords_t pos = std::get<cell_cat::GRID_CELL>(_selected);
+                if (pos.cat != grid_t::INVALID_GRID) {
+                    const har::part & pt =
+                            pos.cat == grid_t::MODEL_GRID ? _empty_model_part.value() : _empty_bank_part.value();
+                    auto ctx = _parti.get().request();
+                    cell_placed(pos, pt, ctx);
+                }
+            }
+        }
+        default:
+            break;
     }
     if (key_event->state & GDK_CONTROL_MASK) {
         switch (key_event->keyval) {
@@ -678,9 +703,15 @@ void main_win::include_part(const har::part & pt) {
     auto traits = pt.traits();
     if (traits & traits::COMPONENT_PART) {
         _model.include_part(pt);
+        if (pt.traits() & traits::EMPTY_PART) {
+            _empty_model_part = std::ref(pt);
+        }
     }
     if (traits & traits::BOARD_PART) {
         _bank.include_part(pt);
+        if (pt.traits() & traits::EMPTY_PART) {
+            _empty_bank_part = std::ref(pt);
+        }
     }
 }
 
@@ -813,11 +844,15 @@ void main_win::redraw(const har::cell_h & hnd, har::image_t && img) {
 }
 
 void main_win::connection_added(const gcoords_t & from, const gcoords_t & to, direction_t use) {
-    //TODO: Implement
+    if (_selected == cell_h(from)) {
+        _properties.get_connlist().get_row(use).set_adjacent(to);
+    }
 }
 
 void main_win::connection_removed(const gcoords_t & from, direction_t use) {
-    //TODO: Implement
+    if (_selected == cell_h(from)) {
+        _properties.get_connlist().get_row(use).set_adjacent(gcoords_t());
+    }
 }
 
 void main_win::cargo_spawned(cargo_h num) {

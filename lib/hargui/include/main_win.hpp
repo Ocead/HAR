@@ -40,6 +40,10 @@ namespace har::gui_ {
         properties _properties;
         connection_popover _conn_popover;
 
+        std::optional<std::reference_wrapper<const har::part>> _empty_model_part;
+        std::optional<std::reference_wrapper<const har::part>> _empty_bank_part;
+
+
         cell_h _selected;
         cell_h _pressed;
         Glib::RefPtr<Gdk::Pixbuf> _selected_img;
@@ -78,6 +82,8 @@ namespace har::gui_ {
         void cell_moved(const gcoords_t & from, const gcoords_t & to, participant::context & ctx);
 
         void cell_connected(const gcoords_t & from, const gcoords_t & to, participant::context & ctx);
+
+        void cell_disconnected(const gcoords_t & pos, direction_t use);
 
         void cell_cycle(const gcoords_t & pos, participant::context & ctx);
 

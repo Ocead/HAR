@@ -39,15 +39,15 @@ properties::properties(std::function<void(of, value && )> propcb) : Gtk::Box(Gtk
     show_all_children();
 }
 
-void properties::set_cell(full_grid_cell & fgcl, prop_cb_t && callback, bool lock) {
+void properties::set_cell(full_grid_cell & fgcl, prop_cb_t && prop_cb, const conn_cb_t && conn_cb, bool lock) {
     gcoords_t gc = fgcl.position();
     gc.pos += 1;
     stringstream ss{ };
     ss << gc << " " << string_t(fgcl[of::NAME]);
     _name.set_text(make_ustring(ss.str()));
 
-    _proplist.set_cell(fgcl, callback, lock);
-    _connlist.set_cell(fgcl);
+    _proplist.set_cell(fgcl, prop_cb, lock);
+    _connlist.set_cell(fgcl, conn_cb);
     _cargolist.set_cell(fgcl);
 
     if (_notebook.get_n_pages() == 1) {
