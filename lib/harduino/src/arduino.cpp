@@ -40,6 +40,7 @@ inline har::duino & rt() {
 int WEAK main(int argc, char * argv[], char * envp[]) {
     har::simulation sim{ argc, argv, envp };
     har::gui gui{ };
+    auto & runtime = rt();
 
     /*Include parts*/ {
         sim.include_part(har::duino::parts::empty());
@@ -78,7 +79,7 @@ int WEAK main(int argc, char * argv[], char * envp[]) {
     }
 
     /*Add participants*/ {
-        sim.attach(rt()); //setup will be called here
+        sim.attach(runtime);
         sim.attach(gui);
     }
 
@@ -94,6 +95,7 @@ int WEAK main(int argc, char * argv[], char * envp[]) {
     //Call loop as long as the simulation is running
     debug_log("Start calling loop()");
     while (!exit.load(std::memory_order_acquire)) {
+        runtime.maybe_setup();
         loop();
     }
     debug_log("Done calling loop()");

@@ -12,7 +12,10 @@ extern unsigned int uno_ham_len;
 
 using namespace har;
 
-duino::duino() = default;
+duino::duino() : _start(clock::now()),
+                 _setup(1u) {
+
+}
 
 full_grid_cell duino::map_cell_digital(context & ctx, uint8_t pin) {
     if (pin <= 7u) {
@@ -64,8 +67,7 @@ void duino::on_attach(int argc, char * const * argv, char * const * envp) {
 void duino::on_model_loaded() {
     program::on_model_loaded();
     _start = clock::now();
-    debug_log("Calling setup()");
-    setup();
+    _setup.fetch_add(1, std::memory_order_acq_rel);
 }
 
 duino::context duino::request_or_terminate() {
@@ -78,6 +80,14 @@ duino::context duino::request_or_terminate() {
 
 const decltype(duino::_start) & duino::start() const {
     return _start;
+}
+
+void duino::maybe_setup() {
+    if (_setup.load(std::memory_order_acquire)) {
+        debug_log("Calling setup()");
+        setup();
+        _setup.fetch_sub(1, std::memory_order_acq_rel);
+    }
 }
 
 int duino::digitalRead(uint8_t pin) {

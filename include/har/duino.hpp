@@ -5,6 +5,8 @@
 #ifndef HAR_DUINO_HPP
 #define HAR_DUINO_HPP
 
+#include <atomic>
+
 #include <har/program.hpp>
 
 extern "C" {
@@ -21,6 +23,7 @@ namespace har {
     class duino : public har::program {
     private:
         std::chrono::time_point<har::clock> _start; ///<Timepoint of start of the runtime
+        std::atomic<uint_t> _setup;
 
         /// \brief Maps an Arduino pin number to the appropriate "digital pin" cell in the corresponding model
         /// \param [in] ctx Participant context
@@ -115,6 +118,8 @@ namespace har {
         /// \return The time point the runtime was started
         [[nodiscard]]
         const decltype(_start) & start() const;
+
+        void maybe_setup();
 
         /// \brief Reads the value from a specified digital pin, either <tt>HIGH</tt> or <tt>LOW</tt>.
         /// \param [in] pin the Arduino pin number you want to read
