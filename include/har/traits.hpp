@@ -35,7 +35,7 @@ namespace har {
     /// \param [in] lhs First traits
     /// \param [in] rhs Second traits
     /// \return ANDed traits
-    constexpr traits operator&(traits lhs, traits rhs) {
+    inline constexpr traits operator&(traits lhs, traits rhs) {
         return traits(ushort_t(lhs) & ushort_t(rhs));
     }
 
@@ -43,14 +43,14 @@ namespace har {
     /// \param [in] lhs First traits
     /// \param [in] rhs Second traits
     /// \return ORed traits
-    constexpr traits operator|(traits lhs, traits rhs) {
+    inline constexpr traits operator|(traits lhs, traits rhs) {
         return traits(ushort_t(lhs) | ushort_t(rhs));
     }
 
     /// \brief Bitwise NOTs traits
     /// \param [in] val traits
     /// \return Inverted traits
-    constexpr traits operator~(traits val) {
+    inline constexpr traits operator~(traits val) {
         return traits(~ushort_t(val));
     }
 

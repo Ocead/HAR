@@ -943,7 +943,7 @@ namespace har {
     /// \param [in] rhs The constant to add
     /// \return Sum of both
     template<typename T>
-    har::of operator+(har::of lhs, T rhs) {
+    inline constexpr har::of operator+(har::of lhs, T rhs) {
         return har::of(har::uint_t(lhs) + har::uint_t(rhs));
     }
 

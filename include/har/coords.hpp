@@ -887,6 +887,10 @@ namespace har {
         template<typename... Args>
         explicit gcoords(grid_t cat, Args && ... args) : cat(cat), pos(std::forward<Args>(args)...) { }
 
+        gcoords operator+(direction_t dir) const {
+            return gcoords(cat, pos + dir);
+        }
+
         inline bool_t operator<(const gcoords & rhs) const {
             return (cat == rhs.cat) ? pos < rhs.pos : cat < rhs.cat;
         }
@@ -961,6 +965,49 @@ namespace har {
 
         using Base::variant;
         using Base::operator=;
+
+        [[nodiscard]]
+        constexpr grid_t type() const {
+            return grid_t(index());
+        }
+
+        [[nodiscard]]
+        constexpr bool_t is_valid() const {
+            switch (index()) {
+                case cell_cat::GRID_CELL: {
+                    auto & gc = std::get<cell_cat::GRID_CELL>(*this);
+                    return gc.cat != grid_t::INVALID_GRID && gc.pos.x >= 0 && gc.pos.y >= 0;
+                }
+                case cell_cat::CARGO_CELL: {
+                    auto ci = std::get<cell_cat::CARGO_CELL>(*this);
+                    return ci != CARGO[0];
+                }
+                case cell_cat::INVALID_CELL:
+                default: {
+                    return false;
+                }
+            }
+        }
+
+        [[nodiscard]]
+        constexpr gcoords_t & coords() {
+            return std::get<gcoords_t>(*this);
+        }
+
+        [[nodiscard]]
+        constexpr const gcoords_t & coords() const {
+            return std::get<gcoords_t>(*this);
+        }
+
+        [[nodiscard]]
+        constexpr cargo_h & id() {
+            return std::get<cargo_h>(*this);
+        }
+
+        [[nodiscard]]
+        constexpr const cargo_h & id() const {
+            return std::get<cargo_h>(*this);
+        }
     };
 }
 
