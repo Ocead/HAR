@@ -18,22 +18,22 @@ namespace har {
     template<typename T>
     class co_queue {
     private:
-        std::atomic<unsigned> _quewait; ///<
-        std::mutex _queex; ///<
+        mutable std::atomic<unsigned> _quewait; ///<
+        mutable std::mutex _queex; ///<
         std::deque<T> _queue; ///<
 
         static_assert(decltype(_quewait)::is_always_lock_free, "Atomic counter is not lock-free!");
 
         ///
-        void lock() {
-            if (_quewait++) {
+        void lock() const {
+            if (_quewait.fetch_add(1u, std::memory_order_acq_rel)) {
                 _queex.lock();
             }
         }
 
         ///
-        void unlock() {
-            if (--_quewait) {
+        void unlock() const {
+            if (_quewait.fetch_sub(1u, std::memory_order_acq_rel) == 1u) {
                 _queex.unlock();
             }
         }
@@ -41,7 +41,7 @@ namespace har {
     public:
 
         /// \brief Constructor
-        co_queue() : _quewait(0),
+        co_queue() : _quewait(0u),
                      _queex(),
                      _queue() {
 
@@ -49,7 +49,8 @@ namespace har {
 
         ///
         /// \return
-        bool empty() {
+        [[nodiscard]]
+        bool empty() const {
             lock();
             bool empty = _queue.empty();
             unlock();
@@ -72,9 +73,24 @@ namespace har {
             unlock();
         }
 
+        /// Pushes all elements in a range onto the queue
+        /// \tparam Tp Iterator type
+        /// \param begin Begin iterator
+        /// \param end End iterator
+        template<typename Tp>
+        void push(Tp & begin, Tp & end) {
+            lock();
+            for (; begin != end; begin++) {
+                _queue.push_front(*begin);
+            }
+            unlock();
+        }
+
+        ///
+        /// \return
         T pop() {
             lock();
-            T t = _queue.back();
+            T t{ std::move(_queue.back()) };
             _queue.pop_back();
             unlock();
             return t;
@@ -91,6 +107,8 @@ namespace har {
             return std::make_tuple(t, empty);
         }
 
+        ///
+        /// \param consumer
         void process_one(std::function<void(T &)> && consumer) {
             lock();
             if (!_queue.empty()) {
@@ -103,6 +121,8 @@ namespace har {
             unlock();
         }
 
+        /// 
+        /// \param consumer
         void process_all(std::function<void(T &)> && consumer) {
             lock();
             while (!_queue.empty()) {
