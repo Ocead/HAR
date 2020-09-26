@@ -9,7 +9,7 @@
 #include <har.hpp>
 #include <har/gui.hpp>
 
-#include "har/duino.hpp"
+#include <har/duino.hpp>
 
 #if defined(__GNUC__)
 #define WEAK __attribute__((weak))
