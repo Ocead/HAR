@@ -3,6 +3,8 @@ project("HAR"
         LANGUAGES C CXX
         VERSION 2.0)
 
+set(CMAKE_CXX_STANDARD 17)
+
 set(PROJECT_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)
 
 if (UNIX)
@@ -31,6 +33,8 @@ add_subdirectory(lib/gti)
 
 include_directories(include)
 
+#region Blink
+
 find_library(harduino
         NAMES harduino harduino
         HINTS "${CMAKE_BINARY_DIR}/harduino")
@@ -40,15 +44,46 @@ link_directories(${CMAKE_BINARY_DIR}/harduino)
 
 #To allow Arduino sketches without explicit includes of <Arduino.h>
 if (MSVC)
-    add_definitions(/FI"include/Arduino.h")
+    set_source_files_properties(src/example/blink.c PROPERTIES COMPILE_FLAGS /FI"include/Arduino.h")
 else ()
-    add_definitions(-include Arduino.h)
+    set_source_files_properties(src/example/blink.c PROPERTIES COMPILE_FLAGS "-include Arduino.h")
 endif ()
 
 add_executable(example_blink include/Arduino.h src/example/blink.c)
 
 target_link_libraries(example_blink
         ${DUINO_LIBRARY_NAME})
+
+#endregion
+
+#region Game of Life
+
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_PROTO_FLAGS_DEBUG} -D_GLIBCXX_DEBUG -O0")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_PROTO_FLAGS_RELEASE} -O3 -fno-exceptions")
+
+find_package(PkgConfig)
+pkg_check_modules(GTKMM REQUIRED gtkmm-3.0)
+pkg_check_modules(GLIBMM REQUIRED glibmm-2.4)
+
+include_directories(
+        ${PROJECT_INCLUDE_DIR}
+        include
+        ../hargui/include
+        ${GTKMM_INCLUDE_DIRS}
+        ${GLIBMM_INCLUDE_DIRS})
+
+link_directories(
+        ${GTKMM_LIBRARY_DIRS}
+        ${GLIBMM_LIBRARY_DIRS})
+
+add_executable(example_game_of_life src/example/game_of_life.cpp)
+
+target_link_libraries(example_game_of_life
+        ${DUINO_LIBRARY_NAME}
+        ${GTKMM_LIBRARIES}
+        ${GLIBMM_LIBRARIES})
+
+#endregion
 
 #endregion
 
