@@ -25,7 +25,7 @@ part duino::parts::seven_segment(part_h offset) {
             Cairo::RefPtr<Cairo::Surface> sf = Cairo::ImageSurface::create(Cairo::FORMAT_ARGB32, 256, 256);
             auto cr = Cairo::Context::create(sf);
 
-            auto gcl = cl.as_grid_cell();
+            auto & gcl = cl.as_grid_cell();
             auto color = color_t(gcl[of::COLOR]);
 
             cr->translate(-16., 0.);

@@ -109,7 +109,12 @@ string_t full_grid_cell::to_string() const {
 }
 
 full_grid_cell full_grid_cell::operator[](direction_t dir) {
-    return full_grid_cell(_ctx, *as_grid_cell_base().get_cell(dir), direction::NONE);
+    auto * ptr = as_grid_cell_base().get_cell(dir);
+    if (ptr) {
+        return full_grid_cell(_ctx, *ptr, direction::NONE);
+    } else {
+        return full_grid_cell(_ctx, grid_cell_base::invalid(), direction::NONE);
+    }
 }
 
 full_grid_cell::~full_grid_cell() = default;

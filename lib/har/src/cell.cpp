@@ -24,16 +24,8 @@ cargo_cell & cell::as_cargo_cell() {
     return dynamic_cast<cargo_cell &>(*this);
 }
 
-const cargo_cell & cell::as_cargo_cell() const {
-    return dynamic_cast<const cargo_cell &>(*this);
-}
-
 grid_cell & cell::as_grid_cell() {
     return dynamic_cast<grid_cell &>(*this);
-}
-
-const grid_cell & cell::as_grid_cell() const {
-    return dynamic_cast<const grid_cell &>(*this);
 }
 
 const part & cell::logic() {
@@ -74,7 +66,7 @@ void cell::adopt(cell_base && fref) {
 }
 
 void cell::message(const string_t & header, const string_t & content) {
-    switch(_cat) {
+    switch (_cat) {
         case GRID_CELL: {
             stringstream ss;
             ss << static_cast<grid_cell_base &>(_cell).position() << ": " << header;
@@ -93,8 +85,42 @@ void cell::message(const string_t & header, const string_t & content) {
     }
 }
 
+void cell::redraw() {
+    if (is_placed()) {
+        switch (_cat) {
+            case GRID_CELL: {
+                _ctx.draw(static_cast<grid_cell_base &>(_cell).position());
+                break;
+            }
+            case CARGO_CELL: {
+                _ctx.draw(static_cast<cargo_cell_base &>(_cell).id());
+                break;
+            }
+            case INVALID_CELL:
+            default: {
+                break;
+            }
+        }
+    }
+}
+
 property cell::get(of id, bool_t now) {
     return property(_ctx, _cell, _cat, id, datatype(_cell.get(id).index()), now);
+}
+
+bool_t cell::is_placed() const {
+    switch (_cat) {
+        case GRID_CELL: {
+            return static_cast<grid_cell_base &>(_cell).is_placed();
+        }
+        case CARGO_CELL: {
+            return static_cast<cargo_cell_base &>(_cell).id() != CARGO[0];
+        }
+        case INVALID_CELL:
+        default: {
+            return false;
+        }
+    }
 }
 
 property cell::operator[](of id) {

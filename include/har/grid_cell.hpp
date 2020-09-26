@@ -47,6 +47,7 @@ namespace har {
         /// \brief Creates an iterable object over all connected cells
         /// for use in STL algorithms and for-each loops
         /// \return An iterable over all connected cells
+        [[nodiscard]]
         connection_iterable connected();
 
         /// This method creates a new cargo of specified type and position over the cell.
@@ -61,33 +62,32 @@ namespace har {
         /// \brief Creates an iterable object over all cargo over the cell
         /// for use in STL algorithms and for-each loops
         /// \return An iterable over all cargo over the cell
+        [[nodiscard]]
         cargo_iterable cargo();
 
         /// \brief Accesses a specific cargo over the cell
         /// \param [in] num Index of the cargo
         /// \return A cell over the requested cargo
+        [[nodiscard]]
         cargo_cell cargo(cargo_h num);
 
         /// \brief Creates an iterable object over all cargo overlapping the cell
         /// for use in STL algorithms and for-each loops
         /// \return An iterable over all cargo overlapping the cell
+        [[nodiscard]]
         const cargo_iterable artifacts();
 
         /// \brief Accesses a specific cargo overlapping the cell
         /// \param [in] num Index of the cargo
         /// \return A cell over the requested cargo
-        const cargo_cell artifacts(artifact_h num);
-
-        /// \brief Checks if the cell is placed on a grid
-        /// \return <tt>true</tt>, if the cell is placed on a grid
         [[nodiscard]]
-        bool_t is_placed() const;
+        const cargo_cell artifacts(artifact_h num);
 
         /// \brief Access a neighboring or a connected cell
         /// \param [in] dir Direction of the cell
         /// \return A cell over the requested cell
         [[nodiscard]]
-        const grid_cell operator[](direction_t dir);
+        const cell operator[](direction_t dir);
 
         using cell::operator[];
 

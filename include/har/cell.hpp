@@ -48,25 +48,17 @@ namespace har {
         /// This constructor is only called by the automaton when a part or participant wants to operate on a base.
         cell(context & ctx, grid_cell_base & base);
 
+        cell(const cell & ref) = delete;
+
         /// \brief Casts this cell into a cargo cell
         /// \return This cell as a cargo cell
         [[nodiscard]]
         cargo_cell & as_cargo_cell();
 
-        /// \brief Casts this cell into a cargo cell
-        /// \return This cell as a cargo cell
-        [[nodiscard]]
-        const cargo_cell & as_cargo_cell() const;
-
         /// \brief Casts this cell into a grid cell
         /// \return This cell as a grid cell
         [[nodiscard]]
         grid_cell & as_grid_cell();
-
-        /// \brief Casts this cell into a grid cell
-        /// \return This cell as a grid cell
-        [[nodiscard]]
-        const grid_cell & as_grid_cell() const;
 
         /// \brief Gets the part definition of the cell
         /// \return The current part associated with this cell
@@ -108,12 +100,19 @@ namespace har {
         /// \param [in] content Content of the message
         void message(const string_t & header, const string_t & content);
 
+        void redraw();
+
         /// \brief Access a property of the cell
         /// \param [in] id ID of the entry in the cell's property model
         /// \param [in] now
         /// \return A proxy object for the requested property
         [[nodiscard]]
         property get(of id, bool_t now = false);
+
+        /// \brief Checks if the cell is placed on a grid
+        /// \return <tt>true</tt>, if the cell is placed on a grid
+        [[nodiscard]]
+        bool_t is_placed() const;
 
         /// \brief Access a property of the cell
         /// \param [in] id ID of the entry in the cell's property model
@@ -126,6 +125,8 @@ namespace har {
         /// \return A proxy object for the requested property
         [[nodiscard]]
         const property operator[](of id) const;
+
+        cell & operator=(const cell & ref) = delete;
 
         /// \brief Default destructor
         virtual ~cell();

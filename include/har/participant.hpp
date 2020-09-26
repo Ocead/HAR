@@ -163,7 +163,11 @@ namespace har {
         virtual void on_attach(int argc, char * const * argv, char * const * envp) = 0;
 
         /// \brief Called every time a new part is added to the simulation
-        virtual void on_part_included(const class part & pt) = 0;
+        virtual void on_part_included(const class part & pt, bool_t commit) = 0;
+
+        inline void on_part_included(const class part & pt) {
+            on_part_included(pt, true);
+        }
 
         /// \brief Called every time a part is removed from the simulation
         virtual void on_part_removed(part_h id) = 0;
@@ -197,13 +201,21 @@ namespace har {
         /// \param [in] hnd Handle of the selected cell
         /// \param [in] id ID of the property
         /// \param [in] val New value
-        virtual void on_selection_update(const cell_h & hnd, entry_h id, const value & val) = 0;
+        virtual void on_selection_update(const cell_h & hnd, entry_h id, const value & val, bool_t commit) = 0;
+
+        inline void on_selection_update(const cell_h & hnd, entry_h id, const value & val) {
+            on_selection_update(hnd, id, val, true);
+        }
 
         /// \brief Called every time a cell was redrawn
         ///
         /// \param [in] hnd Handle of the cell
         /// \param [in] img
-        virtual void on_redraw(const cell_h & hnd, image_t && img) = 0;
+        virtual void on_redraw(const cell_h & hnd, image_t && img, bool_t commit) = 0;
+
+        inline void on_redraw(const cell_h & hnd, image_t && img) {
+            on_redraw(hnd, std::forward<image_t>(img), true);
+        }
 
         /// \brief Called when a connection is added to a grid cell
         ///
@@ -233,6 +245,9 @@ namespace har {
         ///
         /// \param [in] num ID of the cargo
         virtual void on_cargo_destroyed(cargo_h num) = 0;
+
+        ///
+        virtual void on_commit() = 0;
 
         /// \brief Called once, when the participant is detached from the simulation
         /// After this, no other callbacks will be called

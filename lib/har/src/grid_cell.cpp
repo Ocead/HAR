@@ -54,13 +54,14 @@ const cargo_cell grid_cell::artifacts(artifact_h num) { //NOLINT
     return cargo_cell(_ctx, as_grid_cell_base().artifacts().at(num).base(), as_grid_cell_base());
 }
 
-bool_t grid_cell::is_placed() const {
-    return as_grid_cell_base().is_placed();
-}
-
-const grid_cell grid_cell::operator[](direction_t dir) { //NOLINT
+const cell grid_cell::operator[](direction_t dir) { //NOLINT
     //TODO: Probably fix for access from participant contexts
-    return grid_cell(_ctx, as_grid_cell_base(), dir);
+    auto * ptr = as_grid_cell_base().get_neighbor(dir);
+    if (ptr) {
+        return cell(_ctx, *ptr);
+    } else {
+        return cell(_ctx, grid_cell_base::invalid());
+    }
 }
 
 grid_cell::~grid_cell() = default;

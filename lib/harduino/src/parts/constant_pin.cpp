@@ -44,7 +44,7 @@ part duino::parts::constant_pin(part_h offset) {
             Cairo::RefPtr<Cairo::Surface> sf = Cairo::ImageSurface::create(Cairo::FORMAT_ARGB32, 256, 256);
             auto cr = Cairo::Context::create(sf);
 
-            auto gcl = cl.as_grid_cell();
+            auto & gcl = cl.as_grid_cell();
             auto color = color_t(gcl[of::COLOR]);
 
             if (uint_t(cl[DESIGN]) == 1) {
