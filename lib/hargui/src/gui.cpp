@@ -6,6 +6,9 @@
 
 #include <har/gui.hpp>
 
+#include "main_win.hpp"
+#include "types.hpp"
+
 using namespace har;
 
 gui::gui() : har::participant(), _thread(), _app(), _mwin(nullptr), _queue() {
@@ -32,7 +35,7 @@ istream & gui::input() {
 #endif
 }
 
-ostream & gui::output()  {
+ostream & gui::output() {
 #if defined(UNICODE)
     return std::wcout;
 #else
@@ -70,9 +73,11 @@ void gui::on_attach(int argc, char * const * argv, char * const * envp) {
     latch.lock();
 }
 
-void gui::on_part_included(const har::part & pt) {
+void gui::on_part_included(const har::part & pt, bool_t commit) {
     _queue.push([&win = *_mwin, &pt]() { win.include_part(pt); });
-    _mwin->emit();
+    if (commit) {
+        _mwin->emit();
+    }
 }
 
 void gui::on_part_removed(part_h id) {
@@ -127,17 +132,21 @@ void gui::on_exception(const har::exception::exception & e) {
     _mwin->emit();
 }
 
-void gui::on_selection_update(const cell_h & hnd, entry_h id, const value & val) {
+void gui::on_selection_update(const cell_h & hnd, entry_h id, const value & val, bool_t commit) {
     _queue.push([&win = *_mwin, hnd, id, val]() { win.selection_update(hnd, id, val); });
-    _mwin->emit();
+    if (commit) {
+        _mwin->emit();
+    }
 }
 
-void gui::on_redraw(const har::cell_h & hnd, har::image_t && img) {
+void gui::on_redraw(const har::cell_h & hnd, har::image_t && img, bool_t commit) {
     _queue.push([&win = *_mwin, hnd, img]() {
         auto captured_img{ img };
         win.redraw(hnd, std::forward<har::image_t>(captured_img));
     });
-    _mwin->emit();
+    if (commit) {
+        _mwin->emit();
+    }
 }
 
 void gui::on_connection_added(const gcoords_t & from, const gcoords_t & to, direction_t use) {
@@ -166,6 +175,10 @@ void gui::on_cargo_moved(har::cargo_h num, har::ccoords_t to) {
 
 void gui::on_cargo_destroyed(har::cargo_h num) {
     _queue.push([&win = *_mwin, num]() { win.cargo_destroyed(num); });
+    _mwin->emit();
+}
+
+void gui::on_commit() {
     _mwin->emit();
 }
 

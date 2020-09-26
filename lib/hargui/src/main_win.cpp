@@ -205,8 +205,8 @@ void main_win::bind() {
                 gcoords_t from = reinterpret_cast<const gcoords_t &>(*selection_data.get_data());
                 auto ctx = std::make_unique<participant::context>(_parti.get().request());
                 if (!(ctx->at(to).traits() & traits::EMPTY_PART)) {
-                    auto fromgcl = std::make_unique<full_grid_cell>(ctx->at(from));
-                    auto togcl = std::make_unique<full_grid_cell>(ctx->at(to));
+                    auto fromgcl = std::unique_ptr<full_grid_cell>(new full_grid_cell(ctx->at(from)));
+                    auto togcl = std::unique_ptr<full_grid_cell>(new full_grid_cell(ctx->at(to)));
                     _conn_popover.set_cell(std::move(ctx),
                                            std::move(fromgcl), get_cell_image(from),
                                            std::move(togcl), get_cell_image(to));
@@ -551,8 +551,9 @@ bool main_win::on_key_release_event(GdkEventKey * key_event) {
             if (_selected.index() == cell_cat::GRID_CELL) {
                 gcoords_t pos = std::get<cell_cat::GRID_CELL>(_selected);
                 if (pos.cat != grid_t::INVALID_GRID) {
-                    const har::part & pt =
-                            pos.cat == grid_t::MODEL_GRID ? _empty_model_part.value() : _empty_bank_part.value();
+                    const har::part & pt = (pos.cat == grid_t::MODEL_GRID) ?
+                                           _empty_model_part.value() :
+                                           _empty_bank_part.value();
                     auto ctx = _parti.get().request();
                     cell_placed(pos, pt, ctx);
                 }

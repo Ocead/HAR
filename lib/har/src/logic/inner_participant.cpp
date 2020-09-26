@@ -208,7 +208,7 @@ void inner_participant::redraw_all() {
             grid_cell gcl{ _ctx, gclb };
             gclb.logic().draw(gcl, img);
             img = parti->process_image(gclb.position(), img);
-            parti->on_redraw(hnd, std::move(img));
+            parti->on_redraw(hnd, std::move(img), true);
         }
     }
 }

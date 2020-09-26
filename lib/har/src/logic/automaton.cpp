@@ -493,8 +493,12 @@ void automaton::worker::context_commit_and_draw(context & ctx) {
         cell_base & clb = model.at(hnd);
         for (auto & iparti : _auto._sim.inner_participants()) {
             if (iparti.second->get_selected() == hnd) {
+                auto parti = _auto._sim.participants().at(iparti.first);
                 for (auto &[id, val] : clb.intermediate()) {
-                    _auto._sim.participants().at(iparti.first)->on_selection_update(hnd, id, val);
+                    parti->on_selection_update(hnd, id, val, false);
+                }
+                if (!clb.intermediate().empty()) {
+                    parti->on_commit();
                 }
             }
         }
@@ -515,7 +519,7 @@ void automaton::worker::context_commit_and_draw(context & ctx) {
                     grid_cell gcl{ ctx, gclb };
                     pt.draw(gcl, img);
                     img = parti->process_image(gclb.position(), img);
-                    parti->on_redraw(hnd, std::forward<image_t>(img));
+                    parti->on_redraw(hnd, std::forward<image_t>(img), false);
                     for (auto dir : direction::cardinal) {
                         gcoords_t npos{ gclb.position() };
                         npos.pos += dir;
@@ -540,10 +544,11 @@ void automaton::worker::context_commit_and_draw(context & ctx) {
                     cargo_cell ccl{ ctx, cclb, gclb };
                     pt.draw(ccl, img);
                     img = parti->process_image(cclb.id(), img);
-                    parti->on_redraw(hnd, std::forward<image_t>(img));
+                    parti->on_redraw(hnd, std::forward<image_t>(img), false);
                     break;
                 }
             }
+            parti->on_commit();
         }
     }
     for (auto & msg : ctx.messages()) {

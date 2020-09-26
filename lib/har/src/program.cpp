@@ -44,7 +44,7 @@ void program::on_attach(int argc, char * const * argv, char * const * envp) {
 
 }
 
-void program::on_part_included(const class part & pt) {
+void program::on_part_included(const class part & pt, bool_t commit) {
 
 }
 
@@ -89,11 +89,11 @@ void program::on_exception(const exception::exception & e) {
     std::cerr << e.what() << "\n";
 }
 
-void program::on_selection_update(const cell_h & hnd, entry_h id, const value & val) {
+void program::on_selection_update(const cell_h & hnd, entry_h id, const value & val, bool_t commit) {
 
 }
 
-void program::on_redraw(const cell_h & hnd, image_t && img) {
+void program::on_redraw(const cell_h & hnd, image_t && img, bool_t commit) {
 
 }
 
@@ -114,6 +114,10 @@ void program::on_cargo_moved(cargo_h num, ccoords_t to) {
 }
 
 void program::on_cargo_destroyed(cargo_h num) {
+
+}
+
+void program::on_commit() {
 
 }
 

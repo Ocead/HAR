@@ -86,7 +86,7 @@ void inner_simulation::include_part(const part & pt) {
     }
     auto & ipt = std::get<1>(*it);
     for (auto & p : _partis) {
-        std::get<1>(p)->on_part_included(ipt);
+        std::get<1>(p)->on_part_included(ipt, true);
     }
 }
 
@@ -125,7 +125,7 @@ participant_h inner_simulation::attach(participant & parti) {
             }
         }
         for (auto & pt : _inventory) {
-            parti.on_part_included(std::get<1>(pt));
+            parti.on_part_included(std::get<1>(pt), true);
         }
         parti.on_resize_grid(gcoords_t{ grid_t::MODEL_GRID, _model.get_model().dim() });
         parti.on_resize_grid(gcoords_t{ grid_t::BANK_GRID, _model.get_bank().dim() });

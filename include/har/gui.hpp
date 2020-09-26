@@ -12,9 +12,6 @@
 #include <har/co_queue.hpp>
 #include <har/participant.hpp>
 
-#include "main_win.hpp"
-#include "types.hpp"
-
 namespace har {
 
     namespace gui_ {
@@ -49,7 +46,7 @@ namespace har {
 
         void on_attach(int argc, char * const * argv, char * const * envp) override;
 
-        void on_part_included(const har::part & pt) override;
+        void on_part_included(const har::part & pt, bool_t commit) override;
 
         void on_part_removed(part_h id) override;
 
@@ -69,9 +66,9 @@ namespace har {
 
         void on_exception(const har::exception::exception & e) override;
 
-        void on_selection_update(const cell_h & hnd, entry_h id, const value & val) override;
+        void on_selection_update(const cell_h & hnd, entry_h id, const value & val, bool_t commit) override;
 
-        void on_redraw(const cell_h & hnd, har::image_t && img) override;
+        void on_redraw(const cell_h & hnd, har::image_t && img, bool_t commit) override;
 
         void on_connection_added(const gcoords_t & from, const gcoords_t & to, direction_t use) override;
 
@@ -82,6 +79,8 @@ namespace har {
         void on_cargo_moved(cargo_h num, ccoords_t to) override;
 
         void on_cargo_destroyed(cargo_h num) override;
+
+        void on_commit() override;
 
         void on_detach() override;
 
