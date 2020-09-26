@@ -291,7 +291,7 @@ Suggestions of any kind are welcome.
 
 ## Acknowledgments
 
-|<img src="https://www.gravatar.com/avatar/416e64794567616c416e64794567616c?s=180&d=identicon" width="180" height="180" />|<img src="https://avatars1.githubusercontent.com/u/70545125" width="180" height="180" />|<img src="https://avatars1.githubusercontent.com/u/33271292" width="180" height="180" />|
+|<img src="https://www.gravatar.com/avatar/416e64794567616c416e64794567616c?s=180&d=identicon" width="180" />|<img src="https://avatars1.githubusercontent.com/u/70545125" width="180" />|<img src="https://avatars1.githubusercontent.com/u/33271292" width="180" />|
 |:---:|:---:|:---:|
 |**Andy Egal**|[**DosennooB**](https://github.com/DosennooB)|[**PatVax**](https://github.com/PatVax)|
 
