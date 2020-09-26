@@ -309,7 +309,7 @@ delegate_error::delegate_error(std::string source,
                                std::exception & inner) : exception(std::move(source),
                                                                    "delegate_error in " + source + ":\n\t"),
                                                          _inner(inner) {
-
+    _message += _inner.what();
 }
 
 const std::exception & delegate_error::inner() const noexcept {
