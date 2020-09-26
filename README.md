@@ -139,11 +139,12 @@ Additionally the following example targets:
 
 |     Target    |                Description               |
 |---------------|------------------------------------------|
-|`blink_example`|The blink example for Arduino             |
+|`example_blink`|The blink example for Arduino             |
+|`example_gol`  |Conway's Game of Life as a HAR simulation |
 
 ## Functionality
 
-HAR simulations employ a modified cellular automaton. <br/>
+HAR simulations employs a modified cellular automaton. <br/>
 Cellular automata have a *world* of uniform *cells*.
 These cells cyclically alter their own state based on the state of their neighboring cells. <br/>
 In HAR simulations, these cells are of parts and pins of the simulated model.
