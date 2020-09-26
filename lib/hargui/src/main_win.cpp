@@ -397,6 +397,11 @@ void main_win::cell_placed(const gcoords_t & pos, const har::part & pt, particip
     ctx.commit();
     fgcl.set_part(pt);
     ctx.commit();
+
+    for (auto dir : direction::cardinal) {
+        fgcl[dir].redraw();
+    }
+
     cell_selected(pos, ctx);
 }
 

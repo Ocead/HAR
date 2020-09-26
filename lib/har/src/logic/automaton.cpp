@@ -523,18 +523,6 @@ void automaton::worker::context_commit_and_draw(context & ctx) {
                     for (auto dir : direction::cardinal) {
                         gcoords_t npos{ gclb.position() };
                         npos.pos += dir;
-                        //bool_t b = ctx.redraw().find(npos) != ctx.redraw().end();
-                        //if (b) {
-                        auto * ngclb = gclb.get_neighbor(dir);
-                        if (ngclb) {
-                            grid_cell ngcl{ ctx, *ngclb };
-                            cell_h nhnd = ngclb->position();
-                            auto nimg = parti->get_image_base(nhnd);
-                            ngcl.logic().draw(ngcl, nimg);
-                            nimg = parti->process_image(nhnd, nimg);
-                            parti->on_redraw(ngclb->position(), std::forward<image_t>(nimg));
-                        }
-                        //}
                     }
                     break;
                 }
