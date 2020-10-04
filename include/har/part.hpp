@@ -123,7 +123,7 @@ namespace har {
         [[nodiscard]]
         string_t to_string(const value & val) const;
 
-        /// \brief Creates a value from string while upholding contraints set by this entry
+        /// \brief Creates a value from string while upholding constraints set by this entry
         /// \param [in] str The serialized value
         /// \return The deserialized value
         [[nodiscard]]
