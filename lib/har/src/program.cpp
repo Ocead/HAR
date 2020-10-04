@@ -125,6 +125,4 @@ void program::on_detach() {
 
 }
 
-program::~program() noexcept {
-
-}
+program::~program() noexcept = default;

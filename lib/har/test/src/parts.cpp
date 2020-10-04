@@ -24,7 +24,12 @@ TEST_CASE("Parts") {
     }
 
     SECTION("Properties can be added to the model of a part") {
-        entry e{ of::ANALOG_VOLTAGE, "ANALOG_VOLTAGE", "Analog voltage", value(double_t()), ui_access::INVISIBLE, true,
+        entry e{ of::ANALOG_VOLTAGE,
+                 "ANALOG_VOLTAGE",
+                 "Analog voltage",
+                 value(double_t()),
+                 ui_access::INVISIBLE,
+                 serialize::SERIALIZE,
                  std::array<double_t, 3>{ -5., 5., .1 }};
 
         REQUIRE_NOTHROW(pt1.add_entry(e));
@@ -40,9 +45,19 @@ TEST_CASE("Parts") {
     }
 
     SECTION("Cells of a part are filled with values for each entry in the property model") {
-        entry e1{ of::ANALOG_VOLTAGE, "ANALOG_VOLTAGE", "Analog voltage", value(double_t()), ui_access::INVISIBLE, true,
+        entry e1{ of::ANALOG_VOLTAGE,
+                  "ANALOG_VOLTAGE",
+                  "Analog voltage",
+                  value(double_t()),
+                  ui_access::INVISIBLE,
+                  serialize::SERIALIZE,
                   std::array<double_t, 3>{ -5., 5., .1 }};
-        entry e2{ of::NEXT_FREE, "POSITIVE_VOLTAGE", "Positive voltage", value(double_t(5.)), ui_access::INVISIBLE, true,
+        entry e2{ of::NEXT_FREE,
+                  "POSITIVE_VOLTAGE",
+                  "Positive voltage",
+                  value(double_t(5.)),
+                  ui_access::INVISIBLE,
+                  serialize::SERIALIZE,
                   std::array<double_t, 3>{ 5., 10., .1 }};
 
         pt1.add_entry(e1);

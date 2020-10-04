@@ -551,7 +551,9 @@ void automaton::worker::wait_for_next_step() {
 }
 
 void automaton::worker::start() {
-    _thread = std::thread(&automaton::worker::work, this);
+    if (_thread.get_id() != std::thread::id()) {
+        _thread = std::thread(&automaton::worker::work, this);
+    }
 }
 
 void automaton::worker::process_single_request(inner_participant & iparti) {

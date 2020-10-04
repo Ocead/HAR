@@ -56,7 +56,7 @@ const cargo_cell grid_cell::artifacts(artifact_h num) { //NOLINT
 
 const cell grid_cell::operator[](direction_t dir) { //NOLINT
     //TODO: Probably fix for access from participant contexts
-    auto * ptr = as_grid_cell_base().get_neighbor(dir);
+    auto * ptr = as_grid_cell_base().get_cell(dir);
     if (ptr) {
         return cell(_ctx, *ptr);
     } else {

@@ -2,6 +2,7 @@
 // Created by Johannes on 28.08.2020.
 //
 
+#include <cstdlib>
 #include <filesystem>
 #include <fstream>
 
@@ -72,7 +73,7 @@ void duino::on_model_loaded() {
 
 duino::context duino::request_or_terminate() {
     if (!attached()) {
-        std::terminate();
+        std::exit(0);
     } else {
         return program::request();
     }
