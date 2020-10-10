@@ -82,6 +82,11 @@ namespace har {
             std::chrono::high_resolution_clock,
             std::chrono::steady_clock>;
 
+    template<typename Tp>
+    inline constexpr auto underlying(Tp e) -> typename std::underlying_type<Tp>::type {
+        return static_cast<typename std::underlying_type<Tp>::type>(e);
+    }
+
 #include <cctype>
 
 #if defined(UNICODE)

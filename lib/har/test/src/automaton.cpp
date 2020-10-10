@@ -80,8 +80,8 @@ TEST_CASE("Automaton", "[!mayfail][automaton]") {
             REQUIRE_NOTHROW(tab.wake(CARGO[1], clb));
             tab.apply();
 
-            REQUIRE(std::get<1>(tab.get_active().at(CARGO[0])) == process::CYCLE);
-            REQUIRE(std::get<1>(tab.get_active().at(CARGO[1])) == static_cast<process>(process::CYCLE | process::MOVE));
+            REQUIRE(tab.get_active().at(CARGO[0]).status == process::CYCLE);
+            REQUIRE(tab.get_active().at(CARGO[1]).status == (process::CYCLE | process::MOVE));
         }
 
         SECTION("Tab on cell can be set to \"sleeping\"") {
@@ -94,8 +94,8 @@ TEST_CASE("Automaton", "[!mayfail][automaton]") {
             REQUIRE_NOTHROW(tab.tire(CARGO[1], clb));
             tab.apply();
 
-            REQUIRE_THROWS(std::get<1>(tab.get_active().at(CARGO[0])));
-            REQUIRE(std::get<1>(tab.get_active().at(CARGO[1])) == process::MOVE);
+            REQUIRE_THROWS(tab.get_active().at(CARGO[0]));
+            REQUIRE(tab.get_active().at(CARGO[1]).status == process::MOVE);
         }
 
         SECTION("Tab on cell can be set to \"moving\"") {
@@ -107,8 +107,8 @@ TEST_CASE("Automaton", "[!mayfail][automaton]") {
             REQUIRE_NOTHROW(tab.start(CARGO[1], clb));
             tab.apply();
 
-            REQUIRE(std::get<1>(tab.get_active().at(CARGO[0])) == process::MOVE);
-            REQUIRE(std::get<1>(tab.get_active().at(CARGO[1])) == static_cast<process>(process::CYCLE | process::MOVE));
+            REQUIRE(tab.get_active().at(CARGO[0]).status == process::MOVE);
+            REQUIRE(tab.get_active().at(CARGO[1]).status == (process::CYCLE | process::MOVE));
         }
 
         SECTION("Tab on cell can be set to \"halting\"") {
@@ -121,8 +121,8 @@ TEST_CASE("Automaton", "[!mayfail][automaton]") {
             REQUIRE_NOTHROW(tab.halt(CARGO[1], clb));
             tab.apply();
 
-            REQUIRE_THROWS(std::get<1>(tab.get_active().at(CARGO[0])));
-            REQUIRE(std::get<1>(tab.get_active().at(CARGO[1])) == process::CYCLE);
+            REQUIRE_THROWS(tab.get_active().at(CARGO[0]));
+            REQUIRE(tab.get_active().at(CARGO[1]).status == process::CYCLE);
         }
     }
 
