@@ -35,7 +35,7 @@ C++ library that realizes the simulation process itself
 A GUI for HAR simulations. Written for gtkmm
 
 * **[HARduino](lib/harduino)** <br/>
-Adds support to run Arduino C programs on HAR simulations
+Adds support to run Arduino C programs on HAR simulations (uses HARgui)
 
 ### Building
 
@@ -102,7 +102,7 @@ Building all targets requires:
 * A C++17 supporting compiler
 * [CMake](https://cmake.org/) 3.13 or higher
 
-Building and running targets that depend on the included GUI additionally require:
+Building and running the included GUI and targets that depend on the included GUI additionally require:
 * [pkg-config](https://www.freedesktop.org/wiki/Software/pkg-config/) 0.29
 * [gtkmm](https://www.gtkmm.org/en/) 3.0
 * [glibmm](https://www.gtkmm.org/en/) 2.4
