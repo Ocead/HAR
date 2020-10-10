@@ -101,8 +101,8 @@ part gol_cell() {
 }
 
 int main(int argc, char * argv[], char * envp[]) {
-    static simulation sim{ argc, argv, envp };
-    static gui gui{ };
+    simulation sim{ argc, argv, envp };
+    gui gui{ };
 
     sim.include_part(gol_cell());
 
