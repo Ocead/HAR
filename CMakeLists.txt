@@ -15,12 +15,11 @@ set(CMAKE_CXX_PROTO_FLAGS "${CMAKE_CXX_FLAGS}")
 set(CMAKE_CXX_PROTO_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
 set(CMAKE_CXX_PROTO_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}")
 
+include(cmake/RessourceCompiler.cmake)
+
 add_subdirectory(lib/har)
-
 add_subdirectory(lib/hargui)
-
 add_subdirectory(lib/harduino)
-
 add_subdirectory(lib/gti)
 
 #region package
