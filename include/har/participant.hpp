@@ -325,4 +325,10 @@ namespace har {
 
 }
 
+#if defined(HAR_ENABLE_REQUEST_MACROS)
+#define THISREQUEST(CTX) if(auto CTX = request(); true)
+#define OBJREQUEST(CTX, OBJ) if(auto CTX = OBJ.request(); true)
+#define GET_REQUEST_INNER(_1, _2, NAME, ...) NAME
+#define REQUEST(...) GET_REQUEST_INNER(__VA_ARGS__, OBJREQUEST, THISREQUEST)(__VA_ARGS__)
+#endif
 #endif //HAR_PARTICIPANT_HPP
