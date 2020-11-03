@@ -36,6 +36,7 @@ add_library(${LIBRARY_NAME}
         src/logic/guard.cpp
         src/logic/inner_participant.cpp
         src/logic/inner_simulation.cpp
+        src/logic/process_tab.cpp
 
         src/world/artifact.cpp
         src/world/cargo_cell_base.cpp
