@@ -27,6 +27,14 @@ namespace har {
 
         using participant::select;
 
+        using participant::include_part;
+
+        using participant::load_model;
+
+        using participant::store_model;
+
+        using participant::redraw_all;
+
         using participant::attached;
 
         using participant::detach;
