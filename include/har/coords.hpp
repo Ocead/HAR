@@ -798,6 +798,17 @@ namespace har {
             return (*this = tl);
         }
 
+        /// Sets this coordinate to the next integral position in a rectangle from including <tt>(0, 0)</tt> to not including <tt>br</tt>.
+        /// The coordinate moves line by line from left to right, then from top to bottom.<br/>
+        /// When finished, the coordinate is set to <tt>br</tt>.<br/>
+        /// If the coordinate isn't in the rectangle to begin with, it is set to <tt>(0, 0)</tt>.
+        /// \brief Iterates a coordinate over a rectangle
+        /// \param [in] br Bottom-right corner of the rectangle (not included)
+        /// \return The moved coordinate
+        coords & rectangle(const coords & br) {
+            return rectangle(coords(), br);
+        }
+
         /// \brief Checks whether the coordinate is in a rectangle from [0, 0] to <tt>br</tt>
         /// \param [in] br Bottom-right corner of the rectangle (not included)
         /// \return <tt>true</tt>, if the coordinate is in the rectangle, <tt>false</tt> otherwise
