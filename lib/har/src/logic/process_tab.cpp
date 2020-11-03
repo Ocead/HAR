@@ -10,20 +10,20 @@ using namespace har;
 
 process_tab::process_tab() = default;
 
-void process_tab::wake(const cell_h & hnd, cell_base & clb) {
-    _waking.try_emplace(hnd, clb);
+void process_tab::wake(const gcoords_t & pos, cell_base & clb) {
+    _waking.try_emplace(pos, clb);
 }
 
-void process_tab::tire(const cell_h & hnd, cell_base & clb) {
-    _tiring.try_emplace(hnd, clb);
+void process_tab::tire(const gcoords_t & pos, cell_base & clb) {
+    _tiring.try_emplace(pos, clb);
 }
 
-void process_tab::start(const cell_h & hnd, cell_base & clb) {
-    _starting.try_emplace(hnd, clb);
+void process_tab::start(const gcoords_t & pos, cell_base & clb) {
+    _starting.try_emplace(pos, clb);
 }
 
-void process_tab::halt(const cell_h & hnd, cell_base & clb) {
-    _halting.try_emplace(hnd, clb);
+void process_tab::halt(const gcoords_t & pos, cell_base & clb) {
+    _halting.try_emplace(pos, clb);
 }
 
 void process_tab::apply() {
@@ -92,13 +92,17 @@ void process_tab::apply() {
     }
 }
 
-void process_tab::remove(const cell_h & hnd) {
-    _active.erase(hnd);
-    _waking.erase(hnd);
-    _tiring.erase(hnd);
-    _starting.erase(hnd);
-    _halting.erase(hnd);
-    _inactive.erase(hnd);
+void process_tab::remove(const gcoords_t & pos) {
+    _active.erase(pos);
+    _waking.erase(pos);
+    _tiring.erase(pos);
+    _starting.erase(pos);
+    _halting.erase(pos);
+    _inactive.erase(pos);
+}
+
+size_t process_tab::size() const {
+    return _active.size() + _inactive.size();
 }
 
 const decltype(process_tab::_active) & process_tab::get_active() const {

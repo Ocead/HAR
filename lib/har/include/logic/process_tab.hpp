@@ -32,12 +32,12 @@ namespace har {
     /// \brief Keeps track which logic to apply to cells in a cycle
     struct process_tab {
     private:
-        std::map<cell_h, cell_tab> _active; ///<Cycling or moving cells
-        std::map<cell_h, std::reference_wrapper<cell_base>> _waking; ///<Cells that start cycling next cycle
-        std::map<cell_h, std::reference_wrapper<cell_base>> _tiring; ///<Cells that stop cycling next cycle
-        std::map<cell_h, std::reference_wrapper<cell_base>> _starting; ///<Cells that start moving next cycle
-        std::map<cell_h, std::reference_wrapper<cell_base>> _halting; ///<Cells that stop moving next cycle
-        std::map<cell_h, std::reference_wrapper<cell_base>> _inactive; ///<Cells that neither cycle of move
+        std::map<gcoords_t, cell_tab> _active; ///<Cycling or moving cells
+        std::map<gcoords_t, std::reference_wrapper<cell_base>> _waking; ///<Cells that start cycling next cycle
+        std::map<gcoords_t, std::reference_wrapper<cell_base>> _tiring; ///<Cells that stop cycling next cycle
+        std::map<gcoords_t, std::reference_wrapper<cell_base>> _starting; ///<Cells that start moving next cycle
+        std::map<gcoords_t, std::reference_wrapper<cell_base>> _halting; ///<Cells that stop moving next cycle
+        std::map<gcoords_t, std::reference_wrapper<cell_base>> _inactive; ///<Cells that neither cycle of move
 
     public:
         /// \brief Standard constructor
@@ -45,35 +45,40 @@ namespace har {
 
         /// \brief Wakes up a cell
         ///
-        /// \param [in] hnd Handle of the cell
+        /// \param [in] pos Handle of the cell
         /// \param [in] clb Reference to the cell
-        void wake(const cell_h & hnd, cell_base & clb);
+        void wake(const gcoords_t & pos, cell_base & clb);
 
         /// \brief Retires a cell
         ///
-        /// \param [in] hnd Handle of the cell
+        /// \param [in] pos Handle of the cell
         /// \param [in] clb Reference to the cell
-        void tire(const cell_h & hnd, cell_base & clb);
+        void tire(const gcoords_t & pos, cell_base & clb);
 
         /// \brief Starts moving of a cell
         ///
-        /// \param [in] hnd Handle of the cell
+        /// \param [in] pos Handle of the cell
         /// \param [in] clb Reference to the cell
-        void start(const cell_h & hnd, cell_base & clb);
+        void start(const gcoords_t & pos, cell_base & clb);
 
         /// \brief Stops moving of a cell
         ///
-        /// \param [in] hnd Handle of the cell
+        /// \param [in] pos Handle of the cell
         /// \param [in] clb Reference to the cell
-        void halt(const cell_h & hnd, cell_base & clb);
+        void halt(const gcoords_t & pos, cell_base & clb);
 
         /// \brief Applies changes of the process tab
         void apply();
 
         /// \brief Removes a cell from the process tab
         ///
-        /// \param [in] hnd Handle of the cell
-        void remove(const cell_h & hnd);
+        /// \param [in] pos Handle of the cell
+        void remove(const gcoords_t & pos);
+
+        /// \brief Returns the number of tabs on cells
+        ///
+        /// \return The number of tabs on cells
+        size_t size() const;
 
         /// \brief
         ///
