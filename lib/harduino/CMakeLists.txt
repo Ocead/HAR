@@ -21,7 +21,7 @@ foreach (INPUT_FILE ${DUINO_RESOURCES})
     if (NOT ${INPUT_FILE} MATCHES ".*.cpp" AND NOT IS_DIRECTORY ${INPUT_FILE})
         get_filename_component(RES_PATH ${INPUT_FILE} DIRECTORY)
         get_filename_component(INPUT_FILE_NAME ${INPUT_FILE} NAME)
-        set(OUTPUT_FILE ${RES_PATH}/binary/${INPUT_FILE_NAME}.cpp)
+        set(OUTPUT_FILE ${CMAKE_CURRENT_BINARY_DIR}/binary/${INPUT_FILE_NAME}.cpp)
         add_custom_command(
                 OUTPUT ${OUTPUT_FILE}
                 COMMAND ${RESOURCE_COMPILER} -i ${INPUT_FILE_NAME} ${OUTPUT_FILE}
