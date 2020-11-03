@@ -6,7 +6,7 @@ Drop-in simulator for C/C++-programmable microcontrollers and hardware models
 ## About
 
 HAR is a modular set of libraries that aid in simulating hardware models that incorporate microcontrollers. <br/>
-It features a platform independant simulation runtime,
+It features a platform independent simulation runtime,
 an easy to use drag-and-drop editor for creating models, an optional interactive UI
 and APIs to expand it's capabilities. <br/>
 You can also pack complete simulations into static libraries for use in assignments.
@@ -60,11 +60,11 @@ What this code has to contain needs to match one of these approaches:
   }
   ```
   Your code may **not** contain an entry function (resp. `main`),
-  so that the library can supply it's own entry function.
+  so that the library can supply its own entry function.
   This entry function provides the runtime to run Arduino programs as HAR simulations.
     
 * **Standard C/C++-like**: <br/>
-  If you need more control over the simulation and it's participants, use this approach.<br/>
+  If you need more control over the simulation and its participants, use this approach.<br/>
   It works with all libraries in this repository (including HARduino).
   
   Your code has to define a `main` function. 
@@ -135,7 +135,7 @@ The CMakeLists.txt holds the following targets:
 |`harduino_test`|Catch2 unit tests for the HARduino library|
 |`doc`          |Doxygen documentation for this repository |
 
-Additionally the following example targets:
+Additionally, the following example targets:
 
 |     Target    |                Description               |
 |---------------|------------------------------------------|
@@ -148,7 +148,7 @@ HAR simulations employs a modified cellular automaton. <br/>
 Cellular automata have a *world* of uniform *cells*.
 These cells cyclically alter their own state based on the state of their neighboring cells. <br/>
 In HAR simulations, these cells are of parts and pins of the simulated model.
-The part associated to a cell determines it's behaviour and possible states.
+The part associated to a cell determines its behaviour and possible states.
 Cells can also be connected to each other. These connections count as additional neighbors.
 Furthermore, HAR supports movable cells that can be moved across the world. <br/>
 In an object-oriented sense, think of the parts as classes and the cells as their instances.
@@ -172,9 +172,9 @@ They come in three variations:
   They can also be changed by the fixed parts under them.
 
 All parts have a property model which defines the information an instance of a part can hold. <br/>
-This information can be the current state of the part (e. g. whether a button is pressed), 
+This information can be the current state of the part (e.g. whether a button is pressed), 
 information relevant to adjacent parts (e.g. the speed of a conveyor belt section)
-or information relevant to connected parts (e. g. the output voltage of an analog pin).
+or information relevant to connected parts (e.g. the output voltage of an analog pin).
 
 The property model consists of a list of tuples containing a unique ID for the property, it's name, it's datatype
 and in some cases type-specific information on allowed values.
@@ -207,8 +207,8 @@ pin.add_entry(of::PIN_MODE, //ID
 ```
 
 Additionally, parts have behaviour. That includes cyclic behaviour
-(e. g. a timer increments a counter in certain intervals)
-and interactive behaviour (e. g. a button closes/opens a circuit when pressed).
+(e.g. a timer increments a counter in certain intervals)
+and interactive behaviour (e.g. a button closes/opens a circuit when pressed).
 
 Here's an example for cyclical behaviour of an analog input pin:
 ```c++
@@ -276,9 +276,9 @@ For further examples on how to write parts, see the [part definitions](lib/hardu
 
 Participants, as the name suggests, participate in a simulation. They are the primary way to interact with the simulation,
 every access to the simulation's resources is routed through these. This repository already contains some participants:
-* [`har::program`](include/har/program.hpp) : A generic interface to interact with the simulation
-* [`har::gui`](include/har/gui.hpp) : A GUI that displays the simulation and allows for user interaction
-* [`har::duino`](include/har/duino.hpp) : An Arduino-like interface for C programs
+* [`har::program`](include/har/program.hpp): A generic interface to interact with the simulation
+* [`har::gui`](include/har/gui.hpp): A GUI that displays the simulation and allows for user interaction
+* [`har::duino`](include/har/duino.hpp): An Arduino-like interface for C programs
 
 For information on how to implement your own participants,
 see the Doxygen documentation for [`har::participant`](include/har/participant.hpp).
