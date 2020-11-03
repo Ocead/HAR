@@ -170,6 +170,7 @@ void inner_participant::resize_grid(const gcoords_t & to) {
         auto & sim = _simulation.get();
         auto & ept = sim.inventory().at(PART[0]);
         auto & model = _model.get();
+        auto & automaton = sim.get_automaton();
         auto & grid = to.cat == grid_t::MODEL_GRID ? model.get_model() : model.get_bank();
         if (grid.dim() != to.pos) {
             auto from = grid.dim();
@@ -194,6 +195,7 @@ void inner_participant::resize_grid(const gcoords_t & to) {
                     }
                 }
             }
+            automaton.resize_tab(gcoords_t(to.cat, from), to);
         }
     }
 }

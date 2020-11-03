@@ -2,6 +2,7 @@
 // Created by Johannes on 10.06.2020.
 //
 
+#define HAR_ENABLE_REQUEST_MACROS
 #include <har/program.hpp>
 
 #include "logic/automaton.hpp"
@@ -40,27 +41,33 @@ TEST_CASE("Automaton", "[!mayfail][automaton]") {
 
     SECTION("The automaton can keep tabs on how to process single cells") {
         part pt{ PART[0] };
-        cell_h hnd{ gcoords_t() };
+        gcoords_t pos{ };
         cell_base clb{ pt };
+        gcoords_t posa[4]{
+                gcoords_t(grid_t::INVALID_GRID, 0, 0),
+                gcoords_t(grid_t::INVALID_GRID, 0, 1),
+                gcoords_t(grid_t::INVALID_GRID, 0, 2),
+                gcoords_t(grid_t::INVALID_GRID, 0, 3)
+        };
 
-        process_tab tab{ };
+        auto & tab = automaton.get_tab();
 
         SECTION("Tab on cell can be added") {
-            REQUIRE_NOTHROW(tab.tire(hnd, clb));
-            REQUIRE_NOTHROW(tab.get_tiring().at(hnd));
+            REQUIRE_NOTHROW(tab.tire(pos, clb));
+            REQUIRE_NOTHROW(tab.get_tiring().at(pos));
             tab.apply();
 
             REQUIRE(tab.get_active().empty());
             REQUIRE(tab.get_inactive().size() == 1);
-            REQUIRE_THROWS(tab.get_active().at(hnd));
-            REQUIRE(&tab.get_inactive().at(hnd).get() == &clb);
+            REQUIRE_THROWS(tab.get_active().at(pos));
+            REQUIRE(&tab.get_inactive().at(pos).get() == &clb);
         }
 
         SECTION("Tabs can be applied") {
-            tab.wake(CARGO[0], clb);
-            tab.tire(CARGO[1], clb);
-            tab.start(CARGO[2], clb);
-            tab.halt(CARGO[3], clb);
+            tab.wake(posa[0], clb);
+            tab.tire(posa[1], clb);
+            tab.start(posa[2], clb);
+            tab.halt(posa[3], clb);
             REQUIRE_NOTHROW(tab.apply());
 
             REQUIRE(tab.get_active().size() == 2);
@@ -72,57 +79,98 @@ TEST_CASE("Automaton", "[!mayfail][automaton]") {
         }
 
         SECTION("Tab on cell can be set to \"cycling\"") {
-            tab.tire(CARGO[0], clb);
-            tab.start(CARGO[1], clb);
+            tab.tire(posa[0], clb);
+            tab.start(posa[1], clb);
             tab.apply();
 
-            REQUIRE_NOTHROW(tab.wake(CARGO[0], clb));
-            REQUIRE_NOTHROW(tab.wake(CARGO[1], clb));
+            REQUIRE_NOTHROW(tab.wake(posa[0], clb));
+            REQUIRE_NOTHROW(tab.wake(posa[1], clb));
             tab.apply();
 
-            REQUIRE(tab.get_active().at(CARGO[0]).status == process::CYCLE);
-            REQUIRE(tab.get_active().at(CARGO[1]).status == (process::CYCLE | process::MOVE));
+            REQUIRE(tab.get_active().at(posa[0]).status == process::CYCLE);
+            REQUIRE(tab.get_active().at(posa[1]).status == (process::CYCLE | process::MOVE));
         }
 
         SECTION("Tab on cell can be set to \"sleeping\"") {
-            tab.wake(CARGO[0], clb);
-            tab.wake(CARGO[1], clb);
-            tab.start(CARGO[1], clb);
+            tab.wake(posa[0], clb);
+            tab.wake(posa[1], clb);
+            tab.start(posa[1], clb);
             tab.apply();
 
-            REQUIRE_NOTHROW(tab.tire(CARGO[0], clb));
-            REQUIRE_NOTHROW(tab.tire(CARGO[1], clb));
+            REQUIRE_NOTHROW(tab.tire(posa[0], clb));
+            REQUIRE_NOTHROW(tab.tire(posa[1], clb));
             tab.apply();
 
-            REQUIRE_THROWS(tab.get_active().at(CARGO[0]));
-            REQUIRE(tab.get_active().at(CARGO[1]).status == process::MOVE);
+            REQUIRE_THROWS(tab.get_active().at(posa[0]));
+            REQUIRE(tab.get_active().at(posa[1]).status == process::MOVE);
         }
 
         SECTION("Tab on cell can be set to \"moving\"") {
-            tab.halt(CARGO[0], clb);
-            tab.wake(CARGO[1], clb);
+            tab.halt(posa[0], clb);
+            tab.wake(posa[1], clb);
             tab.apply();
 
-            REQUIRE_NOTHROW(tab.start(CARGO[0], clb));
-            REQUIRE_NOTHROW(tab.start(CARGO[1], clb));
+            REQUIRE_NOTHROW(tab.start(posa[0], clb));
+            REQUIRE_NOTHROW(tab.start(posa[1], clb));
             tab.apply();
 
-            REQUIRE(tab.get_active().at(CARGO[0]).status == process::MOVE);
-            REQUIRE(tab.get_active().at(CARGO[1]).status == (process::CYCLE | process::MOVE));
+            REQUIRE(tab.get_active().at(posa[0]).status == process::MOVE);
+            REQUIRE(tab.get_active().at(posa[1]).status == (process::CYCLE | process::MOVE));
         }
 
         SECTION("Tab on cell can be set to \"halting\"") {
-            tab.start(CARGO[0], clb);
-            tab.start(CARGO[1], clb);
-            tab.wake(CARGO[1], clb);
+            tab.start(posa[0], clb);
+            tab.start(posa[1], clb);
+            tab.wake(posa[1], clb);
             tab.apply();
 
-            REQUIRE_NOTHROW(tab.halt(CARGO[0], clb));
-            REQUIRE_NOTHROW(tab.halt(CARGO[1], clb));
+            REQUIRE_NOTHROW(tab.halt(posa[0], clb));
+            REQUIRE_NOTHROW(tab.halt(posa[1], clb));
             tab.apply();
 
-            REQUIRE_THROWS(tab.get_active().at(CARGO[0]));
-            REQUIRE(tab.get_active().at(CARGO[1]).status == process::CYCLE);
+            REQUIRE_THROWS(tab.get_active().at(posa[0]));
+            REQUIRE(tab.get_active().at(posa[1]).status == process::CYCLE);
+        }
+
+        SECTION("Tab keeps up with model expansion") {
+            gcoords_t to{ grid_t::MODEL_GRID, 2, 2 };
+            REQUEST(ctx, prog) {
+                ctx.resize_grid(to);
+            }
+            auto & active = tab.get_active();
+            for (dcoords_t xy{ }; xy.in(to.pos); xy.rectangle(to.pos)) {
+                REQUIRE_NOTHROW(active.at(gcoords_t(grid_t::MODEL_GRID, xy)));
+            }
+            REQUIRE(tab.size() == to.pos.x * to.pos.y);
+        }
+
+        SECTION("Tab keeps up with model diminution") {
+            gcoords_t from{ grid_t::MODEL_GRID, 5, 5 };
+            gcoords_t to{ grid_t::MODEL_GRID, 3, 3 };
+            auto & model = isim.get_model();
+            model.resize(from.cat, isim.part_of(PART[0]), from.pos);
+
+            for (dcoords_t xy{ }; xy.in(from.pos); xy.rectangle(from.pos)) {
+                gcoords_t ipos{ grid_t::MODEL_GRID, xy };
+                tab.tire(ipos, model.at(ipos));
+            }
+
+            REQUEST(ctx, prog) {
+                ctx.resize_grid(to);
+            }
+
+            auto & active = tab.get_active();
+            auto & inactive = tab.get_inactive();
+            for (dcoords_t xy{ }; xy.in(to.pos - 1); xy.rectangle(to.pos - 1)) {
+                REQUIRE_NOTHROW(inactive.at(gcoords_t(grid_t::MODEL_GRID, xy)));
+            }
+            for (dcoord_t y = 0; y < to.pos.y; ++y) {
+                REQUIRE_NOTHROW(active.at(gcoords_t(grid_t::MODEL_GRID, to.pos.x - 1, y)));
+            }
+            for (dcoord_t x = 0; x < to.pos.x; ++x) {
+                REQUIRE_NOTHROW(active.at(gcoords_t(grid_t::MODEL_GRID, x, to.pos.y - 1)));
+            }
+            REQUIRE(tab.size() == to.pos.x * to.pos.y);
         }
     }
 

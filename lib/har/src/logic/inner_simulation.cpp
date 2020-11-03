@@ -52,7 +52,7 @@ inner_simulation::inner_simulation(int argc, char * argv[], char * envp[]) : _in
                                                                              _argv(argv),
                                                                              _envp(envp),
                                                                              _exit_fun([]() { std::exit(0); }) {
-
+    _inventory.try_emplace(PART[0]);
 }
 
 automaton & inner_simulation::get_automaton() {

@@ -27,6 +27,7 @@ automaton::automaton(inner_simulation & sim, ushort_t workers) : _sim(sim),
                                                                  _waiting(),
                                                                  _cyclex(),
                                                                  _autoex(),
+                                                                 _tab(),
                                                                  _workdone(0),
                                                                  _first(false),
                                                                  _time_delta(16667us),
@@ -104,8 +105,49 @@ enum automaton::state automaton::set_state(enum state to) {
     return old;
 }
 
+process_tab & automaton::get_tab() {
+    return _tab;
+}
+
 std::mutex & automaton::get_autoex() {
     return _autoex;
+}
+
+void automaton::resize_tab(const gcoords_t & from, const gcoords_t & to) {
+    auto & model = _sim.get_model();
+
+    for (auto x = to.pos.x; x < from.pos.x; ++x) {
+        for (dcoord_t y = 0; y < from.pos.y; ++y) {
+            _tab.remove(gcoords_t{ from.cat, x, y });
+        }
+    }
+
+    for (auto y = to.pos.y; y < from.pos.y; ++y) {
+        for (dcoord_t x = 0; x < to.pos.x; ++x) {
+            _tab.remove(gcoords_t{ from.cat, x, y });
+        }
+    }
+
+    auto ifrom = from.pos;
+    auto ito = to.pos;
+
+    if (to < from) {
+        ifrom = ito - 1;
+    }
+
+    for (auto x = ifrom.x; x < ito.x; ++x) {
+        for (dcoord_t y = 0; y < ito.y; ++y) {
+            gcoords_t pos{ from.cat, x, y };
+            _tab.wake(pos, model.at(pos));
+        }
+    }
+
+    for (auto y = ifrom.y; y < ito.y; ++y) {
+        for (dcoord_t x = 0; x < ifrom.x; ++x) {
+            gcoords_t pos{ from.cat, x, y };
+            _tab.wake(pos, model.at(pos));
+        }
+    }
 }
 
 void automaton::request(participant_h id) {
@@ -142,6 +184,7 @@ void automaton::exec(participant_h id, participant::callback_t && fun) {
 
 void automaton::process(inner_participant & iparti) {
     _workers[0]->process_single_request(iparti);
+    _tab.apply();
 }
 
 bool_t automaton::begin(bool_t and_block) {

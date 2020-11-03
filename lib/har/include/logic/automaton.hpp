@@ -48,6 +48,8 @@ namespace har {
         std::mutex _cyclex;
         std::mutex _autoex;
 
+        process_tab _tab;
+
         co_queue<std::pair<participant_h, participant::callback_t>> _queue;
 
         std::atomic<ushort_t> _workdone; ///<Counter for how many workers have finished their current task
@@ -91,7 +93,11 @@ namespace har {
         /// \return Old state
         enum state set_state(enum state to);
 
+        process_tab & get_tab();
+
         std::mutex & get_autoex();
+
+        void resize_tab(const gcoords_t & from, const gcoords_t & to);
 
         void request(participant_h id);
 
