@@ -6,6 +6,14 @@
 
 using namespace har;
 
+//region cell_tab
+
+cell_tab::cell_tab(cell_base & cell, process status) : cell(cell), status(status) {
+
+}
+
+//endregion
+
 //region process_tab
 
 process_tab::process_tab() = default;
@@ -30,10 +38,10 @@ void process_tab::apply() {
     /*Tire*/ {
         for (auto &[hnd, clb] : _tiring) {
             if (auto it = _active.find(hnd); it != _active.end()) {
-                auto prc = static_cast<process>(~process::CYCLE);
+                auto prc = process(~process::CYCLE);
                 {
                     auto &[cl, tab] = it->second;
-                    prc = tab = static_cast<process>(tab & prc);
+                    prc = tab = process(tab & prc);
                 }
                 if (!prc) {
                     _active.erase(it);
@@ -49,10 +57,10 @@ void process_tab::apply() {
     /*Halt*/ {
         for (auto &[hnd, clb] : _halting) {
             if (auto it = _active.find(hnd); it != _active.end()) {
-                auto prc = static_cast<process>(~process::MOVE);
+                auto prc = process(~process::MOVE);
                 {
                     auto &[cl, tab] = it->second;
-                    prc = tab = static_cast<process>(tab & prc);
+                    prc = tab = process(tab & prc);
                 }
                 if (!prc) {
                     _active.erase(it);
@@ -70,7 +78,7 @@ void process_tab::apply() {
             _inactive.erase(hnd);
             if (auto it = _active.find(hnd); it != _active.end()) {
                 auto &[cl, tab] = it->second;
-                tab = static_cast<process>(tab | process::CYCLE);
+                tab = process(tab | process::CYCLE);
             } else {
                 _active.try_emplace(hnd, clb, process::CYCLE);
             }
@@ -83,7 +91,7 @@ void process_tab::apply() {
             _inactive.erase(hnd);
             if (auto it = _active.find(hnd); it != _active.end()) {
                 auto &[cl, tab] = it->second;
-                tab = static_cast<process>(tab | process::MOVE);
+                tab = process(tab | process::MOVE);
             } else {
                 _active.try_emplace(hnd, clb, process::MOVE);
             }
@@ -125,7 +133,7 @@ const decltype(process_tab::_halting) & process_tab::get_halting() const {
     return _halting;
 }
 
-const decltype(process_tab::_inactive) &  process_tab::get_inactive() const {
+const decltype(process_tab::_inactive) & process_tab::get_inactive() const {
     return _inactive;
 }
 

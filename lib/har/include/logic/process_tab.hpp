@@ -24,20 +24,18 @@ namespace har {
         std::reference_wrapper<cell_base> cell;
         process status;
 
-        cell_tab(cell_base & cell, process status) : cell(cell), status(status) {
-
-        }
+        cell_tab(cell_base & cell, process status);
     };
 
     /// \brief Keeps track which logic to apply to cells in a cycle
     struct process_tab {
     private:
-        std::map<gcoords_t, cell_tab> _active; ///<Cycling or moving cells
-        std::map<gcoords_t, std::reference_wrapper<cell_base>> _waking; ///<Cells that start cycling next cycle
-        std::map<gcoords_t, std::reference_wrapper<cell_base>> _tiring; ///<Cells that stop cycling next cycle
-        std::map<gcoords_t, std::reference_wrapper<cell_base>> _starting; ///<Cells that start moving next cycle
-        std::map<gcoords_t, std::reference_wrapper<cell_base>> _halting; ///<Cells that stop moving next cycle
-        std::map<gcoords_t, std::reference_wrapper<cell_base>> _inactive; ///<Cells that neither cycle of move
+        map<gcoords_t, cell_tab> _active; ///<Cycling or moving cells
+        map<gcoords_t, std::reference_wrapper<cell_base>> _waking; ///<Cells that start cycling next cycle
+        map<gcoords_t, std::reference_wrapper<cell_base>> _tiring; ///<Cells that stop cycling next cycle
+        map<gcoords_t, std::reference_wrapper<cell_base>> _starting; ///<Cells that start moving next cycle
+        map<gcoords_t, std::reference_wrapper<cell_base>> _halting; ///<Cells that stop moving next cycle
+        map<gcoords_t, std::reference_wrapper<cell_base>> _inactive; ///<Cells that neither cycle nor move
 
     public:
         /// \brief Standard constructor
