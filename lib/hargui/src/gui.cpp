@@ -87,8 +87,7 @@ void gui::on_part_removed(part_h id) {
 
 void gui::on_resize_grid(const har::gcoords_t & to) {
     _queue.push([this, &win = *_mwin, to]() {
-        auto ctx = request();
-        win.resize_grid(to, ctx);
+        win.resize_grid(to);
     });
     _mwin->emit();
 }

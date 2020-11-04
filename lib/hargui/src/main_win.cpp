@@ -726,7 +726,7 @@ void main_win::remove_part(part_h id) {
     _bank.remove_part(id);
 }
 
-void main_win::resize_grid(const gcoords_t & to, participant::context & ctx) {
+void main_win::resize_grid(const gcoords_t & to) {
     switch (to.cat) {
         case MODEL_GRID: {
             _model.set_size(to.pos);
@@ -745,6 +745,7 @@ void main_win::resize_grid(const gcoords_t & to, participant::context & ctx) {
         if (sel.cat == to.cat &&
             (sel.pos.x >= to.pos.x - 1 ||
              sel.pos.y >= to.pos.y - 1)) {
+            auto ctx = _parti.get().request();
             cell_selected({ grid_t::INVALID_GRID, dcoords_t(-1, -1) }, ctx);
         }
     }

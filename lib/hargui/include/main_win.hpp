@@ -114,7 +114,7 @@ namespace har::gui_ {
 
         void remove_part(part_h id);
 
-        void resize_grid(const gcoords_t & pos, participant::context & ctx);
+        void resize_grid(const gcoords_t & pos);
 
         void model_loaded();
 
