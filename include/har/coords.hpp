@@ -1031,6 +1031,16 @@ namespace std {
             return (std::size_t(coords.x) << sizeof(std::size_t) * 4) + std::size_t(coords.y);
         }
     };
+
+    /// Specialization of <tt>std::hash</tt> for global coordinates
+    template<>
+    struct hash<har::gcoords> {
+        constexpr std::size_t operator()(const har::gcoords & gc) const noexcept {
+            return (std::size_t(gc.cat) << sizeof(std::size_t) * 7) +
+                   (std::size_t(gc.pos.x) << sizeof(std::size_t) * 4) +
+                   std::size_t(gc.pos.y);
+        }
+    };
 }
 
 #endif //HAR_COORDS_HPP
