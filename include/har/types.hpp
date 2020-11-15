@@ -61,7 +61,9 @@ namespace har {
             typename Hash = std::hash<Key>,
             typename Pred = std::equal_to<Key>,
             typename Alloc = std::allocator<std::pair<const Key, Tp>>>
-    using map = std::unordered_map<Key, Tp, Hash, Pred, Alloc>;
+    using map = std::unordered_map<Key,
+            std::conditional_t<std::is_reference_v<Tp>, std::reference_wrapper<std::remove_reference_t<Tp>>, Tp>,
+            Hash, Pred, Alloc>;
 
     template<typename Tp,
             typename Hash = std::hash<Tp>,
@@ -137,7 +139,7 @@ namespace har {
 #else
 #define text(lit) lit
 
-#define remove_r(line) line.erase(std::remove_if(line.begin(), line.end(), [](auto c) { return std::iscntrl(c); }), line.end());
+#define remove_r(line) line.erase(std::remove_if((line).begin(), (line).end(), [](auto c) { return std::iscntrl(c); }), (line).end());
 #endif
 
     struct model_info {
@@ -146,7 +148,7 @@ namespace har {
         string_t version;
         string_t description;
         bool_t editable;
-        map<int_t, std::reference_wrapper<string_t>> titles;
+        map<int_t, string_t &> titles;
     };
 }
 
