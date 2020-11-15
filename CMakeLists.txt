@@ -75,7 +75,8 @@ link_directories(
         ${GTKMM_LIBRARY_DIRS}
         ${GLIBMM_LIBRARY_DIRS})
 
-add_executable(example_gol src/example/game_of_life.cpp)
+add_executable(example_gol
+        src/example/game_of_life.cpp)
 
 target_link_libraries(example_gol
         ${DUINO_LIBRARY_NAME}
