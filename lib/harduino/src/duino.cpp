@@ -60,7 +60,7 @@ void duino::on_attach(int argc, char * const * argv, char * const * envp) {
         }
     }
     if (!loaded) {
-        std::string model{ reinterpret_cast<const char *>(uno_ham), uno_ham_len };
+        imstream model{ reinterpret_cast<char *>(uno_ham), uno_ham_len };
         load_model(model);
     }
 }

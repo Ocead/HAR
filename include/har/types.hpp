@@ -77,6 +77,47 @@ namespace har {
     typedef std::basic_ifstream<char_t> ifstream;
     typedef std::basic_ofstream<char_t> ofstream;
 
+    typedef std::basic_string_view<char_t> string_view;
+
+    template<typename CharT, typename Traits = std::char_traits<CharT>>
+    class basic_mstreambuf : public std::basic_streambuf<CharT, Traits> {
+        using pointer = typename std::add_pointer<CharT>::type;
+        using const_pointer = typename std::add_pointer<typename std::add_const<CharT>::type>::type;
+
+    public:
+        basic_mstreambuf(const_pointer base, size_t size) {
+            pointer ptr(const_cast<pointer>(base));
+            this->setg(ptr, ptr, ptr + size);
+        }
+    };
+
+    typedef basic_mstreambuf<char_t> mstreambuf;
+
+    /// Input stream from memory
+    /// \tparam CharT Character type
+    /// \tparam Traits Character traits
+    template<typename CharT, typename Traits = std::char_traits<CharT>>
+    class basic_imstream : virtual basic_mstreambuf<CharT, Traits>, public std::basic_istream<CharT, Traits> {
+        using buffer = basic_mstreambuf<CharT, Traits>;
+        using stream = std::basic_istream<CharT, Traits>;
+        using pointer = typename std::add_pointer<CharT>::type;
+
+    public:
+        basic_imstream(pointer base, size_t size) : buffer(base, size), stream(static_cast<buffer *>(this)) {
+
+        }
+
+        explicit basic_imstream(std::basic_string<CharT, Traits> & str) : basic_imstream(str.data(), str.size()) {
+
+        }
+
+        explicit basic_imstream(std::basic_string_view<CharT, Traits> & view) : basic_imstream(view.data(), view.size()) {
+
+        }
+    };
+
+    typedef basic_imstream<char_t> imstream;
+
     using clock = std::conditional_t<
             std::chrono::high_resolution_clock::is_steady,
             std::chrono::high_resolution_clock,

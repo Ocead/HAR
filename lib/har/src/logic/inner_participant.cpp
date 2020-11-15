@@ -137,9 +137,9 @@ void inner_participant::include_part(const part & pt) {
 }
 
 void inner_participant::load_model(string_t & ser) {
-    stringstream ss{ ser };
+    imstream ims{ser};
     auto & sim = _simulation.get();
-    sim.load_model(_ctx, ss);
+    sim.load_model(_ctx, ims);
 }
 
 void inner_participant::load_model(string_t && ser) {
