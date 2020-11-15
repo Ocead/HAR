@@ -215,28 +215,28 @@ void automaton::cycle() {
     _last_cycle_begin = now;
     std::this_thread::sleep_for(_time_delta - wait_for);
 
-    _substep = automaton::substep::PROCESS_REQUEST;
+    _substep.store(automaton::substep::PROCESS_REQUEST, std::memory_order_release);
     auto & worker0 = *_workers[0];
     if (worker0.process_requests()) {
         worker0.cycle_commit_and_draw();
         worker0.clean();
     }
 
-    _substep = automaton::substep::CYCLE_AND_MOVE;
+    _substep.store(automaton::substep::CYCLE_AND_MOVE, std::memory_order_release);
     for (auto & w : _workers) {
         w->unblock();
     }
     _workers[0]->cycle_and_move();
     wait_for_all();
 
-    _substep = automaton::substep::COMMIT_AND_DRAW;
+    _substep.store(automaton::substep::COMMIT_AND_DRAW, std::memory_order_release);
     for (auto & w : _workers) {
         w->unblock();
     }
     _workers[0]->cycle_commit_and_draw();
     wait_for_all();
 
-    _substep = automaton::substep::CLEAN;
+    _substep.store(automaton::substep::CLEAN, std::memory_order_release);
     for (auto & w : _workers) {
         w->unblock();
     }
