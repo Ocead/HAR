@@ -157,5 +157,4 @@ void headerbar::enable_redo(bool enable) {
     _btn_redo.set_sensitive(enable);
 }
 
-
 headerbar::~headerbar() noexcept = default;

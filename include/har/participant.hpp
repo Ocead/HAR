@@ -52,7 +52,7 @@ namespace har {
         /// \brief Stops the automaton
         void stop();
 
-        /// \brief Set's a grid cell as <tt>selected</tt> in the UI
+        /// \brief Sets a grid cell as <tt>selected</tt> in the UI
         ///
         /// \param [in] hnd Handle of the cell
         ///
@@ -157,28 +157,37 @@ namespace har {
         /// \brief Called once, when the participant is added to the simulation
         /// This callback is guaranteed to be called before any other callback
         ///
-        /// \param argc Number of command line arguments
-        /// \param argv Array of command line arguments
-        /// \param envp Array of defined environment variables
-        virtual void on_attach(int argc, char * const * argv, char * const * envp) = 0;
+        /// \param [in] argc Number of command line arguments
+        /// \param [in] argv Array of command line arguments
+        /// \param [in] envp Array of defined environment variables
+        virtual void on_attach(int argc, char * const argv[], char * const envp[]) = 0;
 
         /// \brief Called every time a new part is added to the simulation
-        virtual void on_part_included(const class part & pt, bool_t commit) = 0;
+        ///
+        /// \param [in] pt Added part
+        /// \param [in] commit <tt>false</tt>, if more added parts will be reported subsequently, otherwise <tt>true</tt>
+        virtual void on_part_included(const part & pt, bool_t commit) = 0;
 
-        inline void on_part_included(const class part & pt) {
+        inline void on_part_included(const part & pt) {
             on_part_included(pt, true);
         }
 
         /// \brief Called every time a part is removed from the simulation
+        ///
+        /// \param [in] id ID of the removed part
         virtual void on_part_removed(part_h id) = 0;
 
         /// \brief Called every time a grid in the simulation is resized
+        ///
+        /// \param [in] to ID of the grid and its new size
         virtual void on_resize_grid(const gcoords_t & to) = 0;
 
         /// \brief Called every time a model is loaded
         virtual void on_model_loaded() = 0;
 
         /// \brief Called every time the information about the model is changed
+        ///
+        /// \param [in] info Updated model info
         virtual void on_info_updated(const model_info & info) = 0;
 
         /// \brief Called every time the automaton's state is set to <tt>RUN</tt>
@@ -191,9 +200,14 @@ namespace har {
         virtual void on_stop() = 0;
 
         /// \brief Called every time a message to the user is to be displayed
+        ///
+        /// \param [in] header Header of the message
+        /// \param [in] content Content of the message
         virtual void on_message(const string_t & header, const string_t & content) = 0;
 
         /// \brief Called every time an exception occurs to report it to the user
+        ///
+        /// \param [in] e Reported exception
         virtual void on_exception(const exception::exception & e) = 0;
 
         /// \brief Called every time a property of the selected cell is updated

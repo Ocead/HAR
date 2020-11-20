@@ -121,20 +121,28 @@ namespace har {
         /// \brief Gets the value of the property
         /// \tparam T Desired type
         /// \return The value currently held
-        template<typename T, std::enable_if_t<is_value_type<T>::value, T*> = nullptr>
+        template<typename T>
         [[nodiscard]]
         inline explicit operator T() const {
-            return get<T>(val());
+            if constexpr (is_value_type<T>::value) {
+                return get<T>(val());
+            } else {
+                return std::any_cast<T>(get<special_t>(val()));
+            }
         }
 #endif
 
         /// \brief Gets the value of the property
         /// \tparam T Desired type
         /// \return The value currently held
-        template<typename T, std::enable_if_t<is_value_type<T>::value, T*> = nullptr>
+        template<typename T>
         [[nodiscard]]
         inline explicit operator const T &() const {
-            return get<T>(val());
+            if constexpr (is_value_type<T>::value) {
+                return get<T>(val());
+            } else {
+                return *std::any_cast<T>(&get<special_t>(val()));
+            }
         }
 
         /// \brief Default destructor

@@ -110,8 +110,6 @@ namespace har {
 
     };
 
-    using PIN = decltype(direction::PIN);
-
     static constexpr struct {
 
         constexpr cargo_h operator[](const int_t n) const {
@@ -145,6 +143,7 @@ namespace har {
         class invalid_direction : public exception {
         private:
             direction_t _actual; ///<The faulty direction
+
         public:
             /// Constructs a new exception
             /// \param source Source of the exception

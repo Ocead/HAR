@@ -7,8 +7,6 @@
 #ifndef HAR_TYPES_HPP
 #define HAR_TYPES_HPP
 
-#define HAR_DEBUG
-
 #if defined(_MSC_VER)
 #define FUNCTION __FUNCSIG__
 #elif defined(__GNUC__)
@@ -24,12 +22,15 @@
 #else
 
 #include <iostream>
+#include <sstream>
 #include <string>
 
 #define DEBUG if (true)
 
 #define DEBUG_LOG(msg) do {\
-    std::clog << ::std::string() + FUNCTION + ": " << msg << ::std::endl;\
+    std::stringstream ss{};\
+    ss << FUNCTION << ": " << msg << '\n';\
+    std::cerr << ss.rdbuf();\
 } while(0)
 #endif
 
@@ -70,15 +71,15 @@ namespace har {
             typename Alloc = std::allocator<Tp>>
     using set = std::unordered_set<Tp, Hash, Pred, Alloc>;
 
-    typedef std::size_t participant_h;
+    typedef std::size_t participant_h; ///<Unique ID of a participant
 
-    typedef std::basic_istream<char_t> istream;
-    typedef std::basic_ostream<char_t> ostream;
-    typedef std::basic_stringstream<char_t> stringstream;
-    typedef std::basic_ifstream<char_t> ifstream;
-    typedef std::basic_ofstream<char_t> ofstream;
+    typedef std::basic_istream<char_t> istream;           ///<Input stream type
+    typedef std::basic_ostream<char_t> ostream;           ///<Output stream type
+    typedef std::basic_stringstream<char_t> stringstream; ///<String stream type
+    typedef std::basic_ifstream<char_t> ifstream;         ///<Input file stream type
+    typedef std::basic_ofstream<char_t> ofstream;         ///<Output file stream type
 
-    typedef std::basic_string_view<char_t> string_view;
+    typedef std::basic_string_view<char_t> string_view;   ///<String view type
 
     template<typename CharT, typename Traits = std::char_traits<CharT>>
     class basic_mstreambuf : public std::basic_streambuf<CharT, Traits> {
@@ -102,22 +103,37 @@ namespace har {
         using buffer = basic_mstreambuf<CharT, Traits>;
         using stream = std::basic_istream<CharT, Traits>;
         using pointer = typename std::add_pointer<CharT>::type;
+        using const_pointer = typename std::add_pointer<typename std::add_const<CharT>::type>::type;
 
     public:
-        basic_imstream(pointer base, size_t size) : buffer(base, size), stream(static_cast<buffer *>(this)) {
+        /// \brief Constructs an input stream from not owned raw data
+        ///
+        /// \param [in] base Pointer to begin of raw data
+        /// \param [in] size Size of raw data
+        basic_imstream(const_pointer base, size_t size) : buffer(base, size), stream(static_cast<buffer *>(this)) {
 
         }
 
-        explicit basic_imstream(std::basic_string<CharT, Traits> & str) : basic_imstream(str.data(), str.size()) {
+        /// \brief Constructs an input stream from a not owned string
+        ///
+        /// \param [in] str Base string
+        explicit basic_imstream(const std::basic_string<CharT, Traits> & str) : basic_imstream(str.data(), str.size()) {
 
         }
 
-        explicit basic_imstream(std::basic_string_view<CharT, Traits> & view) : basic_imstream(view.data(), view.size()) {
+        /// \brief Constructs an input stream from a not owned string view
+        ///
+        /// \param [in] str Base string view
+        explicit basic_imstream(const std::basic_string_view<CharT, Traits> & view) : basic_imstream(view.data(),
+                                                                                               view.size()) {
 
         }
+
+        /// \brief Default destructor
+        ~basic_imstream() = default;
     };
 
-    typedef basic_imstream<char_t> imstream;
+    typedef basic_imstream<char_t> imstream; ///<Input memory stream type
 
     using clock = std::conditional_t<
             std::chrono::high_resolution_clock::is_steady,
@@ -125,7 +141,7 @@ namespace har {
             std::chrono::steady_clock>;
 
     template<typename Tp>
-    inline constexpr auto underlying(Tp e) -> typename std::underlying_type<Tp>::type {
+    inline constexpr typename std::underlying_type<Tp>::type underlying(Tp e) {
         return static_cast<typename std::underlying_type<Tp>::type>(e);
     }
 
@@ -134,11 +150,15 @@ namespace har {
 #if defined(UNICODE)
 #define text(lit) L##lit
 
-#define remove_r(line) lline.erase(std::remove_if(line.begin(), line.end(), [](auto c) { return std::iswcntrl(c); }), line.end());
+#define remove_r(line) line.erase(std::remove_if(line.begin(), line.end(), [](auto c) {\
+    return std::iswcntrl(c);\
+}), line.end())
 #else
 #define text(lit) lit
 
-#define remove_r(line) line.erase(std::remove_if((line).begin(), (line).end(), [](auto c) { return std::iscntrl(c); }), (line).end());
+#define remove_r(line) line.erase(std::remove_if((line).begin(), (line).end(), [](auto c) {\
+    return std::iscntrl(c);\
+}), (line).end())
 #endif
 
     struct model_info {

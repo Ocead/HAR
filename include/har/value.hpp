@@ -365,6 +365,9 @@ namespace har {
 
     };
 
+    template<typename T>
+    using is_value_type_v = typename is_value_type<T>::value;
+
     /// \enum
     /// \brief Special property IDs used by the simulation logic and standard parts
     enum of : uint_t {
