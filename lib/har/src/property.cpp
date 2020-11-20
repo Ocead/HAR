@@ -22,13 +22,12 @@ property::property(context & ctx,
                                  _id(id),
                                  _type(type),
                                  _now(now) {
-    debug({
-              if (&cell == &grid_cell_base::invalid() ||
-              &cell == &cargo_cell_base::invalid()) {
-                  raise(std::runtime_error(""));
-              }
-          }
-    );
+    DEBUG {
+        if (&cell == &grid_cell_base::invalid() ||
+            &cell == &cargo_cell_base::invalid()) {
+            raise(std::runtime_error(""));
+        }
+    }
 }
 
 datatype property::type() const {

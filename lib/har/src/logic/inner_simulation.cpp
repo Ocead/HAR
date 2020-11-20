@@ -214,7 +214,7 @@ void inner_simulation::exit() {
         ptr->detach();
     }
     _automaton.end(true);
-    debug_log("Calling on exit function");
+    DEBUG_LOG("Calling on exit function");
     _exit_fun();
 }
 

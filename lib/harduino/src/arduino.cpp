@@ -93,12 +93,12 @@ int WEAK main(int argc, char * argv[], char * envp[]) {
     sim.commence();
 
     //Call loop as long as the simulation is running
-    debug_log("Start calling loop()");
+    DEBUG_LOG("Start calling loop()");
     while (!exit.load(std::memory_order_acquire)) {
         runtime.maybe_setup();
         loop();
     }
-    debug_log("Done calling loop()");
+    DEBUG_LOG("Done calling loop()");
 }
 
 #include <Arduino.h>

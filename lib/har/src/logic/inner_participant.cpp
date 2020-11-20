@@ -95,7 +95,7 @@ void inner_participant::commit() {
 }
 
 void inner_participant::unlock_automaton_and_commit() {
-    debug_log("PARTICIPANT[" + std::to_string(_id) + "] ends request");
+    DEBUG_LOG("PARTICIPANT[" + std::to_string(_id) + "] ends request");
     auto & automaton = _automaton.get();
     automaton.process(*this);
     _alock.hand_back();
@@ -103,7 +103,7 @@ void inner_participant::unlock_automaton_and_commit() {
 }
 
 void inner_participant::wait_for_automaton() {
-    debug_log("PARTICIPANT[" + std::to_string(_id) + "] begins request");
+    DEBUG_LOG("PARTICIPANT[" + std::to_string(_id) + "] begins request");
     _automaton.get().request(_id);
     _alock.request();
 }

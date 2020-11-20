@@ -67,20 +67,22 @@ enum automaton::substep automaton::substep() {
 enum automaton::state automaton::set_state(enum state to) {
     auto old = _state.exchange(to, std::memory_order_acq_rel);
     if (old != to) {
-        debug(switch (to) {
-            case state::INIT:
-                debug_log("to INIT");
-                break;
-            case state::RUN:
-                debug_log("to RUN");
-                break;
-            case state::STEP:
-                debug_log("to STEP");
-                break;
-            case state::STOP:
-                debug_log("to STOP");
-                break;
-        });
+        DEBUG {
+            switch (to) {
+                case state::INIT:
+                    DEBUG_LOG("to INIT");
+                    break;
+                case state::RUN:
+                    DEBUG_LOG("to RUN");
+                    break;
+                case state::STEP:
+                    DEBUG_LOG("to STEP");
+                    break;
+                case state::STOP:
+                    DEBUG_LOG("to STOP");
+                    break;
+            }
+        };
 
         for (auto &[id, parti] : _sim.participants()) {
             switch (to) {
@@ -189,18 +191,18 @@ void automaton::process(inner_participant & iparti) {
 
 bool_t automaton::begin(bool_t and_block) {
     uint_t c = _waiting++;
-    debug_log("Lock automaton from " + std::to_string(c));
+    DEBUG_LOG("Lock automaton from " + std::to_string(c));
     if (c > 0 && and_block) {
-        debug_log("Wait on mutex");
+        DEBUG_LOG("Wait on mutex");
         _cyclex.lock();
-        debug_log("Locked mutex");
+        DEBUG_LOG("Locked mutex");
     }
     return c == 0;
 }
 
 bool_t automaton::end(bool_t and_unblock) {
     uint_t c = --_waiting;
-    debug_log("Unlock automaton to " + std::to_string(c));
+    DEBUG_LOG("Unlock automaton to " + std::to_string(c));
     if (c > 0 && and_unblock) {
         _cyclex.unlock();
     }
@@ -208,7 +210,7 @@ bool_t automaton::end(bool_t and_unblock) {
 }
 
 void automaton::cycle() {
-    debug_log("begin");
+    DEBUG_LOG("begin");
     begin(true);
     auto now = clock::now();
     auto wait_for = now - _last_cycle_begin;
@@ -243,7 +245,7 @@ void automaton::cycle() {
     _workers[0]->clean();
     wait_for_all();
     end(true);
-    debug_log("end");
+    DEBUG_LOG("end");
 }
 
 automaton::~automaton() = default;
@@ -508,16 +510,19 @@ bool_t automaton::worker::process_requests() {
 }
 
 void automaton::worker::cycle_and_move() {
+    DEBUG_LOG("WORKER[" << offset << "] does CYCLE_AND_MOVE");
     world & model = _auto._sim.get_model();
     process_grid(model.get_model());
     process_grid(model.get_bank());
 }
 
 void automaton::worker::cycle_commit_and_draw() {
+    DEBUG_LOG("WORKER[" << offset << "] does COMMIT_AND_DRAW");
     context_commit_and_draw(_ctx);
 }
 
 void automaton::worker::clean() {
+    DEBUG_LOG("WORKER[" << offset << "] does CLEAN");
     _ctx.reset();
 }
 

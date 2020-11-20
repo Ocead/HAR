@@ -43,7 +43,7 @@ grid_cell_base & grid::at(const har::dcoords_t & pos) {
     if (pos.x < _size.x && pos.y < _size.y) {
         return _data.at(pos);
     } else {
-        debug_log("index " << pos << " exceeds the dimension of the grid (" << gcoords_t(_cat, _size) << ")");
+        DEBUG_LOG("index " << pos << " exceeds the dimension of the grid (" << gcoords_t(_cat, _size) << ")");
         return grid_cell_base::invalid();
     }
 }
@@ -52,7 +52,7 @@ const grid_cell_base & grid::at(const har::dcoords_t & pos) const {
     if (pos.x < _size.x && pos.y < _size.y) {
         return _data.at(pos);
     } else {
-        debug_log("index " << pos << " exceeds the dimension of the grid (" << gcoords_t(_cat, _size) << ")");
+        DEBUG_LOG("index " << pos << " exceeds the dimension of the grid (" << gcoords_t(_cat, _size) << ")");
         return grid_cell_base::invalid();
     }
 }

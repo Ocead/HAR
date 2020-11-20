@@ -12,21 +12,21 @@ guard::guard() : _count(), _mutex() {
 
 bool_t guard::lock(bool_t block) {
     uint_t c = _count.fetch_add(1, std::memory_order_acq_rel);
-    debug_log(std::string("Lock guard from ") + std::to_string(c));
+    DEBUG_LOG(std::string("Lock guard from ") + std::to_string(c));
     if (c > 0 && block) {
-        debug_log("Wait on mutex");
+        DEBUG_LOG("Wait on mutex");
         _mutex.lock();
-        debug_log("Locked mutex");
+        DEBUG_LOG("Locked mutex");
     }
     return c == 0;
 }
 
 bool_t guard::unlock(bool_t block) {
     uint_t c = _count.fetch_sub(1, std::memory_order_acq_rel);
-    debug_log(std::string("Unlock guard to ") + std::to_string(c));
+    DEBUG_LOG(std::string("Unlock guard to ") + std::to_string(c));
     if (c > 1 && block) {
         _mutex.unlock();
-        debug_log("Unlocked mutex");
+        DEBUG_LOG("Unlocked mutex");
     }
     return c == 0;
 }

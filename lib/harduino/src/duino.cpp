@@ -85,7 +85,7 @@ const decltype(duino::_start) & duino::start() const {
 
 void duino::maybe_setup() {
     if (_setup.load(std::memory_order_acquire)) {
-        debug_log("Calling setup()");
+        DEBUG_LOG("Calling setup()");
         setup();
         _setup.fetch_sub(1, std::memory_order_acq_rel);
     }
@@ -137,7 +137,7 @@ void duino::analogReference(uint8_t type) {
             break;
         }
         default: {
-            debug_log("Mode " + std::to_string(type) + " is not supported");
+            DEBUG_LOG("Mode " + std::to_string(type) + " is not supported");
             raise(std::runtime_error(""));
         }
     }

@@ -18,18 +18,17 @@
 #endif
 
 #if defined(NDEBUG) || !defined(HAR_DEBUG)
-#define debug(code) (void(0))
-#define debug_log(msg) (void(0))
+#define DEBUG if (false)
+
+#define DEBUG_LOG(msg) (void(0))
 #else
 
 #include <iostream>
 #include <string>
 
-#define debug(code) do {\
-    code;\
-} while(0)
+#define DEBUG if (true)
 
-#define debug_log(msg) do {\
+#define DEBUG_LOG(msg) do {\
     std::clog << ::std::string() + FUNCTION + ": " << msg << ::std::endl;\
 } while(0)
 #endif

@@ -73,14 +73,14 @@ const value & cell_base::get(of id, bool_t now) const {
             return it->second;
         }
     }
-    debug({
-       if (auto it = _properties.find(id); it != _properties.end()) {
-           return it->second;
-       } else {
-           debug_log("cell has no property with ID " + value::to_string(id) + " (" + std::to_string(id) + ")");
-           return value::invalid();
-       }
-    });
+    DEBUG {
+        if (auto it = _properties.find(id); it != _properties.end()) {
+            return it->second;
+        } else {
+            DEBUG_LOG("cell has no property with ID " + value::to_string(id) + " (" + std::to_string(id) + ")");
+            return value::invalid();
+        }
+    }
     return _properties.at(id);
 }
 
