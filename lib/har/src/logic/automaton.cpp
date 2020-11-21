@@ -308,6 +308,8 @@ automaton::dispatcher::~dispatcher() = default;
 //region worker
 
 automaton::worker::worker(automaton & automaton, ushort_t id) : _auto(automaton),
+                                                                _workex(),
+                                                                _ctx(),
                                                                 offset(id),
                                                                 _valid(false) {
     _workex.lock();

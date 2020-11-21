@@ -61,14 +61,19 @@ namespace har {
     public:
         inner_simulation(int argc, char * argv[], char * envp[]);
 
+        [[nodiscard]]
         automaton & get_automaton();
 
+        [[nodiscard]]
         const class automaton & get_automaton() const;
 
+        [[nodiscard]]
         model & get_model();
 
+        [[nodiscard]]
         const class model & get_model() const;
 
+        [[nodiscard]]
         const decltype(_inventory) & inventory() const;
 
         void include_part(const part & pt);
@@ -79,18 +84,23 @@ namespace har {
 
         void detach(participant_h id);
 
+        [[nodiscard]]
         decltype(_partis) & participants();
 
+        [[nodiscard]]
         const decltype(_partis) & participants() const;
 
+        [[nodiscard]]
         decltype(_ipartis) & inner_participants();
 
+        [[nodiscard]]
         const decltype(_ipartis) & inner_participants() const;
 
         void call_on_exit(const std::function<void()> & fun);
 
         void call_on_exit(std::function<void()> && fun);
 
+        [[nodiscard]]
         const part & part_of(part_h id) const;
 
         void load_model(context & ctx, istream & is);
