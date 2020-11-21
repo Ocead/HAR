@@ -165,11 +165,15 @@ uint8_t duino::digitalPinToInterrupt(uint8_t pin) {
 }
 
 void duino::attachInterrupt(uint8_t interruptNum, void (* userFunc)(), int mode) {
-    //TODO: Implement
+    auto ctx = request_or_terminate();
+    auto fgcl = map_cell_interrupt(ctx, interruptNum);
+    fgcl[of::INT_HANDLER] = har::callback_t(userFunc);
 }
 
 void duino::detachInterrupt(uint8_t interruptNum) {
-    //TODO: Implement
+    auto ctx = request_or_terminate();
+    auto fgcl = map_cell_interrupt(ctx, interruptNum);
+    fgcl[of::INT_HANDLER] = har::callback_t();
 }
 
 duino::~duino() noexcept = default;
