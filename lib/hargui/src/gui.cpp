@@ -18,11 +18,25 @@ gui::gui() : har::participant(),
              _thread(),
              _app(),
              _mwin(nullptr),
-             _queue(),
              _responsible(false),
              _connection(),
-             _cycle_delta(33ms) {
+             _cycle_delta(16667us),
+             _queue() {
 
+}
+
+void gui::set_cycle(std::chrono::microseconds delta) {
+    _cycle_delta = std::chrono::duration_cast<std::chrono::milliseconds>(delta);
+    if (_connection.has_value()) {
+        _connection.value().disconnect();
+        _connection = Glib::signal_timeout().connect([this]() -> bool_t {
+            REQUEST(ctx) {
+                ctx.cycle();
+            }
+
+            return true;
+        }, std::chrono::duration_cast<std::chrono::milliseconds>(_cycle_delta).count(), Glib::PRIORITY_HIGH);
+    }
 }
 
 std::string gui::name() const {
@@ -132,7 +146,7 @@ void gui::on_run(bool_t responsible) {
                 }
 
                 return true;
-            }, _cycle_delta.count(), Glib::PRIORITY_HIGH);
+            }, std::chrono::duration_cast<std::chrono::milliseconds>(_cycle_delta).count(), Glib::PRIORITY_HIGH);
         });
     }
     _queue.push([&win = *_mwin, responsible]() {

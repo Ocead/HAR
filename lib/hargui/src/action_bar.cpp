@@ -6,11 +6,12 @@
 
 using namespace har::gui_;
 
-action_bar::action_bar() : Gtk::ActionBar(),
-                           _run(),
-                           _step(),
-                           _stop(),
-                           _updating(false) {
+action_bar::action_bar(std::chrono::microseconds us) : Gtk::ActionBar(),
+                                                       _run(),
+                                                       _step(),
+                                                       _stop(),
+                                                       _timing_control(us),
+                                                       _updating(false) {
     _run.set_image_from_icon_name("media-playback-start-symbolic", Gtk::ICON_SIZE_BUTTON);
     _step.set_image_from_icon_name("zoom-original-symbolic", Gtk::ICON_SIZE_BUTTON);
     _stop.set_image_from_icon_name("media-playback-stop-symbolic", Gtk::ICON_SIZE_BUTTON);
@@ -58,6 +59,8 @@ action_bar::action_bar() : Gtk::ActionBar(),
 
     Gtk::ActionBar::set_center_widget(*Gtk::manage(&box));
 
+    pack_end(_timing_control);
+
     show_all_children();
 }
 
@@ -71,6 +74,10 @@ void action_bar::set_step() {
 
 void action_bar::set_stop() {
     _stop.set_active(true);
+}
+
+timing_control & action_bar::get_timing_control() {
+    return _timing_control;
 }
 
 std::function<void()> & action_bar::run_fun() {

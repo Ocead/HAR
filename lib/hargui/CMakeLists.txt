@@ -34,6 +34,7 @@ link_directories(
 set(GUI_LIBRARY_NAME hargui)
 
 add_library(${GUI_LIBRARY_NAME}
+        src/about.cpp
         src/gui.cpp
         src/action_bar.cpp
         src/cell.cpp
@@ -46,7 +47,8 @@ add_library(${GUI_LIBRARY_NAME}
         src/part.cpp
         src/properties.cpp
         src/property_list.cpp
-        src/terminal.cpp src/about.cpp)
+        src/terminal.cpp
+        src/timing_control.cpp)
 
 if (CMAKE_BUILD_TYPE EQUAL "RELEASE")
     set_property(TARGET ${GUI_LIBRARY_NAME} PROPERTY INTERPROCEDURAL_OPTIMIZATION True)

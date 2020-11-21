@@ -26,7 +26,7 @@ main_win::main_win(gui & parti,
                                                                    _headerbar(),
                                                                    _model(grid_t::MODEL_GRID, 48u),
                                                                    _bank(grid_t::BANK_GRID, 32u),
-                                                                   _action_bar(),
+                                                                   _action_bar(parti._cycle_delta),
                                                                    _terminal(),
                                                                    _properties([this](of id, value && val) {
                                                                        prop_changed(id, std::forward<value>(val));
@@ -251,6 +251,10 @@ void main_win::bind() {
         _action_bar.stop_fun() = [&]() {
             _parti.get().stop();
         };
+
+        _action_bar.get_timing_control().on_change_fun() = [this](auto us) {
+            _parti.get().set_cycle(us);
+        };
     }
 }
 
@@ -385,7 +389,7 @@ void main_win::prop_changed(of id, value && val) {
             } else {
                 auto & cb = gcl[id].as<callback_t>();
                 if (cb) {
-                    cb(gcl);
+                    cb();
                 }
             }
         }

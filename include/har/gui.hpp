@@ -25,7 +25,7 @@ namespace har {
         gui_::main_win * _mwin;
         std::atomic<bool_t> _responsible;
         std::optional<sigc::connection> _connection;
-        std::chrono::milliseconds _cycle_delta;
+        std::chrono::microseconds _cycle_delta;
 
         co_queue<std::function<void()>> _queue;
 

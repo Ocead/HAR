@@ -12,12 +12,16 @@
 #include <gtkmm/buttonbox.h>
 #include <gtkmm/togglebutton.h>
 
+#include "timing_control.hpp"
+
 namespace har::gui_ {
     class action_bar : public Gtk::ActionBar {
     private:
         Gtk::ToggleButton _run;
         Gtk::Button _step;
         Gtk::ToggleButton _stop;
+
+        timing_control _timing_control;
 
         std::function<void()> _run_fun;
         std::function<void()> _step_fun;
@@ -26,13 +30,15 @@ namespace har::gui_ {
         har::bool_t _updating;
 
     public:
-        action_bar();
+        action_bar(std::chrono::microseconds us);
 
         void set_run();
 
         void set_step();
 
         void set_stop();
+
+        timing_control & get_timing_control();
 
         std::function<void()> & run_fun();
 
