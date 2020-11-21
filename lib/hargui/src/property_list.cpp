@@ -2,6 +2,7 @@
 // Created by Johannes on 28.06.2020.
 //
 
+#include <iomanip>
 #include <utility>
 
 #include <gtkmm.h>
@@ -233,7 +234,17 @@ property_row::property_row(const entry & ent,
             _child = Gtk::manage(&child);
         }
         case datatype::CALLBACK: {
-            auto & child = *new Gtk::Button("Call");
+            auto & fun = prop.as<callback_t>();
+            string_t name;
+            if (fun) {
+                stringstream ss{ };
+                ss << text("0x") << std::hex << size_t(fun.address());
+                name = ss.str();
+            } else {
+                name = text("0x0");
+            }
+            auto & child = *new Gtk::Button(name);
+            child.set_alignment(0., .5);
             child.signal_clicked().connect([id = ent.id, callback, val = prop.val()]() {
                 callback(id, value(val));
             });
@@ -337,6 +348,16 @@ void property_row::set_value(value && val) {
             break;
         }
         case datatype::CALLBACK: {
+            const auto & fun = get<callback_t>(val);
+            string_t name;
+            if (fun) {
+                stringstream ss{ };
+                ss << text("0x") << std::hex << size_t(fun.address());
+                name = ss.str();
+            } else {
+                name = text("0x0");
+            }
+            dynamic_cast<Gtk::Button &>(*_child).set_label(name);
             break;
         }
         case datatype::HASH: {

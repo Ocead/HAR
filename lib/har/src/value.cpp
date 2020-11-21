@@ -225,7 +225,7 @@ value value::get_standard(datatype t_) {
         case datatype::SPECIAL:
             return make_value<special_t>();
         case datatype::CALLBACK:
-            return make_value<callback_t>((void (*)(cell &)) nullptr);
+            return make_value<callback_t>((void (*)()) nullptr);
         case datatype::HASH:
             return make_value<part_h>(0);
         default:

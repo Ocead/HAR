@@ -137,16 +137,21 @@ namespace har {
 
     public:
         using Base::Base;
+        using Sig = typename std::add_pointer<R(Args...)>::type;
 
         function(const function & ref) = default;
 
         function(function && fref) noexcept = default;
 
+        [[nodiscard]]
+        std::add_const_t<Sig> * address() const {
+            return this->template target<Sig>();
+        };
+
         /// Compares two functions for equality
         /// \param [in] rhs Other function
         /// \return <tt>TRUE</tt>, if both objects have the same function pointer
         inline bool_t operator==(const function & rhs) const noexcept {
-            using Sig = R(*)(Args...);
             return this->template target<Sig>() == rhs.template target<Sig>();
         }
 
@@ -167,11 +172,8 @@ namespace har {
         ~function() = default;
     };
 
-    /// \brief Type for callbacks that accept a cell
-    typedef function<void(class cell &)> callback_t;
-
-    /// \brief Type for callbacks that accept a const cell
-    typedef function<void(const class cell &)> ccallback_t;
+    /// \brief Type for callbacks
+    typedef function<void()> callback_t;
 
     enum raw_part : std::size_t;
 
