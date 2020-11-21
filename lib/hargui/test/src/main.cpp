@@ -16,7 +16,7 @@ using namespace har::gui_;
 
 int main(int argc, char * argv[]) {
     simulation sim{ };
-    ::har::gui_::gui gui;
+    gui gui;
     program p1{ };
     program p2{ };
 

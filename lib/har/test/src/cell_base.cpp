@@ -57,19 +57,21 @@ struct variant_type_iterator {
                 }
             }
 
-            debug(SECTION("Non present properties map to invalid values") {
-                REQUIRE(&clb.get(id + 1, true) == &value::invalid());
-                REQUIRE(&clb.get(id + 1, false) == &value::invalid());
-            });
+            DEBUG {
+                SECTION("Non present properties map to invalid values") {
+                    REQUIRE(&clb.get(id + 1, true) == &value::invalid());
+                    REQUIRE(&clb.get(id + 1, false) == &value::invalid());
+                }
+            };
 
             SECTION("Intermediate changes can be rolled back") {
                 clb.set(id + 1, value(t2));
 
                 REQUIRE_NOTHROW(clb.rollback());
-                debug(
-                        REQUIRE(&clb.get(id + 1, true) == &value::invalid());
-                        REQUIRE(&clb.get(id + 1, false) == &value::invalid());
-                );
+                DEBUG {
+                    REQUIRE(&clb.get(id + 1, true) == &value::invalid());
+                    REQUIRE(&clb.get(id + 1, false) == &value::invalid());
+                }
                 REQUIRE_NOTHROW(clb.get(id + 0, false));
             }
 
@@ -77,10 +79,10 @@ struct variant_type_iterator {
                 clb.set(id + 1, value(t2));
 
                 REQUIRE_NOTHROW(clb.clear());
-                debug(
-                        REQUIRE(&clb.get(id + 0, false) == &value::invalid());
-                        REQUIRE(&clb.get(id + 1, true) == &value::invalid());
-                );
+                DEBUG {
+                    REQUIRE(&clb.get(id + 0, false) == &value::invalid());
+                    REQUIRE(&clb.get(id + 1, true) == &value::invalid());
+                }
             }
         }
     }

@@ -3,10 +3,13 @@
 //
 
 #define HAR_ENABLE_REQUEST_MACROS
+
 #include <har/program.hpp>
 
 #include "logic/automaton.hpp"
 #include "logic/inner_simulation.hpp"
+
+#include "world/grid.hpp"
 
 #include <catch2/catch.hpp>
 
@@ -19,23 +22,26 @@ TEST_CASE("Automaton", "[!mayfail][automaton]") {
 
     isim.attach(prog);
 
-    isim.commence();
-
     SECTION("The automaton can be started") {
+        isim.commence();
+
         REQUIRE_NOTHROW(prog.start());
         REQUIRE(automaton.state() == automaton::state::RUN);
     }
 
     SECTION("The automaton can be stopped") {
+        isim.commence();
+
         REQUIRE_NOTHROW(prog.stop());
         REQUIRE(automaton.state() == automaton::state::STOP);
     }
 
     SECTION("The automaton can execute single steps") {
+        isim.commence();
+
         REQUIRE_NOTHROW(prog.step());
         REQUIRE(automaton.state() == automaton::state::STEP);
-        //TODO: Implement automaton::cycle
-        //automaton.cycle();
+        automaton.cycle();
         REQUIRE(automaton.state() == automaton::state::STOP);
     }
 
@@ -175,7 +181,36 @@ TEST_CASE("Automaton", "[!mayfail][automaton]") {
     }
 
     SECTION("A cycle updates every cell") {
-        FAIL("Not implemented");
+        isim.commence();
+
+        part counter{ PART[1] };
+        counter.add_entry(entry{ of::VALUE,
+                                 text("__VALUE"),
+                                 text("Counter value"),
+                                 value(uint_t()),
+                                 ui_access::VISIBLE,
+                                 serialize::NO_SERIALIZE,
+                                 std::array<uint_t, 3>{ 0, std::numeric_limits<uint_t>::max(), 1 }});
+
+        counter.delegates.cycle = [](cell & cl) {
+            auto prop = cl[of::VALUE];
+            prop = uint_t(1u);
+        };
+
+        isim.include_part(counter);
+        auto & model = isim.get_model();
+        model.resize(grid_t::MODEL_GRID, isim.part_of(PART[1]), dcoords_t(5, 5));
+
+        for (auto &[pos, clb] : model.get_model()) {
+            REQUIRE(get<uint_t>(clb.get(of::VALUE)) == 0u);
+        }
+
+        automaton.set_state(PARTICIPANT.no_one(), automaton::state::RUN);
+        REQUIRE_NOTHROW(automaton.cycle());
+
+        for (auto &[pos, clb] : model.get_model()) {
+            REQUIRE(get<uint_t>(clb.get(of::VALUE)) == 1u);
+        }
     }
 
     SECTION("The automaton can be interrupted by requests from programs") {
