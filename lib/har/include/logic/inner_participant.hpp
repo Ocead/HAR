@@ -87,6 +87,8 @@ namespace har {
         [[nodiscard]]
         bool_t has_request() const;
 
+        void cycle();
+
         void commit();
 
         void unlock_automaton_and_commit();

@@ -11,6 +11,7 @@
 #include <gtkmm/viewport.h>
 
 #include <har/types.hpp>
+#include <memory>
 
 #include "main_win.hpp"
 #include "about.hpp"
@@ -203,11 +204,12 @@ void main_win::bind() {
                  target == bank_entry.target ||
                  target == conn_entry.target) && actions == Gdk::ACTION_COPY) {
                 gcoords_t from = reinterpret_cast<const gcoords_t &>(*selection_data.get_data());
-                auto ctx = std::make_unique<participant::context>(_parti.get().request());
-                if (!(ctx->at(to).traits() & traits::EMPTY_PART)) {
-                    auto fromgcl = std::unique_ptr<full_grid_cell>(new full_grid_cell(ctx->at(from)));
-                    auto togcl = std::unique_ptr<full_grid_cell>(new full_grid_cell(ctx->at(to)));
-                    _conn_popover.set_cell(std::move(ctx),
+                auto ctxptr = std::make_unique<participant::context>(_parti.get().request());
+                auto & ctx = *ctxptr;
+                if (!(ctx.at(to).traits() & traits::EMPTY_PART)) {
+                    std::unique_ptr<full_grid_cell> fromgcl{ new full_grid_cell(ctx.at(from)) };
+                    std::unique_ptr<full_grid_cell> togcl{ new full_grid_cell(ctx.at(to)) };
+                    _conn_popover.set_cell(std::move(ctxptr),
                                            std::move(fromgcl), get_cell_image(from),
                                            std::move(togcl), get_cell_image(to));
                     _conn_popover.set_relative_to(to.cat == grid_t::MODEL_GRID ?
@@ -775,7 +777,7 @@ void main_win::info_updated(const model_info & info) {
     //TODO: Display remaining information somewhere
 }
 
-void main_win::run() {
+void main_win::run(bool_t responsible) {
     _action_bar.set_run();
 }
 

@@ -2,6 +2,8 @@
 // Created by Johannes on 28.06.2020.
 //
 
+#define HAR_ENABLE_REQUEST_MACROS
+
 #include <giomm.h>
 
 #include <har/gui.hpp>
@@ -9,9 +11,17 @@
 #include "main_win.hpp"
 #include "types.hpp"
 
+using namespace std::chrono_literals;
 using namespace har;
 
-gui::gui() : har::participant(), _thread(), _app(), _mwin(nullptr), _queue() {
+gui::gui() : har::participant(),
+             _thread(),
+             _app(),
+             _mwin(nullptr),
+             _queue(),
+             _responsible(false),
+             _connection(),
+             _cycle_delta(33ms) {
 
 }
 
@@ -74,19 +84,23 @@ void gui::on_attach(int argc, char * const * argv, char * const * envp) {
 }
 
 void gui::on_part_included(const har::part & pt, bool_t commit) {
-    _queue.push([&win = *_mwin, &pt]() { win.include_part(pt); });
+    _queue.push([&win = *_mwin, &pt]() {
+        win.include_part(pt);
+    });
     if (commit) {
         _mwin->emit();
     }
 }
 
 void gui::on_part_removed(part_h id) {
-    _queue.push([&win = *_mwin, id]() { win.remove_part(id); });
+    _queue.push([&win = *_mwin, id]() {
+        win.remove_part(id);
+    });
     _mwin->emit();
 }
 
 void gui::on_resize_grid(const har::gcoords_t & to) {
-    _queue.push([this, &win = *_mwin, to]() {
+    _queue.push([&win = *_mwin, to]() {
         win.resize_grid(to);
     });
     _mwin->emit();
@@ -101,38 +115,82 @@ void gui::on_model_loaded() {
 }
 
 void gui::on_info_updated(const model_info & info) {
-    _queue.push([&win = *_mwin, info]() { win.info_updated(info); });
+    _queue.push([&win = *_mwin, info]() {
+        win.info_updated(info);
+    });
     redraw_all();
     _mwin->emit();
 }
 
-void gui::on_run() {
-    _queue.push([&win = *_mwin]() { win.run(); });
+void gui::on_run(bool_t responsible) {
+    _responsible.store(responsible, std::memory_order_release);
+    if (_cycle_delta != 0us && responsible && !_connection.has_value()) {
+        _queue.push([this]() {
+            _connection = Glib::signal_timeout().connect([this]() -> bool_t {
+                REQUEST(ctx) {
+                    ctx.cycle();
+                }
+
+                return true;
+            }, _cycle_delta.count(), Glib::PRIORITY_HIGH);
+        });
+    }
+    _queue.push([&win = *_mwin, responsible]() {
+        win.run(responsible);
+    });
     _mwin->emit();
 }
 
 void gui::on_step() {
-    _queue.push([&win = *_mwin]() { win.step(); });
+    if (_connection.has_value()) {
+        _queue.push([this, &win = *_mwin]() {
+            _connection.value().disconnect();
+            _connection.reset();
+            win.step();
+            stop();
+        });
+    } else {
+        _queue.push([this]() {
+            REQUEST(ctx) {
+                ctx.cycle();
+            }
+        });
+    }
     _mwin->emit();
 }
 
 void gui::on_stop() {
-    _queue.push([&win = *_mwin]() { win.stop(); });
+    if (_connection.has_value()) {
+        _queue.push([this]() {
+            _connection.value().disconnect();
+            _connection.reset();
+        });
+    }
+
+    _queue.push([&win = *_mwin]() {
+        win.stop();
+    });
     _mwin->emit();
 }
 
 void gui::on_message(const string_t & header, const string_t & content) {
-    _queue.push([&win = *_mwin, header, content]() { win.message(header, content); });
+    _queue.push([&win = *_mwin, header, content]() {
+        win.message(header, content);
+    });
     _mwin->emit();
 }
 
 void gui::on_exception(const har::exception::exception & e) {
-    _queue.push([&win = *_mwin, &e]() { win.exception(e); });
+    _queue.push([&win = *_mwin, &e]() {
+        win.exception(e);
+    });
     _mwin->emit();
 }
 
 void gui::on_selection_update(const cell_h & hnd, entry_h id, const value & val, bool_t commit) {
-    _queue.push([&win = *_mwin, hnd, id, val]() { win.selection_update(hnd, id, val); });
+    _queue.push([&win = *_mwin, hnd, id, val]() {
+        win.selection_update(hnd, id, val);
+    });
     if (commit) {
         _mwin->emit();
     }
@@ -163,17 +221,23 @@ void gui::on_connection_removed(const gcoords_t & from, direction_t use) {
 }
 
 void gui::on_cargo_spawned(har::cargo_h num) {
-    _queue.push([&win = *_mwin, num]() { win.cargo_spawned(num); });
+    _queue.push([&win = *_mwin, num]() {
+        win.cargo_spawned(num);
+    });
     _mwin->emit();
 }
 
 void gui::on_cargo_moved(har::cargo_h num, har::ccoords_t to) {
-    _queue.push([&win = *_mwin, num, to]() { win.cargo_moved(num, to); });
+    _queue.push([&win = *_mwin, num, to]() {
+        win.cargo_moved(num, to);
+    });
     _mwin->emit();
 }
 
 void gui::on_cargo_destroyed(har::cargo_h num) {
-    _queue.push([&win = *_mwin, num]() { win.cargo_destroyed(num); });
+    _queue.push([&win = *_mwin, num]() {
+        win.cargo_destroyed(num);
+    });
     _mwin->emit();
 }
 

@@ -15,6 +15,17 @@ namespace har {
 
     class inner_participant;
 
+    static constexpr struct {
+        constexpr participant_h operator[](const size_t n) const {
+            return static_cast<participant_h>(n);
+        }
+
+        [[nodiscard]]
+        constexpr participant_h no_one() const { //NOLINT
+            return ~participant_h();
+        }
+    } PARTICIPANT = { };
+
     ///Participants are used for interaction with HAR simulations.
     class participant {
     public:
@@ -191,7 +202,13 @@ namespace har {
         virtual void on_info_updated(const model_info & info) = 0;
 
         /// \brief Called every time the automaton's state is set to <tt>RUN</tt>
-        virtual void on_run() = 0;
+        ///
+        /// \param [in] responsible <tt>true</tt>, if the called participant is responsible for cycling the automaton
+        virtual void on_run(bool_t responsible) = 0;
+
+        inline void on_run() {
+            on_run(false);
+        }
 
         /// \brief Called every time the automaton's state is set to <tt>STEP</tt>
         virtual void on_step() = 0;

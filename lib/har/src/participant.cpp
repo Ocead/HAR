@@ -124,7 +124,7 @@ void participant::context::resize_grid(const gcoords_t & to) {
 }
 
 void participant::context::cycle() {
-    //TODO: Implement
+    _parti.get().cycle();
 }
 
 void participant::context::commit() {

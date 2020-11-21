@@ -23,37 +23,64 @@ automaton::automaton(inner_simulation & sim, ushort_t workers) : _sim(sim),
                                                                  _state(state::INIT),
                                                                  _substep(substep::INIT),
                                                                  _threads(workers),
+                                                                 _self_worker(*this, 0u),
                                                                  _workers(),
                                                                  _waiting(),
                                                                  _cyclex(),
                                                                  _autoex(),
+                                                                 _stepex(),
                                                                  _tab(),
                                                                  _workdone(0),
-                                                                 _first(false),
-                                                                 _time_delta(16667us),
-                                                                 _last_cycle_begin(clock::now()) {
+                                                                 _first(false) {
     _cyclex.lock();
-    _workers.reserve(_threads);
+    _workers.reset(static_cast<worker *>(::operator new(workers * sizeof(worker))));
     for (auto i = 0u; i < _threads; ++i) {
-        _workers.emplace_back(std::make_unique<worker>(*this, i));
+        new(&_workers[i]) worker(*this, i + 1);
     }
+}
+
+void automaton::do_step(enum automaton::substep step) {
+    _stepex.lock();
+    _substep.store(step, std::memory_order_release);
+    std::for_each_n(_workers.get(), _threads, [](worker & w) {
+        w.unblock();
+    });
+    switch (step) {
+        case substep::CYCLE_AND_MOVE:
+            _self_worker.cycle_and_move(worker::step_type::CYCLE);
+            break;
+        case substep::COMMIT_AND_DRAW:
+            _self_worker.commit_and_draw(worker::step_type::CYCLE);
+            break;
+        case substep::CLEAN:
+            _self_worker.clean(worker::step_type::CYCLE);
+            break;
+        default:
+            break;
+    }
+    wait_for_all();
 }
 
 void automaton::i_am_done() {
     if (++_workdone % _threads == 0) {
-        _autoex.unlock();
+        _stepex.unlock();
     }
 }
 
 void automaton::wait_for_all() {
-    _autoex.lock();
+    std::scoped_lock{ _stepex };
 }
 
 void automaton::inner_exec(std::pair<participant_h, participant::callback_t> & pack) {
-    auto & worker = *_workers[0];
-    worker.process_exec(pack);
-    worker.cycle_commit_and_draw();
-    worker.clean();
+    _self_worker.process_exec(pack);
+    _self_worker.commit_and_draw(worker::step_type::REQUEST);
+    _self_worker.clean(worker::step_type::REQUEST);
+}
+
+void automaton::commence() {
+    std::for_each_n(_workers.get(), _threads, [](worker & w) {
+        w.start();
+    });
 }
 
 enum automaton::state automaton::state() {
@@ -64,7 +91,7 @@ enum automaton::substep automaton::substep() {
     return _substep.load(std::memory_order_acquire);
 }
 
-enum automaton::state automaton::set_state(enum state to) {
+enum automaton::state automaton::set_state(participant_h id, enum state to) {
     auto old = _state.exchange(to, std::memory_order_acq_rel);
     if (old != to) {
         DEBUG {
@@ -84,10 +111,10 @@ enum automaton::state automaton::set_state(enum state to) {
             }
         };
 
-        for (auto &[id, parti] : _sim.participants()) {
+        for (auto &[pid, parti] : _sim.participants()) {
             switch (to) {
                 case automaton::state::RUN: {
-                    parti->on_run();
+                    parti->on_run(id == pid);
                     break;
                 }
                 case automaton::state::STEP: {
@@ -155,6 +182,7 @@ void automaton::resize_tab(const gcoords_t & from, const gcoords_t & to) {
 void automaton::request(participant_h id) {
     switch (_state) {
         case automaton::state::RUN: {
+            begin(true);
             _sim.inner_participants().at(id)->unlock_and_wait_for_request();
             break;
         }
@@ -185,7 +213,7 @@ void automaton::exec(participant_h id, participant::callback_t && fun) {
 }
 
 void automaton::process(inner_participant & iparti) {
-    _workers[0]->process_single_request(iparti);
+    _self_worker.process_single_request(iparti);
     _tab.apply();
 }
 
@@ -210,45 +238,41 @@ bool_t automaton::end(bool_t and_unblock) {
 }
 
 void automaton::cycle() {
+    switch (_state.load(std::memory_order_acquire)) {
+        case state::RUN: {
+            break;
+        }
+        case state::STEP: {
+            set_state(PARTICIPANT.no_one(), state::STOP);
+            break;
+        }
+        default: {
+            return;
+        }
+    }
     DEBUG_LOG("begin");
-    begin(true);
-    auto now = clock::now();
-    auto wait_for = now - _last_cycle_begin;
-    _last_cycle_begin = now;
-    std::this_thread::sleep_for(_time_delta - wait_for);
+    //begin(true);
 
     _substep.store(automaton::substep::PROCESS_REQUEST, std::memory_order_release);
-    auto & worker0 = *_workers[0];
-    if (worker0.process_requests()) {
-        worker0.cycle_commit_and_draw();
-        worker0.clean();
+    if (_self_worker.process_requests()) {
+        _self_worker.commit_and_draw(worker::step_type::REQUEST);
+        _self_worker.clean(worker::step_type::REQUEST);
     }
 
-    _substep.store(automaton::substep::CYCLE_AND_MOVE, std::memory_order_release);
-    for (auto & w : _workers) {
-        w->unblock();
-    }
-    _workers[0]->cycle_and_move();
-    wait_for_all();
+    do_step(substep::CYCLE_AND_MOVE);
+    do_step(substep::COMMIT_AND_DRAW);
+    do_step(substep::CLEAN);
 
-    _substep.store(automaton::substep::COMMIT_AND_DRAW, std::memory_order_release);
-    for (auto & w : _workers) {
-        w->unblock();
-    }
-    _workers[0]->cycle_commit_and_draw();
-    wait_for_all();
-
-    _substep.store(automaton::substep::CLEAN, std::memory_order_release);
-    for (auto & w : _workers) {
-        w->unblock();
-    }
-    _workers[0]->clean();
-    wait_for_all();
-    end(true);
+    //end(true);
     DEBUG_LOG("end");
 }
 
-automaton::~automaton() = default;
+automaton::~automaton() {
+    std::for_each_n(_workers.get(), _threads, [](worker & w) {
+        w.~worker();
+    });
+    std::allocator<worker>().deallocate(_workers.release(), _threads);
+}
 
 //endregion
 
@@ -295,15 +319,15 @@ void automaton::worker::work() {
         if (_valid.test_and_set()) {
             switch (_auto.substep()) {
                 case automaton::substep::CYCLE_AND_MOVE: {
-                    cycle_and_move();
+                    cycle_and_move(worker::step_type::CYCLE);
                     break;
                 }
                 case automaton::substep::COMMIT_AND_DRAW: {
-                    cycle_commit_and_draw();
+                    commit_and_draw(worker::step_type::CYCLE);
                     break;
                 }
                 case automaton::substep::CLEAN: {
-                    clean();
+                    clean(worker::step_type::CYCLE);
                     break;
                 }
                 default: {
@@ -329,7 +353,7 @@ void automaton::worker::done() {
 void automaton::worker::process_grid(grid & grid) {
     auto dim = grid.dim();
     auto size = grid.dim().size();
-    auto worker_num = _auto._workers.size();
+    auto worker_num = _auto._threads + 1;
 
     for (int_t it = offset; it < int_t(size); it += worker_num) {
         dcoords_t i{ it % dim.x, it / dim.x };
@@ -341,7 +365,7 @@ void automaton::worker::process_grid(grid & grid) {
 void automaton::worker::process_cargo(world & world) {
     auto & cargos = world.cargo();
     auto size = cargos.size();
-    auto worker_num = _auto._workers.size();
+    auto worker_num = _auto._threads;
     uint_t i = 0;
     auto it = cargos.begin();
 
@@ -363,7 +387,7 @@ void automaton::worker::process_cargo(world & world) {
     } while (i < size);
 }
 
-void automaton::worker::context_commit_and_draw(context & ctx) {
+void automaton::worker::request_commit_and_draw(context & ctx) {
     auto & model = _auto._sim.get_model();
     for (auto & conn : ctx.connected()) {
         auto & from = conn.base.get();
@@ -411,6 +435,11 @@ void automaton::worker::context_commit_and_draw(context & ctx) {
         ctx.changed().merge(temp_ctx.changed());
         ctx.redraw().merge(temp_ctx.redraw());
     }*/
+    cycle_commit_and_draw(ctx);
+}
+
+void automaton::worker::cycle_commit_and_draw(context & ctx) {
+    auto & model = _auto._sim.get_model();
     for (auto & hnd : ctx.changed()) {
         cell_base & clb = model.at(hnd);
         for (auto & iparti : _auto._sim.inner_participants()) {
@@ -473,14 +502,15 @@ void automaton::worker::wait_for_next_step() {
 }
 
 void automaton::worker::start() {
-    if (_thread.get_id() != std::thread::id()) {
+    if (_thread.get_id() == std::thread::id()) {
+        _valid.test_and_set(std::memory_order_release);
         _thread = std::thread(&automaton::worker::work, this);
     }
 }
 
 void automaton::worker::process_single_request(inner_participant & iparti) {
     auto & ctx = iparti.get_context();
-    context_commit_and_draw(ctx);
+    request_commit_and_draw(ctx);
     ctx.reset();
 }
 
@@ -509,20 +539,24 @@ bool_t automaton::worker::process_requests() {
     return processed;
 }
 
-void automaton::worker::cycle_and_move() {
-    DEBUG_LOG("WORKER[" << offset << "] does CYCLE_AND_MOVE");
+void automaton::worker::cycle_and_move(step_type type) {
+    //DEBUG_LOG("WORKER[" << offset << "] does CYCLE_AND_MOVE");
     world & model = _auto._sim.get_model();
     process_grid(model.get_model());
     process_grid(model.get_bank());
 }
 
-void automaton::worker::cycle_commit_and_draw() {
-    DEBUG_LOG("WORKER[" << offset << "] does COMMIT_AND_DRAW");
-    context_commit_and_draw(_ctx);
+void automaton::worker::commit_and_draw(step_type type) {
+    //DEBUG_LOG("WORKER[" << offset << "] does COMMIT_AND_DRAW");
+    if (type == step_type::REQUEST) {
+        request_commit_and_draw(_ctx);
+    } else {
+        cycle_commit_and_draw(_ctx);
+    }
 }
 
-void automaton::worker::clean() {
-    DEBUG_LOG("WORKER[" << offset << "] does CLEAN");
+void automaton::worker::clean(step_type type) {
+    //DEBUG_LOG("WORKER[" << offset << "] does CLEAN");
     _ctx.reset();
 }
 

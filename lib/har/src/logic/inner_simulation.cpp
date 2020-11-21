@@ -204,7 +204,8 @@ void inner_simulation::send_message(const string_t & header, const string_t & co
 }
 
 void inner_simulation::commence() {
-    _automaton.set_state(automaton::state::STOP);
+    _automaton.set_state(PARTICIPANT.no_one(), automaton::state::STOP);
+    _automaton.commence();
 }
 
 void inner_simulation::exit() {

@@ -67,7 +67,7 @@ namespace har {
 
         void on_info_updated(const model_info & info) override;
 
-        void on_run() override;
+        void on_run(bool_t responsible) override;
 
         void on_step() override;
 

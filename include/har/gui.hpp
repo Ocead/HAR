@@ -23,8 +23,13 @@ namespace har {
         std::thread _thread;
         Glib::RefPtr<Gtk::Application> _app;
         gui_::main_win * _mwin;
+        std::atomic<bool_t> _responsible;
+        std::optional<sigc::connection> _connection;
+        std::chrono::milliseconds _cycle_delta;
 
         co_queue<std::function<void()>> _queue;
+
+        void set_cycle(std::chrono::microseconds delta);
 
     public:
         explicit gui();
@@ -56,7 +61,7 @@ namespace har {
 
         void on_info_updated(const model_info & info) override;
 
-        void on_run() override;
+        void on_run(bool_t responsible) override;
 
         void on_step() override;
 

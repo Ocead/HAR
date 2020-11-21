@@ -89,6 +89,10 @@ bool_t inner_participant::has_request() const {
     return _alock.waiting();
 }
 
+void inner_participant::cycle() {
+    _automaton.get().cycle();
+}
+
 void inner_participant::commit() {
     auto & automaton = _automaton.get();
     automaton.process(*this);
@@ -216,15 +220,15 @@ void inner_participant::redraw_all() {
 }
 
 void inner_participant::start() {
-    _automaton.get().set_state(automaton::state::RUN);
+    _automaton.get().set_state(_id, automaton::state::RUN);
 }
 
 void inner_participant::step() {
-    _automaton.get().set_state(automaton::state::STEP);
+    _automaton.get().set_state(_id, automaton::state::STEP);
 }
 
 void inner_participant::stop() {
-    _automaton.get().set_state(automaton::state::STOP);
+    _automaton.get().set_state(_id, automaton::state::STOP);
 }
 
 void inner_participant::detach() {

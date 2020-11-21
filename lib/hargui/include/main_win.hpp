@@ -120,7 +120,7 @@ namespace har::gui_ {
 
         void info_updated(const model_info & info);
 
-        void run();
+        void run(bool_t responsible);
 
         void step();
 

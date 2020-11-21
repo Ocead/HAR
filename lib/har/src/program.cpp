@@ -64,7 +64,7 @@ void program::on_info_updated(const model_info & info) {
 
 }
 
-void program::on_run() {
+void program::on_run(bool_t responsible) {
 
 }
 
