@@ -26,16 +26,12 @@ namespace har {
 
         ///
         void lock() const {
-            if (_quewait.fetch_add(1u, std::memory_order_acq_rel)) {
-                _queex.lock();
-            }
+            _queex.lock();
         }
 
         ///
         void unlock() const {
-            if (_quewait.fetch_sub(1u, std::memory_order_acq_rel) == 1u) {
-                _queex.unlock();
-            }
+            _queex.unlock();
         }
 
     public:
