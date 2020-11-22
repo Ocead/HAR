@@ -101,13 +101,17 @@ participant::~participant() {
 
 //region participant::context
 
-participant::context::context(inner_participant & parti, bool_t blocking) : _parti(parti), _blocking(blocking) {
+participant::context::context(inner_participant & parti, request_type type, bool_t blocking) : _parti(parti),
+                                                                                               _type(type),
+                                                                                               _blocking(blocking) {
     if (blocking) {
-        _parti.get().wait_for_automaton();
+        _parti.get().wait_for_automaton(_type);
     }
 }
 
-participant::context::context(context && fref) noexcept: _parti(fref._parti), _blocking(fref._blocking) {
+participant::context::context(context && fref) noexcept: _parti(fref._parti),
+                                                         _type(fref._type),
+                                                         _blocking(fref._blocking) {
     fref._blocking = false;
 }
 
@@ -134,14 +138,14 @@ void participant::context::commit() {
 participant::context & participant::context::operator=(participant::context && fref) noexcept {
     if (this != &fref) {
         this->~context();
-        new (this) context(std::forward<context>(fref));
+        new(this) context(std::forward<context>(fref));
     }
     return *this;
 }
 
 participant::context::~context() {
     if (_blocking) {
-        _parti.get().unlock_automaton_and_commit();
+        _parti.get().unlock_automaton_and_commit(_type);
     }
 }
 

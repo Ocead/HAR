@@ -26,17 +26,17 @@ namespace har {
         }
     } PARTICIPANT = { };
 
+    enum request_type {
+        PROGRAM = 0,
+        UI = 1
+    };
+
     ///Participants are used for interaction with HAR simulations.
     class participant {
     public:
         class context;
 
         using callback_t = std::function<void(participant::context &)>;
-
-        enum request_type {
-            PROGRAM = 0,
-            UI = 1
-        };
 
     private:
         inner_participant * _iparti; ///<Pointer to inner participant (if attached)
@@ -294,6 +294,7 @@ namespace har {
     class participant::context {
     private:
         std::reference_wrapper<inner_participant> _parti; ///<Reference to the creating participant's inner pendant
+        request_type _type;
         bool_t _blocking; ///<Whether this context blocks the simulation
 
     public:
@@ -303,7 +304,7 @@ namespace har {
         /// \param [in,out] parti Corresponding inner participant
         ///
         /// Waits for the automaton to yield
-        explicit context(inner_participant & parti, bool_t blocking = true);
+        explicit context(inner_participant & parti, request_type type, bool_t blocking = true);
 
         /// \brief Move constructor
         ///
@@ -358,8 +359,10 @@ namespace har {
 
 #if defined(HAR_ENABLE_REQUEST_MACROS)
 #define THISREQUEST(CTX) if (auto CTX = request(); true)
-#define OBJREQUEST(CTX, OBJ) if (auto CTX = OBJ.request(); true)
-#define GET_REQUEST_INNER(_1, _2, NAME, ...) NAME
-#define REQUEST(...) GET_REQUEST_INNER(__VA_ARGS__, OBJREQUEST, THISREQUEST)(__VA_ARGS__)
+#define OBJREQUEST(CTX, OBJ) if (auto CTX = (OBJ).request(); true)
+#define TYPEOBJREQUEST(CTX, OBJ, TYPE) if (auto CTX = (OBJ).request(TYPE); true)
+
+#define GET_REQUEST_INNER(_1, _2, _3, NAME, ...) NAME
+#define REQUEST(...) GET_REQUEST_INNER(__VA_ARGS__, TYPEOBJREQUEST, OBJREQUEST, THISREQUEST)(__VA_ARGS__)
 #endif
 #endif //HAR_PARTICIPANT_HPP

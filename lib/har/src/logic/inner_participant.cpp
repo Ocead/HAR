@@ -98,16 +98,18 @@ void inner_participant::commit() {
     automaton.process(*this);
 }
 
-void inner_participant::unlock_automaton_and_commit() {
+void inner_participant::unlock_automaton_and_commit(request_type type) {
     DEBUG_LOG("PARTICIPANT[" + std::to_string(_id) + "] ends request");
     auto & automaton = _automaton.get();
     automaton.process(*this);
     _alock.hand_back();
+    //TODO: Unlock additional mutex afterwards
     automaton.end(true);
 }
 
-void inner_participant::wait_for_automaton() {
+void inner_participant::wait_for_automaton(request_type type) {
     DEBUG_LOG("PARTICIPANT[" + std::to_string(_id) + "] begins request");
+    //TODO: Lock additional mutex beforehand
     _automaton.get().request(_id);
     _alock.request();
 }
@@ -116,8 +118,8 @@ void inner_participant::unlock_and_wait_for_request() {
     _alock.grant();
 }
 
-participant::context inner_participant::request(participant::request_type req_type) {
-    return participant::context(*this, true);
+participant::context inner_participant::request(request_type req_type) {
+    return participant::context(*this, req_type, true);
 }
 
 void inner_participant::exec(std::function<void(participant::context &)> && fun) {

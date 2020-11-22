@@ -32,7 +32,7 @@ automaton::automaton(inner_simulation & sim, ushort_t workers) : _sim(sim),
                                                                  _tab(),
                                                                  _workdone(0),
                                                                  _first(false) {
-    _cyclex.lock();
+    //_cyclex.lock();
     _workers.reset(static_cast<worker *>(::operator new(workers * sizeof(worker))));
     for (auto i = 0u; i < _threads; ++i) {
         new(&_workers[i]) worker(*this, i + 1);
@@ -204,6 +204,7 @@ void automaton::request(participant_h id) {
     }
 }
 
+/*
 void automaton::exec(participant_h id, participant::callback_t && fun) {
     _queue.push({ id, fun });
     if (begin(false)) {
@@ -211,6 +212,7 @@ void automaton::exec(participant_h id, participant::callback_t && fun) {
     }
     end(false);
 }
+*/
 
 void automaton::process(inner_participant & iparti) {
     _self_worker.process_single_request(iparti);
@@ -220,7 +222,7 @@ void automaton::process(inner_participant & iparti) {
 bool_t automaton::begin(bool_t and_block) {
     uint_t c = _waiting++;
     DEBUG_LOG("Lock automaton from " + std::to_string(c));
-    if (c > 0 && and_block) {
+    if (and_block) {
         DEBUG_LOG("Wait on mutex");
         _cyclex.lock();
         DEBUG_LOG("Locked mutex");
@@ -231,7 +233,7 @@ bool_t automaton::begin(bool_t and_block) {
 bool_t automaton::end(bool_t and_unblock) {
     uint_t c = --_waiting;
     DEBUG_LOG("Unlock automaton to " + std::to_string(c));
-    if (c > 0 && and_unblock) {
+    if (and_unblock) {
         _cyclex.unlock();
     }
     return c == 0;
@@ -517,9 +519,12 @@ void automaton::worker::process_single_request(inner_participant & iparti) {
 }
 
 void automaton::worker::process_exec(std::pair<participant_h, participant::callback_t> & pack) {
+    //TODO: Maybe discard
+    /*
     auto &[id, fun] = pack;
     participant::context ctx{ *_auto._sim.inner_participants().at(id), false };
     fun(ctx);
+    */
 }
 
 bool_t automaton::worker::process_requests() {
@@ -528,7 +533,7 @@ bool_t automaton::worker::process_requests() {
         for (auto &[id, iparti_rw] : _auto._sim.inner_participants()) {
             auto & iparti = *iparti_rw;
             if (iparti.do_cycle()) {
-                participant::context ctx{ iparti, false };
+                participant::context ctx{ iparti, UI, false };
                 _auto._sim.participants().at(id)->on_cycle(ctx);
                 processed = true;
             }

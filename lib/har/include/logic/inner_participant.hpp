@@ -91,13 +91,13 @@ namespace har {
 
         void commit();
 
-        void unlock_automaton_and_commit();
+        void unlock_automaton_and_commit(request_type type);
 
-        void wait_for_automaton();
+        void wait_for_automaton(request_type type);
 
         void unlock_and_wait_for_request();
 
-        participant::context request(participant::request_type req_type = participant::request_type::PROGRAM);
+        participant::context request(request_type req_type = request_type::PROGRAM);
 
         void exec(std::function<void(participant::context &)> && fun);
 

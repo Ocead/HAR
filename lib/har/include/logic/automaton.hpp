@@ -186,7 +186,7 @@ namespace har {
 
         void request(participant_h id);
 
-        void exec(participant_h id, participant::callback_t && fun);
+        //void exec(participant_h id, participant::callback_t && fun);
 
         void process(inner_participant & iparti);
 

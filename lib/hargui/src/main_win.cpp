@@ -4,6 +4,7 @@
 
 #include <filesystem>
 #include <fstream>
+#include <memory>
 
 #include <gtkmm/filechooserdialog.h>
 #include <gtkmm/messagedialog.h>
@@ -11,7 +12,8 @@
 #include <gtkmm/viewport.h>
 
 #include <har/types.hpp>
-#include <memory>
+
+#define HAR_ENABLE_REQUEST_MACROS
 
 #include "main_win.hpp"
 #include "about.hpp"
@@ -97,8 +99,9 @@ void main_win::bind() {
     /*Grids*/ {
         _model.resize_fun() =
         _bank.resize_fun() = [&](const gcoords_t & to) {
-            auto ctx = _parti.get().request();
-            ctx.resize_grid(to);
+            REQUEST(ctx, _parti.get(), UI) {
+                ctx.resize_grid(to);
+            }
         };
 
         GtkTargetEntry model_place_entry{
@@ -134,8 +137,7 @@ void main_win::bind() {
 
         _model.drag_begin_fun() =
         _bank.drag_begin_fun() = [this](auto ...) {
-            {
-                auto ctx = _parti.get().request();
+            REQUEST(ctx, _parti.get(), UI) {
                 gcoords_t pressed{ grid_t::INVALID_GRID, 0, 0 };
                 if (_pressed.index() == cell_cat::GRID_CELL) {
                     pressed = std::get<cell_cat::GRID_CELL>(_pressed);
@@ -150,15 +152,17 @@ void main_win::bind() {
         _model.button_press_fun() =
         _bank.button_press_fun() = [this](const gcoords_t & pos, GdkEventButton * ebtn) -> bool {
             if (ebtn->button == 1u) {
-                auto ctx = _parti.get().request();
-                cell_clicked(pos, ccoords_t(ebtn->x, ebtn->y), ctx);
+                REQUEST(ctx, _parti.get(), UI) {
+                    cell_clicked(pos, ccoords_t(ebtn->x, ebtn->y), ctx);
+                }
                 return true;
             } else if (ebtn->button == 3u) {
-                auto ctx = _parti.get().request();
-                if (ebtn->state & Gdk::SHIFT_MASK) {
-                    cell_cycle(pos, ctx);
-                } else {
-                    cell_selected(pos, ctx);
+                REQUEST(ctx, _parti.get(), UI) {
+                    if (ebtn->state & Gdk::SHIFT_MASK) {
+                        cell_cycle(pos, ctx);
+                    } else {
+                        cell_selected(pos, ctx);
+                    }
                 }
                 return true;
             } else {
@@ -169,8 +173,9 @@ void main_win::bind() {
         _model.button_release_fun() =
         _bank.button_release_fun() = [this](const gcoords_t & pos, GdkEventButton * ebtn) -> bool {
             if (ebtn->button == 1u) {
-                auto ctx = _parti.get().request();
-                cell_released(pos, ccoords_t(ebtn->x, ebtn->y), ctx);
+                REQUEST(ctx, _parti.get(), UI) {
+                    cell_released(pos, ccoords_t(ebtn->x, ebtn->y), ctx);
+                }
                 return true;
             } else {
                 return false;
@@ -219,15 +224,17 @@ void main_win::bind() {
                 }
             } else if ((target == model_entry.target ||
                         target == bank_entry.target) && actions == Gdk::ACTION_MOVE) {
-                auto ctx = _parti.get().request();
-                gcoords_t from = reinterpret_cast<const gcoords_t &>(*selection_data.get_data());
-                cell_moved(from, to, ctx);
-                cell_selected(to, ctx);
+                REQUEST(ctx, _parti.get(), UI) {
+                    gcoords_t from = reinterpret_cast<const gcoords_t &>(*selection_data.get_data());
+                    cell_moved(from, to, ctx);
+                    cell_selected(to, ctx);
+                }
             } else if ((target == model_place_entry.target ||
                         target == bank_place_entry.target) && actions == Gdk::ACTION_MOVE) {
-                auto ctx = _parti.get().request();
-                auto & pt = **reinterpret_cast<const ::har::part * const *>(selection_data.get_data());
-                cell_placed(to, pt, ctx);
+                REQUEST(ctx, _parti.get(), UI) {
+                    auto & pt = **reinterpret_cast<const ::har::part * const *>(selection_data.get_data());
+                    cell_placed(to, pt, ctx);
+                }
             }
             _model.show_overlay();
             _bank.show_overlay();
@@ -289,8 +296,9 @@ void main_win::btn_open_clicked() {
         _path = dialog.get_filename();
         if (std::filesystem::exists(_path)) {
             {
-                auto ctx = _parti.get().request();
-                cell_selected(gcoords_t(), ctx);
+                REQUEST(ctx, _parti.get(), UI) {
+                    cell_selected(gcoords_t(), ctx);
+                }
             }
             har::ifstream ifs(_path);
             _parti.get().load_model(ifs);
@@ -381,15 +389,16 @@ void main_win::btn_reset_clicked() {
 
 void main_win::prop_changed(of id, value && val) {
     if (!_updating) {
-        auto ctx = _parti.get().request();
-        if (cell_cat(_selected.index()) == cell_cat::GRID_CELL) {
-            auto gcl = ctx.at(std::get<uint_t(cell_cat::GRID_CELL)>(_selected));
-            if (val.type() != value::datatype::CALLBACK) {
-                gcl[id] = val;
-            } else {
-                auto & cb = gcl[id].as<callback_t>();
-                if (cb) {
-                    cb();
+        REQUEST(ctx, _parti.get(), UI) {
+            if (cell_cat(_selected.index()) == cell_cat::GRID_CELL) {
+                auto gcl = ctx.at(std::get<uint_t(cell_cat::GRID_CELL)>(_selected));
+                if (val.type() != value::datatype::CALLBACK) {
+                    gcl[id] = val;
+                } else {
+                    auto & cb = gcl[id].as<callback_t>();
+                    if (cb) {
+                        cb();
+                    }
                 }
             }
         }
@@ -462,10 +471,11 @@ void main_win::cell_connected(const gcoords_t & from, const gcoords_t & to, part
 }
 
 void main_win::cell_disconnected(const gcoords_t & pos, direction_t use) {
-    auto ctx = _parti.get().request();
-    auto fgcl = ctx.at(pos);
-    if (fgcl.has_connection(use)) {
-        fgcl.remove_connection(use);
+    REQUEST(ctx, _parti.get(), UI) {
+        auto fgcl = ctx.at(pos);
+        if (fgcl.has_connection(use)) {
+            fgcl.remove_connection(use);
+        }
     }
 }
 
@@ -554,8 +564,9 @@ void main_win::dispatch() {
 bool main_win::on_key_release_event(GdkEventKey * key_event) {
     switch (key_event->keyval) {
         case GDK_KEY_Escape: {
-            auto ctx = _parti.get().request();
-            cell_selected({ grid_t::INVALID_GRID, dcoords_t(-1, -1) }, ctx);
+            REQUEST(ctx, _parti.get(), UI) {
+                cell_selected({ grid_t::INVALID_GRID, dcoords_t(-1, -1) }, ctx);
+            }
             return true;
         }
         case GDK_KEY_Delete: {
@@ -565,8 +576,9 @@ bool main_win::on_key_release_event(GdkEventKey * key_event) {
                     const har::part & pt = (pos.cat == grid_t::MODEL_GRID) ?
                                            _empty_model_part.value() :
                                            _empty_bank_part.value();
-                    auto ctx = _parti.get().request();
-                    cell_placed(pos, pt, ctx);
+                    REQUEST(ctx, _parti.get(), UI) {
+                        cell_placed(pos, pt, ctx);
+                    }
                 }
             }
         }
@@ -751,8 +763,9 @@ void main_win::resize_grid(const gcoords_t & to) {
         if (sel.cat == to.cat &&
             (sel.pos.x >= to.pos.x - 1 ||
              sel.pos.y >= to.pos.y - 1)) {
-            auto ctx = _parti.get().request();
-            cell_selected({ grid_t::INVALID_GRID, dcoords_t(-1, -1) }, ctx);
+            REQUEST(ctx, _parti.get(), UI) {
+                cell_selected({ grid_t::INVALID_GRID, dcoords_t(-1, -1) }, ctx);
+            }
         }
     }
 }
