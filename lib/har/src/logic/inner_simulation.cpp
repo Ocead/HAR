@@ -209,12 +209,12 @@ void inner_simulation::commence() {
 }
 
 void inner_simulation::exit() {
-    _automaton.begin(true);
+    _automaton.begin();
     while (!_ipartis.empty()) {
         auto ptr = _ipartis.begin()->second;
         ptr->detach();
     }
-    _automaton.end(true);
+    _automaton.end();
     DEBUG_LOG("Calling on exit function");
     _exit_fun();
 }

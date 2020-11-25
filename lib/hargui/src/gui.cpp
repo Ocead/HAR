@@ -19,23 +19,21 @@ gui::gui() : har::participant(),
              _app(),
              _mwin(nullptr),
              _responsible(false),
-             _connection(),
-             _cycle_delta(16667us),
+             _timer([this]{cycle_fun();}, 16667us),
              _queue() {
 
 }
 
 void gui::set_cycle(std::chrono::microseconds delta) {
-    _cycle_delta = std::chrono::duration_cast<std::chrono::milliseconds>(delta);
-    if (_connection.has_value()) {
-        _connection.value().disconnect();
-        _connection = Glib::signal_timeout().connect([this]() -> bool_t {
-            REQUEST(ctx) {
-                ctx.cycle();
-            }
+    if (_responsible) {
+        _timer.stop();
+        _timer.start(delta);
+    }
+}
 
-            return true;
-        }, std::chrono::duration_cast<std::chrono::milliseconds>(_cycle_delta).count(), Glib::PRIORITY_HIGH);
+void gui::cycle_fun() {
+    REQUEST(ctx, *this, UI) {
+        ctx.cycle();
     }
 }
 
@@ -90,6 +88,7 @@ void gui::on_attach(int argc, char * const * argv, char * const * envp) {
         Glib::set_application_name("HAR");
         _app->run(*_mwin);
         _mwin = nullptr;
+        _timer.stop();
         if (attached()) {
             exit();
         }
@@ -138,15 +137,9 @@ void gui::on_info_updated(const model_info & info) {
 
 void gui::on_run(bool_t responsible) {
     _responsible.store(responsible, std::memory_order_release);
-    if (_cycle_delta != 0us && responsible && !_connection.has_value()) {
+    if (responsible) {
         _queue.push([this]() {
-            _connection = Glib::signal_timeout().connect([this]() -> bool_t {
-                REQUEST(ctx) {
-                    ctx.cycle();
-                }
-
-                return true;
-            }, std::chrono::duration_cast<std::chrono::milliseconds>(_cycle_delta).count(), Glib::PRIORITY_HIGH);
+            _timer.start();
         });
     }
     _queue.push([&win = *_mwin, responsible]() {
@@ -156,28 +149,20 @@ void gui::on_run(bool_t responsible) {
 }
 
 void gui::on_step() {
-    if (_connection.has_value()) {
+    if (_responsible.load(std::memory_order_acquire)) {
         _queue.push([this, &win = *_mwin]() {
-            _connection.value().disconnect();
-            _connection.reset();
+            _timer.stop();
             win.step();
             stop();
-        });
-    } else {
-        _queue.push([this]() {
-            REQUEST(ctx) {
-                ctx.cycle();
-            }
         });
     }
     _mwin->emit();
 }
 
 void gui::on_stop() {
-    if (_connection.has_value()) {
+    if (_responsible.exchange(false, std::memory_order_acq_rel)) {
         _queue.push([this]() {
-            _connection.value().disconnect();
-            _connection.reset();
+            _timer.stop();
         });
     }
 

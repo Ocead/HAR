@@ -109,12 +109,6 @@ participant::context::context(inner_participant & parti, request_type type, bool
     }
 }
 
-participant::context::context(context && fref) noexcept: _parti(fref._parti),
-                                                         _type(fref._type),
-                                                         _blocking(fref._blocking) {
-    fref._blocking = false;
-}
-
 full_grid_cell participant::context::at(const gcoords_t & pos) {
     return _parti.get().at(pos);
 }
@@ -133,14 +127,6 @@ void participant::context::cycle() {
 
 void participant::context::commit() {
     _parti.get().commit();
-}
-
-participant::context & participant::context::operator=(participant::context && fref) noexcept {
-    if (this != &fref) {
-        this->~context();
-        new(this) context(std::forward<context>(fref));
-    }
-    return *this;
 }
 
 participant::context::~context() {

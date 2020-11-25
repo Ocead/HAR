@@ -81,7 +81,7 @@ namespace har::gui_ {
 
         void cell_moved(const gcoords_t & from, const gcoords_t & to, participant::context & ctx);
 
-        void cell_connected(const gcoords_t & from, const gcoords_t & to, participant::context & ctx);
+        void cell_connected(const gcoords_t & from, const gcoords_t & to, direction_t use);
 
         void cell_disconnected(const gcoords_t & pos, direction_t use);
 

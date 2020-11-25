@@ -11,6 +11,7 @@
 
 #include <har/co_queue.hpp>
 #include <har/participant.hpp>
+#include <har/simple_timer.hpp>
 
 namespace har {
 
@@ -24,12 +25,13 @@ namespace har {
         Glib::RefPtr<Gtk::Application> _app;
         gui_::main_win * _mwin;
         std::atomic<bool_t> _responsible;
-        std::optional<sigc::connection> _connection;
-        std::chrono::microseconds _cycle_delta;
+        simple_timer _timer;
 
         co_queue<std::function<void()>> _queue;
 
         void set_cycle(std::chrono::microseconds delta);
+
+        void cycle_fun();
 
     public:
         explicit gui();

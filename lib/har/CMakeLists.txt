@@ -32,11 +32,13 @@ add_library(${LIBRARY_NAME}
         src/value.cpp
 
         src/logic/automaton.cpp
+        src/logic/barrier.cpp
         src/logic/context.cpp
         src/logic/guard.cpp
         src/logic/inner_participant.cpp
         src/logic/inner_simulation.cpp
         src/logic/process_tab.cpp
+        src/logic/tiered_lock.cpp
 
         src/world/artifact.cpp
         src/world/cargo_cell_base.cpp

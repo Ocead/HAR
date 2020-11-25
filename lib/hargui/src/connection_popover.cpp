@@ -13,14 +13,69 @@
 
 using namespace har::gui_;
 
-//region connection_row
+//region scroll_list_box
 
-add_connection_row::add_connection_row(direction_t dir) : Gtk::ListBoxRow(), _dir(dir) {
+scroll_list_box::scroll_list_box() :
+        Gtk::ScrolledWindow(),
+        _vprt(get_hadjustment(), get_vadjustment()),
+        _list() {
+    Gtk::ScrolledWindow::set_policy(Gtk::POLICY_NEVER, Gtk::POLICY_AUTOMATIC);
+    Gtk::ScrolledWindow::set_max_content_height(300);
+    Gtk::ScrolledWindow::set_propagate_natural_height(true);
+    Gtk::ScrolledWindow::set_shadow_type(Gtk::SHADOW_IN);
 
+    _list.set_selection_mode(Gtk::SELECTION_BROWSE);
+    _list.set_placeholder(*Gtk::manage(new Gtk::Label("(None)")));
+
+    _vprt.add(_list);
+    Gtk::ScrolledWindow::add(_vprt);
 }
 
-har::direction_t add_connection_row::dir() const {
-    return _dir;
+void scroll_list_box::insert(Gtk::ListBoxRow & row, int_t position) {
+    _rows.emplace_back(&row);
+    _list.insert(row, position);
+}
+
+Gtk::ListBoxRow * scroll_list_box::get_selected_row() {
+    return _list.get_selected_row();
+}
+
+void scroll_list_box::clear() {
+    for (auto r : _rows) {
+        _list.remove(*r);
+    }
+    _rows.clear();
+}
+
+const Gtk::ListBox & scroll_list_box::list_box() const {
+    return _list;
+}
+
+scroll_list_box::~scroll_list_box() noexcept = default;
+
+//endregion
+
+//region connection_row
+
+add_connection_row::add_connection_row(direction_t use, const string_t & name) : Gtk::ListBoxRow(),
+                                                                                 _use(use),
+                                                                                 _name(name) {
+    auto & box = *Gtk::manage(new Gtk::HBox());
+    auto & lbl = *Gtk::manage(new Gtk::Label(name));
+    auto & idx = *Gtk::manage(new Gtk::Label(std::to_string(int_t(use))));
+
+    lbl.set_alignment(Gtk::ALIGN_START, Gtk::ALIGN_CENTER);
+    idx.set_alignment(Gtk::ALIGN_END, Gtk::ALIGN_CENTER);
+
+    box.set_spacing(10);
+    box.pack_start(lbl, Gtk::PACK_EXPAND_WIDGET);
+    box.pack_end(idx, Gtk::PACK_EXPAND_WIDGET);
+
+    Gtk::ListBoxRow::add(box);
+}
+
+har::direction_t add_connection_row::use() const {
+    return _use;
 }
 
 add_connection_row::~add_connection_row() noexcept = default;
@@ -34,14 +89,16 @@ connection_popover::connection_popover() : Gtk::Popover(),
                                            _img_cl1(),
                                            _btn_cl2(),
                                            _img_cl2(),
-                                           _list() {
+                                           _stack(),
+                                           _list_from(),
+                                           _list_to() {
     auto & box = *Gtk::manage(new Gtk::VBox());
 
     _btn_cl1.set_image(_img_cl1);
     _btn_cl1.signal_toggled().connect_notify([&]() {
         if (_btn_cl1.get_active()) {
             if (_btn_cl2.get_active()) {
-                select_target(*_fgcl1);
+                _stack.set_visible_child(_list_from);
             }
             _btn_cl2.set_active(false);
         }
@@ -50,7 +107,7 @@ connection_popover::connection_popover() : Gtk::Popover(),
     _btn_cl2.signal_toggled().connect_notify([&]() {
         if (_btn_cl2.get_active()) {
             if (_btn_cl1.get_active()) {
-                select_target(*_fgcl2);
+                _stack.set_visible_child(_list_to);
             }
             _btn_cl1.set_active(false);
         }
@@ -63,28 +120,26 @@ connection_popover::connection_popover() : Gtk::Popover(),
 
     box.pack_start(btnbox, Gtk::PACK_EXPAND_PADDING);
 
-    auto & scrl = *Gtk::manage(new Gtk::ScrolledWindow());
-    auto & vprt = *Gtk::manage(new Gtk::Viewport(scrl.get_hadjustment(), scrl.get_vadjustment()));
-
-    _list.signal_button_press_event().connect([&](const GdkEventButton * evb) -> bool {
+    _list_from.signal_button_press_event().connect([&](const GdkEventButton * evb) -> bool {
         if (evb->button == 1 && evb->type == GDK_2BUTTON_PRESS) {
-            auto use = dynamic_cast<add_connection_row *>(_list.get_selected_row())->dir();
+            auto use = dynamic_cast<add_connection_row *>(_list_from.get_selected_row())->use();
             select_connection_use(use);
         }
         return true;
     });
-    _list.set_selection_mode(Gtk::SELECTION_BROWSE);
-    _list.set_placeholder(*Gtk::manage(new Gtk::Label("None")));
 
-    vprt.add(_list);
+    _list_to.signal_button_press_event().connect([&](const GdkEventButton * evb) -> bool {
+        if (evb->button == 1 && evb->type == GDK_2BUTTON_PRESS) {
+            auto use = dynamic_cast<add_connection_row *>(_list_to.get_selected_row())->use();
+            select_connection_use(use);
+        }
+        return true;
+    });
 
-    scrl.set_policy(Gtk::POLICY_NEVER, Gtk::POLICY_AUTOMATIC);
-    scrl.set_max_content_height(300);
-    scrl.set_propagate_natural_height(true);
-    scrl.set_shadow_type(Gtk::SHADOW_IN);
-    scrl.add(vprt);
+    _stack.add(_list_from);
+    _stack.add(_list_to);
 
-    box.pack_end(scrl, Gtk::PACK_EXPAND_WIDGET);
+    box.pack_end(_stack, Gtk::PACK_EXPAND_WIDGET);
 
     box.set_spacing(5);
     box.set_margin_start(5);
@@ -98,57 +153,47 @@ connection_popover::connection_popover() : Gtk::Popover(),
     Gtk::Popover::show_all_children();
 }
 
-void connection_popover::select_target(full_grid_cell & fgcl) {
-    unselect_target();
+har::uint_t connection_popover::populate_list(full_grid_cell & fgcl, scroll_list_box & list) {
+    list.clear();
 
+    uint_t count{ 0u };
     for (auto &[use, name] : fgcl.logic().connection_uses()) {
         if (!fgcl.has_connection(use)) {
-            auto it = std::get<0>(_rows.try_emplace(use, use));
-            auto & row = it->second;
-            row.add_label(make_ustring(name) + " (" + std::to_string(int_t(use)) + ")");
-            _list.append(row);
+            add_connection_row & row = *Gtk::manage(new add_connection_row(use, name));
+            list.insert(row, int_t(use));
+            count++;
         }
     }
 
-    _list.show_all_children(true);
+    list.show_all_children(true);
+    return count;
 }
 
-void connection_popover::select_connection_use(direction_t dir) {
-    auto & from = _btn_cl2.get_active() ? *_fgcl2 : *_fgcl1;
-    auto & to = _btn_cl2.get_active() ? *_fgcl1 : *_fgcl2;
+void connection_popover::select_connection_use(direction_t use) {
+    auto & from = _btn_cl2.get_active() ? _to : _from;
+    auto & to = _btn_cl2.get_active() ? _from : _to;
 
-    from.add_connection(dir, to);
+    _conn_add_fun(from, to, use);
     Gtk::Popover::popdown();
 }
 
-void connection_popover::on_hide() {
-    _fgcl2 = nullptr;
-    _fgcl1 = nullptr;
-    _ctx = nullptr;
-    Gtk::Popover::on_hide();
-}
-
-void connection_popover::set_cell(std::unique_ptr<participant::context> && ctx,
-                                  std::unique_ptr<full_grid_cell> && fgcl1, Glib::RefPtr<const Gdk::Pixbuf> pixbuf1,
-                                  std::unique_ptr<full_grid_cell> && fgcl2, Glib::RefPtr<const Gdk::Pixbuf> pixbuf2) {
-    _ctx = std::move(ctx);
-    _fgcl1 = std::move(fgcl1);
-    _fgcl2 = std::move(fgcl2);
+void connection_popover::set_context(participant::context & ctx,
+                                     full_grid_cell & from, Glib::RefPtr<const Gdk::Pixbuf> && pixbuf1,
+                                     full_grid_cell & to, Glib::RefPtr<const Gdk::Pixbuf> && pixbuf2) {
+    _from = from.position();
+    _to = to.position();
 
     _img_cl1.set(pixbuf1->scale_simple(16, 16, Gdk::INTERP_BILINEAR));
     _img_cl2.set(pixbuf2->scale_simple(16, 16, Gdk::INTERP_BILINEAR));
 
-    select_target(*_fgcl1);
+    populate_list(from, _list_from);
+    populate_list(to, _list_to);
 
     _btn_cl1.set_active(true);
 }
 
-void connection_popover::unselect_target() {
-    for (auto &[dir, r] : _rows) {
-        _list.remove(r);
-    }
-
-    _rows.clear();
+conn_add_t & connection_popover::conn_add_fun() {
+    return _conn_add_fun;
 }
 
 connection_popover::~connection_popover() noexcept = default;

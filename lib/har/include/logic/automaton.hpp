@@ -8,17 +8,14 @@
 #define HAR_AUTOMATON_HPP
 
 #include <atomic>
-#include <condition_variable>
 #include <mutex>
-#include <queue>
-#include <set>
 #include <thread>
-#include <vector>
 
 #include <har/co_queue.hpp>
 #include <har/participant.hpp>
 #include <har/types.hpp>
 
+#include "logic/barrier.hpp"
 #include "logic/context.hpp"
 #include "logic/process_tab.hpp"
 #include "world/grid_cell_base.hpp"
@@ -74,7 +71,7 @@ namespace har {
             const ushort_t offset; ///<The serial number of the worker thread and it's offset for working on cells
 
             std::thread _thread{ }; ///<The thread that an object of this class acts as closure for
-            std::atomic_flag _valid{ true }; ///<<tt>TRUE</tt>, if the thread should continue working
+            volatile bool_t _valid; ///<<tt>TRUE</tt>, if the thread should continue working
 
             /// \brief Constructor
             /// \param automaton The underlying automaton
@@ -115,24 +112,21 @@ namespace har {
 
         inner_simulation & _sim; ///<Associated simulation
 
-        std::atomic<state> _state; ///<State of the automaton
-        std::atomic<substep> _substep; ///<Current substep
+        state _state; ///<State of the automaton
+        volatile substep _substep; ///<Current substep
 
         const uint_t _threads; ///<Number of threads
         worker _self_worker; ///<First worker that works in the thread the automaton is called in
         std::unique_ptr<worker[]> _workers; ///<Contains additional worker threads and their data
 
-        std::atomic<uint_t> _waiting; ///<Barrier counter for worker threads
-        std::mutex _cyclex;
+        barrier _barrier;
+
         std::mutex _autoex;
-        std::mutex _stepex;
+        std::mutex _cyclex;
 
         process_tab _tab;
 
         co_queue<std::pair<participant_h, participant::callback_t>> _queue;
-
-        std::atomic<ushort_t> _workdone; ///<Counter for how many workers have finished their current task
-        std::atomic_flag _first; ///<Flag for the first worker to have completed it's task
 
         /// \brief Let's every worker execute a step
         ///
@@ -191,14 +185,10 @@ namespace har {
         void process(inner_participant & iparti);
 
         /// \brief Blocks the automaton from exclusive operation
-        /// \param [in] and_block <tt>TRUE</tt>, if the calling th
-        /// \return <tt>TRUE</tt>, if the
-        bool_t begin(bool_t and_block);
+        void begin();
 
         /// \brief Unblocks the automaton for exclusive operation
-        /// \param [in] and_unblock
-        /// \return
-        bool_t end(bool_t and_unblock);
+        void end();
 
         void cycle();
 

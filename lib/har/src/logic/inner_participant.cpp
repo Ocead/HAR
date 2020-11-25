@@ -104,7 +104,7 @@ void inner_participant::unlock_automaton_and_commit(request_type type) {
     automaton.process(*this);
     _alock.hand_back();
     //TODO: Unlock additional mutex afterwards
-    automaton.end(true);
+    automaton.end();
 }
 
 void inner_participant::wait_for_automaton(request_type type) {

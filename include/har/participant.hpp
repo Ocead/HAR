@@ -306,12 +306,9 @@ namespace har {
         /// Waits for the automaton to yield
         explicit context(inner_participant & parti, request_type type, bool_t blocking = true);
 
-        /// \brief Move constructor
-        ///
-        /// \param [in,out] fref Forwarding reference to original
-        ///
-        /// Takes over the referenced context
-        context(context && fref) noexcept;
+        context(const context & ref) = delete;
+
+        context(context && fref) noexcept = delete;
 
         /// \brief Retrieves a cell from the simulation's grid
         ///
@@ -340,14 +337,9 @@ namespace har {
         /// This function has the same effects as the destruction of this object, without destroying it
         void commit();
 
-        /// \brief Move assignment
-        ///
-        /// \param [in,out] fref Forwarding reference to original
-        ///
-        /// \return This context
-        ///
-        /// Takes over the referenced context
-        context & operator=(context && fref) noexcept;
+        context & operator=(const context & ref) = delete;
+
+        context & operator=(context && fref) noexcept = delete;
 
         /// \brief Default destructor
         ///

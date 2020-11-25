@@ -32,6 +32,10 @@ namespace har::gui_ {
                                                     const Gtk::SelectionData & sel,
                                                     guint info, guint time)>;
 
+    using conn_add_t = std::function<void(const har::gcoords_t & from,
+                                          const har::gcoords_t & to,
+                                          direction_t use)>;
+
     template<typename T>
     Glib::ustring make_ustring(const std::basic_string<T> & str) {
         if constexpr(std::is_same_v<T, char>) {

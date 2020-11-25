@@ -28,7 +28,7 @@ main_win::main_win(gui & parti,
                                                                    _headerbar(),
                                                                    _model(grid_t::MODEL_GRID, 48u),
                                                                    _bank(grid_t::BANK_GRID, 32u),
-                                                                   _action_bar(parti._cycle_delta),
+                                                                   _action_bar(parti._timer.timeout()),
                                                                    _terminal(),
                                                                    _properties([this](of id, value && val) {
                                                                        prop_changed(id, std::forward<value>(val));
@@ -137,10 +137,9 @@ void main_win::bind() {
 
         _model.drag_begin_fun() =
         _bank.drag_begin_fun() = [this](auto ...) {
-            REQUEST(ctx, _parti.get(), UI) {
-                gcoords_t pressed{ grid_t::INVALID_GRID, 0, 0 };
-                if (_pressed.index() == cell_cat::GRID_CELL) {
-                    pressed = std::get<cell_cat::GRID_CELL>(_pressed);
+            if (_pressed.index() == cell_cat::GRID_CELL) {
+                REQUEST(ctx, _parti.get(), UI) {
+                    gcoords_t pressed = std::get<cell_cat::GRID_CELL>(_pressed);
                     auto fgcl = ctx.at(pressed);
                     fgcl.logic().release(fgcl, ccoords_t());
                 }
@@ -209,18 +208,18 @@ void main_win::bind() {
                  target == bank_entry.target ||
                  target == conn_entry.target) && actions == Gdk::ACTION_COPY) {
                 gcoords_t from = reinterpret_cast<const gcoords_t &>(*selection_data.get_data());
-                auto ctxptr = std::make_unique<participant::context>(_parti.get().request());
-                auto & ctx = *ctxptr;
-                if (!(ctx.at(to).traits() & traits::EMPTY_PART)) {
-                    std::unique_ptr<full_grid_cell> fromgcl{ new full_grid_cell(ctx.at(from)) };
-                    std::unique_ptr<full_grid_cell> togcl{ new full_grid_cell(ctx.at(to)) };
-                    _conn_popover.set_cell(std::move(ctxptr),
-                                           std::move(fromgcl), get_cell_image(from),
-                                           std::move(togcl), get_cell_image(to));
-                    _conn_popover.set_relative_to(to.cat == grid_t::MODEL_GRID ?
-                                                  _model.at(to.pos) :
-                                                  _bank.at(to.pos));
-                    _conn_popover.popup();
+                REQUEST(ctx, _parti.get(), UI) {
+                    if (!(ctx.at(to).traits() & traits::EMPTY_PART)) {
+                        auto fromgcl = ctx.at(from);
+                        auto togcl = ctx.at(to);
+                        _conn_popover.set_context(ctx,
+                                                  fromgcl, get_cell_image(from),
+                                                  togcl, get_cell_image(to));
+                        _conn_popover.set_relative_to(to.cat == grid_t::MODEL_GRID ?
+                                                      _model.at(to.pos) :
+                                                      _bank.at(to.pos));
+                        _conn_popover.popup();
+                    }
                 }
             } else if ((target == model_entry.target ||
                         target == bank_entry.target) && actions == Gdk::ACTION_MOVE) {
@@ -263,6 +262,12 @@ void main_win::bind() {
             _parti.get().set_cycle(us);
         };
     }
+
+    /*Connection popover*/ {
+        _conn_popover.conn_add_fun() = [this](auto ... args) {
+            cell_connected(args ...);
+        };
+    }
 }
 
 void main_win::btn_new_clicked() {
@@ -277,7 +282,7 @@ void main_win::btn_open_clicked() {
     auto filter_ham = Gtk::FileFilter::create();
     filter_all->set_name("All (*.*)");
     filter_ham->set_name("HAR Model (*.ham)");
-    filter_ham->add_mime_type("text/ham");
+    filter_ham->add_mime_type("text/x.ham");
     filter_all->add_pattern("*");
     filter_ham->add_pattern("*.ham");
 
@@ -462,11 +467,11 @@ void main_win::cell_moved(const gcoords_t & from, const gcoords_t & to, particip
     cell_selected(to, ctx);
 }
 
-void main_win::cell_connected(const gcoords_t & from, const gcoords_t & to, participant::context & ctx) {
-    if (cell_cat(_selected.index()) == cell_cat::GRID_CELL) {
-        if (from == std::get<uint_t(cell_cat::GRID_CELL)>(_selected)) {
-            cell_selected(from, ctx);
-        }
+void main_win::cell_connected(const gcoords_t & from, const gcoords_t & to, direction_t use) {
+    REQUEST(ctx, _parti.get(), UI) {
+        auto fgcl = ctx.at(from);
+        auto tgcl = ctx.at(to);
+        fgcl.add_connection(use, tgcl);
     }
 }
 

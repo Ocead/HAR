@@ -2,6 +2,8 @@
 // Created by Johannes on 17.06.2020.
 //
 
+#include <algorithm>
+
 #include <har/cargo_cell.hpp>
 #include <har/grid_cell.hpp>
 
@@ -25,13 +27,10 @@ automaton::automaton(inner_simulation & sim, ushort_t workers) : _sim(sim),
                                                                  _threads(workers),
                                                                  _self_worker(*this, 0u),
                                                                  _workers(),
-                                                                 _waiting(),
-                                                                 _cyclex(),
+                                                                 _barrier(workers),
                                                                  _autoex(),
-                                                                 _stepex(),
-                                                                 _tab(),
-                                                                 _workdone(0),
-                                                                 _first(false) {
+                                                                 _cyclex(),
+                                                                 _tab() {
     //_cyclex.lock();
     _workers.reset(static_cast<worker *>(::operator new(workers * sizeof(worker))));
     for (auto i = 0u; i < _threads; ++i) {
@@ -40,8 +39,8 @@ automaton::automaton(inner_simulation & sim, ushort_t workers) : _sim(sim),
 }
 
 void automaton::do_step(enum automaton::substep step) {
-    _stepex.lock();
-    _substep.store(step, std::memory_order_release);
+    _barrier.reset();
+    _substep = step;
     std::for_each_n(_workers.get(), _threads, [](worker & w) {
         w.unblock();
     });
@@ -62,13 +61,11 @@ void automaton::do_step(enum automaton::substep step) {
 }
 
 void automaton::i_am_done() {
-    if (++_workdone % _threads == 0) {
-        _stepex.unlock();
-    }
+    _barrier.arrive();
 }
 
 void automaton::wait_for_all() {
-    std::scoped_lock{ _stepex };
+    _barrier.wait();
 }
 
 void automaton::inner_exec(std::pair<participant_h, participant::callback_t> & pack) {
@@ -84,15 +81,15 @@ void automaton::commence() {
 }
 
 enum automaton::state automaton::state() {
-    return _state.load(std::memory_order_acquire);
+    return _state;
 }
 
 enum automaton::substep automaton::substep() {
-    return _substep.load(std::memory_order_acquire);
+    return _substep;
 }
 
 enum automaton::state automaton::set_state(participant_h id, enum state to) {
-    auto old = _state.exchange(to, std::memory_order_acq_rel);
+    auto old = std::exchange(_state, to);
     if (old != to) {
         DEBUG {
             switch (to) {
@@ -182,22 +179,22 @@ void automaton::resize_tab(const gcoords_t & from, const gcoords_t & to) {
 void automaton::request(participant_h id) {
     switch (_state) {
         case automaton::state::RUN: {
-            begin(true);
+            begin();
             _sim.inner_participants().at(id)->unlock_and_wait_for_request();
             break;
         }
         case automaton::state::STEP: {
-            begin(true);
+            begin();
             _sim.inner_participants().at(id)->unlock_and_wait_for_request();
             break;
         }
         case automaton::state::STOP: {
-            begin(true);
+            begin();
             _sim.inner_participants().at(id)->unlock_and_wait_for_request();
             break;
         }
         case automaton::state::INIT: {
-            begin(true);
+            begin();
             _sim.inner_participants().at(id)->unlock_and_wait_for_request();
             break;
         }
@@ -219,28 +216,20 @@ void automaton::process(inner_participant & iparti) {
     _tab.apply();
 }
 
-bool_t automaton::begin(bool_t and_block) {
-    uint_t c = _waiting++;
-    DEBUG_LOG("Lock automaton from " + std::to_string(c));
-    if (and_block) {
-        DEBUG_LOG("Wait on mutex");
-        _cyclex.lock();
-        DEBUG_LOG("Locked mutex");
-    }
-    return c == 0;
+void automaton::begin() {
+    DEBUG_LOG("Lock automaton");
+    DEBUG_LOG("Wait on mutex");
+    _cyclex.lock();
+    DEBUG_LOG("Locked mutex");
 }
 
-bool_t automaton::end(bool_t and_unblock) {
-    uint_t c = --_waiting;
-    DEBUG_LOG("Unlock automaton to " + std::to_string(c));
-    if (and_unblock) {
-        _cyclex.unlock();
-    }
-    return c == 0;
+void automaton::end() {
+    DEBUG_LOG("Unlock automaton");
+    _cyclex.unlock();
 }
 
 void automaton::cycle() {
-    switch (_state.load(std::memory_order_acquire)) {
+    switch (_state) {
         case state::RUN: {
             break;
         }
@@ -255,7 +244,7 @@ void automaton::cycle() {
     DEBUG_LOG("begin");
     //begin(true);
 
-    _substep.store(automaton::substep::PROCESS_REQUEST, std::memory_order_release);
+    _substep = automaton::substep::PROCESS_REQUEST;
     if (_self_worker.process_requests()) {
         _self_worker.commit_and_draw(worker::step_type::REQUEST);
         _self_worker.clean(worker::step_type::REQUEST);
@@ -320,7 +309,7 @@ automaton::worker::worker(automaton & automaton, ushort_t id) : _auto(automaton)
 void automaton::worker::work() {
     while (true) {
         begin();
-        if (_valid.test_and_set()) {
+        if (_valid) {
             switch (_auto.substep()) {
                 case automaton::substep::CYCLE_AND_MOVE: {
                     cycle_and_move(worker::step_type::CYCLE);
@@ -507,7 +496,7 @@ void automaton::worker::wait_for_next_step() {
 
 void automaton::worker::start() {
     if (_thread.get_id() == std::thread::id()) {
-        _valid.test_and_set(std::memory_order_release);
+        _valid = true;
         _thread = std::thread(&automaton::worker::work, this);
     }
 }
@@ -529,18 +518,16 @@ void automaton::worker::process_exec(std::pair<participant_h, participant::callb
 
 bool_t automaton::worker::process_requests() {
     bool_t processed = false;
-    if (_auto._waiting.load(std::memory_order_acquire) > 1) {
-        for (auto &[id, iparti_rw] : _auto._sim.inner_participants()) {
-            auto & iparti = *iparti_rw;
-            if (iparti.do_cycle()) {
-                participant::context ctx{ iparti, UI, false };
-                _auto._sim.participants().at(id)->on_cycle(ctx);
-                processed = true;
-            }
-            if (iparti.has_request()) {
-                iparti.unlock_and_wait_for_request();
-                processed = true;
-            }
+    for (auto &[id, iparti_rw] : _auto._sim.inner_participants()) {
+        auto & iparti = *iparti_rw;
+        if (iparti.do_cycle()) {
+            participant::context ctx{ iparti, UI, false };
+            _auto._sim.participants().at(id)->on_cycle(ctx);
+            processed = true;
+        }
+        if (iparti.has_request()) {
+            iparti.unlock_and_wait_for_request();
+            processed = true;
         }
     }
     return processed;
@@ -573,7 +560,7 @@ void automaton::worker::unblock() {
 
 automaton::worker::~worker() {
     if (_thread.joinable()) {
-        _valid.clear();
+        _valid = false;
         _workex.unlock();
         _thread.join();
     }
