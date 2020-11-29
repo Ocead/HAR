@@ -35,7 +35,7 @@ include_directories(include)
 #region Blink
 
 find_library(harduino
-        NAMES harduino harduino
+        NAMES harduino libharduino
         HINTS "${CMAKE_BINARY_DIR}/harduino")
 set(DUINO_LIBRARY_NAME harduino)
 
@@ -48,10 +48,14 @@ else ()
     set_source_files_properties(src/example/blink.c PROPERTIES COMPILE_FLAGS "-include Arduino.h")
 endif ()
 
-add_executable(example_blink include/Arduino.h src/example/blink.c)
+add_executable(example_blink
+        include/Arduino.h
+        src/example/blink.c)
 
 target_link_libraries(example_blink
-        ${DUINO_LIBRARY_NAME})
+        -Wl,--whole-archive
+        ${DUINO_LIBRARY_NAME}
+        -Wl,--no-whole-archive)
 
 #endregion
 
