@@ -147,7 +147,7 @@ void randomSeed(unsigned long seed);
 
 uint8_t digitalPinToInterrupt(uint8_t pin);
 
-void attachInterrupt(uint8_t interruptNum, void (*userFunc)(), int mode);
+void attachInterrupt(uint8_t interruptNum, void (* userFunc)(), int mode);
 
 void detachInterrupt(uint8_t interruptNum);
 
