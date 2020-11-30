@@ -55,7 +55,7 @@ namespace har {
 
         void on_cycle(participant::context & ctx) override;
 
-        void on_attach(int argc, char * const * argv, char * const * envp) override;
+        void on_attach(int argc, char * const argv[], char * const envp[]) override;
 
         void on_part_included(const part & pt, bool_t commit) override;
 

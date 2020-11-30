@@ -69,7 +69,7 @@ void gui::on_cycle(participant::context & ctx) {
 
 }
 
-void gui::on_attach(int argc, char * const * argv, char * const * envp) {
+void gui::on_attach(int argc, char * const argv[], char * const envp[]) {
     std::mutex latch;
     latch.lock();
     _thread = std::thread([this, &latch]() {

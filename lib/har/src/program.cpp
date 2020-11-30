@@ -40,7 +40,7 @@ void program::on_cycle(participant::context & ctx) {
 
 }
 
-void program::on_attach(int argc, char * const * argv, char * const * envp) {
+void program::on_attach(int argc, char * const argv[], char * const envp[]) {
 
 }
 
