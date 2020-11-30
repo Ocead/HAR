@@ -58,10 +58,11 @@ part duino::parts::digital_pin(part_h offset) {
                 auto before = double_t(gcl[of::POWERING_PIN]);
 
                 double_t after = 0.;
-                for (auto & ccl : gcl.connected()) {
+                auto connected = gcl.connected();
+                for (auto & ccl : connected) {
                     after += double_t(ccl.cell[of::POWERING_PIN]);
                 }
-                after /= gcl.connected().size();
+                after /= connected.size();
 
                 if (before != after) {
                     gcl[of::POWERED_PIN] = after;
