@@ -35,6 +35,44 @@ part duino::parts::analog_pin(part_h offset) {
         }
     };
 
+    pt.delegates.cycle = [](cell & cl) {
+        auto & gcl = cl.as_grid_cell();
+        auto mode = pin_mode(uint_t(cl[of::PIN_MODE]));
+
+        switch (mode) {
+            case pin_mode::TRI_STATE: {
+                auto out = double_t(gcl[of::POWERING_PIN]);
+                if (!std::isnan(out)) {
+                    gcl[of::POWERING_PIN] = std::nan("1");
+                }
+
+                auto in = double_t(gcl[of::POWERED_PIN]);
+                if (!std::isnan(in)) {
+                    gcl[of::POWERED_PIN] = std::nan("1");
+                }
+                break;
+            }
+            case pin_mode::OUTPUT: {
+                break;
+            }
+            case pin_mode::INPUT: {
+                auto before = double_t(gcl[of::POWERING_PIN]);
+
+                double_t after = 0.;
+                auto connected = gcl.connected();
+                for (auto & ccl : connected) {
+                    after += double_t(ccl.cell[of::POWERING_PIN]);
+                }
+                after /= connected.size();
+
+                if (before != after) {
+                    gcl[of::POWERED_PIN] = after;
+                }
+                break;
+            }
+        }
+    };
+
     pt.delegates.draw = [](cell & cl, image_t & im) {
         if (im.type() == typeid(ImageType)) {
             Cairo::RefPtr<Cairo::Surface> sf = Cairo::ImageSurface::create(Cairo::FORMAT_ARGB32, 256, 256);
