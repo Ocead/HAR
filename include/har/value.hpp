@@ -88,7 +88,7 @@ namespace har {
         }
 
         /// \brief Checks if the color is not transparent black
-        /// \return Wheter the color is not transparent black
+        /// \return Whether the color is not transparent black
         explicit constexpr operator bool_t() const {
             return r || g || b || a;
         }
@@ -343,8 +343,22 @@ namespace har {
             }
         }
 
+        inline T & value() {
+            return (T &) (*this);
+        }
+
+        [[nodiscard]]
+        inline const T & value() const {
+            return (const T &) (*this);
+        }
+
         /// \brief Default destructor
         ~possibly_pointed() = default;
+    };
+
+    template<typename T>
+    struct add_possibly_pointed {
+        using type = possibly_pointed<T>;
     };
 
     /// \brief Determines whether a type can be stored in <tt>har::value</tt>
@@ -551,6 +565,31 @@ namespace har {
         VALUE_STEP,
 
         /// <b>Type:</b><br/>undefined
+        /// \brief A generic value of the cell
+        VALUE1,
+        /// <b>Type:</b><br/>undefined
+        /// \brief A generic value of the cell
+        VALUE2,
+        /// <b>Type:</b><br/>undefined
+        /// \brief A generic value of the cell
+        VALUE3,
+        /// <b>Type:</b><br/>undefined
+        /// \brief A generic value of the cell
+        VALUE4,
+        /// <b>Type:</b><br/>undefined
+        /// \brief A generic value of the cell
+        VALUE5,
+        /// <b>Type:</b><br/>undefined
+        /// \brief A generic value of the cell
+        VALUE6,
+        /// <b>Type:</b><br/>undefined
+        /// \brief A generic value of the cell
+        VALUE7,
+        /// <b>Type:</b><br/>undefined
+        /// \brief A generic value of the cell
+        VALUE8,
+
+        /// <b>Type:</b><br/>undefined
         /// \brief The delta in which a timer increments
         TIMER_STEP,
         /// <b>Type:</b><br/><tt>har::uint_t</tt>
@@ -593,37 +632,6 @@ namespace har {
             har::callback_t,
             har::part_h>;
 
-    template<typename T>
-    constexpr uint_t type_index() {
-        if constexpr(std::is_same_v<bool_t, T>) {
-            return 1u;
-        } else if constexpr(std::is_same_v<int_t, T>) {
-            return 2u;
-        } else if constexpr(std::is_same_v<uint_t, T>) {
-            return 3u;
-        } else if constexpr(std::is_same_v<double_t, T>) {
-            return 4u;
-        } else if constexpr(std::is_same_v<string_t, T>) {
-            return 5u;
-        } else if constexpr(std::is_same_v<ccoords_t, T>) {
-            return 6u;
-        } else if constexpr(std::is_same_v<dcoords_t, T>) {
-            return 7u;
-        } else if constexpr(std::is_same_v<direction_t, T>) {
-            return 8u;
-        } else if constexpr(std::is_same_v<color_t, T>) {
-            return 9u;
-        } else if constexpr(std::is_same_v<special_t, T>) {
-            return 10u;
-        } else if constexpr(std::is_same_v<callback_t, T>) {
-            return 11u;
-        } else if constexpr(std::is_same_v<part_h, T>) {
-            return 12u;
-        } else {
-            return 0u;
-        }
-    }
-
     /// \brief Stores the values for the properties of cells
     class value final : public value_base {
     private:
@@ -653,6 +661,13 @@ namespace har {
             CALLBACK = 11u, ///<Callback function type (<tt>har::callback_t</tt>)
             HASH = 12u ///<Type for hashes and handles (<tt>har::part_h</tt>)
         };
+
+        /// \brief Returns the index of the contained value as the corresponding enum value
+        /// \return The index of the contained value as <tt>har::value::datatype</tt>
+        [[nodiscard]]
+        datatype typed_index() const {
+            return datatype(index());
+        }
 
         /// \brief Gets the unmangled name of a datatype used in <tt>har::value</tt>
         /// \param type Enum value for a datatype
@@ -825,9 +840,85 @@ namespace har {
         friend ostream & operator<<(ostream & os, const value & val);
     };
 
-    /// \param [in,out] os
-    /// \param [in] val
-    /// \return
+    /// \brief Returns the enum value corresponding to the template type
+    ///
+    /// \tparam T Valid type for <tt>har::value</tt>
+    ///
+    /// \return Corresponding enum value
+    template<typename T>
+    constexpr value::datatype type_index() {
+        if constexpr(std::is_same_v<bool_t, T>) {
+            return value::datatype::BOOLEAN;
+        } else if constexpr(std::is_same_v<int_t, T>) {
+            return value::datatype::INTEGER;
+        } else if constexpr(std::is_same_v<uint_t, T>) {
+            return value::datatype::UNSIGNED;
+        } else if constexpr(std::is_same_v<double_t, T>) {
+            return value::datatype::DOUBLE;
+        } else if constexpr(std::is_same_v<string_t, T>) {
+            return value::datatype::STRING;
+        } else if constexpr(std::is_same_v<ccoords_t, T>) {
+            return value::datatype::C_COORDINATES;
+        } else if constexpr(std::is_same_v<dcoords_t, T>) {
+            return value::datatype::D_COORDINATES;
+        } else if constexpr(std::is_same_v<direction_t, T>) {
+            return value::datatype::DIRECTION;
+        } else if constexpr(std::is_same_v<color_t, T>) {
+            return value::datatype::COLOR;
+        } else if constexpr(std::is_same_v<special_t, T>) {
+            return value::datatype::SPECIAL;
+        } else if constexpr(std::is_same_v<callback_t, T>) {
+            return value::datatype::CALLBACK;
+        } else if constexpr(std::is_same_v<part_h, T>) {
+            return value::datatype::HASH;
+        } else {
+            return value::datatype::VOID;
+        }
+    }
+
+    /// \brief Returns the default type value for the enum value
+    ///
+    /// \tparam T Enum value of <tt>har::value::datatype</tt>
+    ///
+    /// \return Corresponding default value
+    template<value::datatype type>
+    auto type_from_enum() {
+        if constexpr (type == value::datatype::BOOLEAN) {
+            return bool_t();
+        } else if constexpr (type == value::datatype::INTEGER) {
+            return int_t();
+        } else if constexpr (type == value::datatype::UNSIGNED) {
+            return uint_t();
+        } else if constexpr (type == value::datatype::DOUBLE) {
+            return double_t();
+        } else if constexpr (type == value::datatype::STRING) {
+            return string_t();
+        } else if constexpr (type == value::datatype::C_COORDINATES) {
+            return ccoords_t();
+        } else if constexpr (type == value::datatype::D_COORDINATES) {
+            return dcoords_t();
+        } else if constexpr (type == value::datatype::DIRECTION) {
+            return direction_t();
+        } else if constexpr (type == value::datatype::COLOR) {
+            return color_t();
+        } else if constexpr (type == value::datatype::SPECIAL) {
+            return special_t();
+        } else if constexpr (type == value::datatype::CALLBACK) {
+            return callback_t();
+        } else if constexpr (type == value::datatype::HASH) {
+            return part_h();
+        } else {
+            return;
+        }
+    }
+
+    /// \brief Serializes a value
+    ///
+    /// Calls operator<< for the contained value
+    /// \param [in,out] os Output stream
+    /// \param [in] val Value to serialize
+    ///
+    /// \return The output stream
     ostream & operator<<(ostream & os, const value & val);
 
     /// \brief Numeric value representing a type held by value
@@ -837,14 +928,11 @@ namespace har {
     /// \brief Numeric type referencing a defined parts entry
     typedef of entry_h;
 
-    /// \param val
-    /// \return
-    datatype datatype_of(std::size_t val);
-
     /// \brief Constructs a value object from arguments of it's variant types constructors
     /// \tparam T Target type
     /// \tparam Args Argument types
-    /// \param args Arguments
+    /// \param [in] args Arguments
+    ///
     /// \return The new value
     template<typename T, typename ...Args>
     value make_value(Args && ... args) {
@@ -855,29 +943,37 @@ namespace har {
     }
 
     namespace exception {
+        /// \brief Exception if the contained type of a value doesn't match the expected type
         class datatype_mismatch : public exception {
         private:
-            const value::datatype _expected; ///<
-            const value::datatype _actual; ///<
+            const value::datatype _expected; ///<Expected type
+            const value::datatype _actual; ///<Actual type
 
         public:
-            /// \param source
-            /// \param expected
-            /// \param actual
+            /// \brief Constructor
+            ///
+            /// \param [in] source Source of the exception
+            /// \param [in] expected Expected type
+            /// \param [in] actual Actual type
             datatype_mismatch(const std::string & source, value::datatype expected, value::datatype actual);
 
-            /// \return
+            /// \return The exception in text form
             [[nodiscard]]
             const char * what() const noexcept override;
 
-            /// \return
+            /// \brief Returns the enum value of the expected type
+            ///
+            /// \return The enum value of the expected type
             [[nodiscard]]
             value::datatype expected() const noexcept;
 
-            /// \return
+            /// \brief Returns the enum value of the actual type
+            ///
+            /// \return The enum value of the actual type
             [[nodiscard]]
             value::datatype actual() const noexcept;
 
+            /// \brief Default destructor
             ~datatype_mismatch() noexcept override;
         };
     }
@@ -889,7 +985,7 @@ namespace har {
     template<typename T>
     [[nodiscard]]
     T & get(value & val) {
-        if (type_index<T>() == val.index()) {
+        if (type_index<T>() == val.typed_index()) {
             return std::get<possibly_pointed<T>>(val);
         } else {
             raise(*new exception::datatype_mismatch(FUNCTION, value::datatype(type_index<T>()),
@@ -904,7 +1000,7 @@ namespace har {
     template<typename T>
     [[nodiscard]]
     const T & get(const value & val) {
-        if (type_index<T>() == val.index()) {
+        if (type_index<T>() == val.typed_index()) {
             return std::get<possibly_pointed<T>>(val);
         } else {
             raise(*new exception::datatype_mismatch(FUNCTION, value::datatype(type_index<T>()),
@@ -919,7 +1015,7 @@ namespace har {
     template<typename T>
     [[nodiscard]]
     T & get(value && val) {
-        if (type_index<T>() == val.index()) {
+        if (type_index<T>() == val.typed_index()) {
             return std::get<possibly_pointed<T>>(std::forward<value>(val));
         } else {
             raise(*new exception::datatype_mismatch(FUNCTION, value::datatype(type_index<T>()),
@@ -934,7 +1030,7 @@ namespace har {
     template<typename T>
     [[nodiscard]]
     const T & get(const value && val) {
-        if (type_index<T>() == val.index()) {
+        if (type_index<T>() == val.typed_index()) {
             return std::get<possibly_pointed<T>>(std::forward<const value>(val));
         } else {
             raise(*new exception::datatype_mismatch(FUNCTION, value::datatype(type_index<T>()),

@@ -329,10 +329,6 @@ string_t value::datatype_name(datatype type) {
     return names.at(type);
 }
 
-datatype datatype_of(std::size_t val) {
-    return datatype(val);
-}
-
 using namespace har::exception;
 
 datatype_mismatch::datatype_mismatch(const std::string & source,
