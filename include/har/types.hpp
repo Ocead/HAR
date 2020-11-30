@@ -60,7 +60,7 @@ namespace har {
     template<typename Key, typename Tp,
             typename Hash = std::hash<Key>,
             typename Pred = std::equal_to<Key>,
-            typename Alloc = std::allocator<std::pair<const Key, Tp>>>
+            typename Alloc = std::allocator<std::pair<const Key, std::conditional_t<std::is_reference_v<Tp>, std::reference_wrapper<std::remove_reference_t<Tp>>, Tp>>>>
     using map = std::unordered_map<Key,
             std::conditional_t<std::is_reference_v<Tp>, std::reference_wrapper<std::remove_reference_t<Tp>>, Tp>,
             Hash, Pred, Alloc>;
