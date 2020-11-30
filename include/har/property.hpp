@@ -151,14 +151,14 @@ namespace har {
 
     template<typename T>
     inline void replace(property & prop, const T & val) {
-        if (T(prop) != val) {
+        if (prop.as<T>() != val) {
             prop = val;
         }
     }
 
     template<typename T>
-    inline void replace(property prop, const T & val) {
-        if (T(prop) != val) {
+    inline void replace(property && prop, const T & val) {
+        if (prop.as<T>() != val) {
             prop = val;
         }
     }
