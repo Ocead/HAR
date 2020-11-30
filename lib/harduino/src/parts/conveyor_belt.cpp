@@ -5,6 +5,8 @@
 #include <har/duino.hpp>
 #include "parts.hpp"
 
+#define once while (false)
+
 using namespace har;
 using namespace har::parts;
 
@@ -81,54 +83,68 @@ part duino::parts::conveyor_belt(part_h offset) {
         uint_t distance = std::numeric_limits<uint_t>::max();
         direction_t motor_dir = direction::NONE;
 
-        for (auto dir : direction::cardinal) {
-            double_t speed;
-            auto & ncl = gcl[dir];
+        direction_t from{ cl[of::MOVING_FROM] };
+        direction_t to{ cl[of::MOVING_TO] };
 
-            do {
-                if (ncl.has(of::MOTOR_SPEED) && direction_t(ncl[of::FACING]) == !dir) {
-                    speed = double_t(ncl[MOTOR_SPEED]);
-                    distance = 0u;
-                    motor_dir = dir;
-                } else if (ncl.has(of::MOVING_TO)) {
-                    double_t dir_fac;
-                    if (ncl[of::MOVING_TO] == value(!dir)) {
-                        dir_fac = 1;
-                    } else if (ncl[of::MOVING_FROM] == value(!dir)) {
-                        dir_fac = -1;
+        if (from != to) {
+            for (auto dir : direction::cardinal) {
+                double_t speed = 0.;
+                double_t dir_fac = 0.;
+                auto & ncl = gcl[dir];
+
+                do {
+                    if (ncl.has(of::MOTOR_SPEED) && direction_t(ncl[of::FACING]) == !dir) {
+                        speed = double_t(ncl[MOTOR_SPEED]);
+                        distance = 0u;
+                        motor_dir = dir;
+                    } else if (ncl.has(of::MOVING_TO)) {
+                        direction_t nfrom{ ncl[of::MOVING_FROM] };
+                        direction_t nto{ ncl[of::MOVING_TO] };
+                        if (nfrom == nto) {
+                            speed = 0.;
+                            break;
+                        }
+                        if (nto == !dir) {
+                            dir_fac = 1;
+                        } else if (nfrom == !dir) {
+                            dir_fac = -1;
+                        } else {
+                            speed = 0.;
+                            break;
+                        }
+
+                        if (from != !nto && to != !nfrom) {
+                            dir_fac *= -1;
+                        }
+
+                        auto ndistance = uint_t(ncl[of::MOTOR_DISTANCE]);
+                        if (ndistance + 1 <= distance &&
+                            ndistance != std::numeric_limits<uint_t>::max() &&
+                            direction_t(ncl[of::MOTOR_DIRECTION]) != !dir) {
+                            speed = double_t(ncl[value::moving(!dir)]) * dir_fac;
+                            distance = ndistance + 1;
+                            motor_dir = dir;
+                        } else {
+                            speed = double_t(ncl[value::moving(!dir)]) * dir_fac;
+                            break;
+                        }
                     } else {
                         speed = 0.;
-                        motor_dir = direction::NONE;
                         break;
                     }
+                } once;
 
-                    auto ndistance = uint_t(ncl[of::MOTOR_DISTANCE]);
-                    if (ndistance + 1 <= distance &&
-                        ndistance != std::numeric_limits<uint_t>::max() &&
-                        direction_t(ncl[of::MOTOR_DIRECTION]) != !dir) {
-                        speed = double_t(ncl[value::moving(!dir)]) * dir_fac;
-                        distance = ndistance + 1;
-                        motor_dir = dir;
-                    } else {
-                        speed = double_t(ncl[value::moving(!dir)]) * dir_fac;
-                        break;
-                    }
-                } else {
-                    speed = 0.;
-                    break;
+                replace(cl[value::moved(dir)], speed * dir_fac);
+                if (motor_dir == dir) {
+                    replace(cl[value::moving(to)], speed);
+                    replace(cl[value::moving(from)], -speed);
                 }
-            } while (false);
-
-            replace(cl[value::moved(dir)], speed);
-            if (motor_dir == dir) {
-                replace(cl[value::moving(direction_t(cl[of::MOVING_TO]))], speed);
-                replace(cl[value::moving(direction_t(cl[of::MOVING_FROM]))], -speed);
             }
         }
 
         if (motor_dir == direction::NONE) {
-            replace(cl[value::moving(direction_t(cl[of::MOVING_TO]))], 0.);
-            replace(cl[value::moving(direction_t(cl[of::MOVING_FROM]))], -0.);
+            replace(cl[value::moving(to)], 0.);
+            replace(cl[value::moving(from)], -0.);
         }
 
         replace(cl[of::MOTOR_DISTANCE], (motor_dir != direction::NONE) ? distance : std::numeric_limits<uint_t>::max());
@@ -152,6 +168,7 @@ part duino::parts::conveyor_belt(part_h offset) {
             rotate_cardinal(cr, from);
 
             auto color = color_t(cl[of::COLOR]);
+            auto speed = double_t(cl[value::moving(to)]);
 
             if (from == !to) {
                 cr->set_source_rgb(.2, .2, .2);
@@ -188,7 +205,6 @@ part duino::parts::conveyor_belt(part_h offset) {
                 cr->stroke();
             }
 
-            auto speed = double_t(cl[value::moving(to)]);
             if (from == cw(to)) {
                 rotate_cardinal(cr, direction::DOWN);
             } else if (from == ccw(to)) {
@@ -198,15 +214,19 @@ part duino::parts::conveyor_belt(part_h offset) {
                 rotate_cardinal(cr, direction::LEFT);
             }
             if (speed != 0.) {
+                bool_t leftb = speed > 0. ? from == ccw(to) : from == cw(to);
+                bool_t rightb = speed > 0. ? from == cw(to) : from == ccw(to);
                 cr->set_source_rgb(237. / 255., 212. / 255., 0. / 255.);
-                if (from == !to) {
+                if (from == !to || leftb) {
                     cr->move_to(32., 64.);
                     cr->line_to(32. + 64., 128.);
                     cr->line_to(32., 256. - 64.);
                 }
-                cr->move_to(160., 64.);
-                cr->line_to(160. + 64., 128.);
-                cr->line_to(160., 256. - 64.);
+                if (from == !to || rightb) {
+                    cr->move_to(160., 64.);
+                    cr->line_to(160. + 64., 128.);
+                    cr->line_to(160., 256. - 64.);
+                }
                 cr->fill();
                 cr->stroke();
             }
