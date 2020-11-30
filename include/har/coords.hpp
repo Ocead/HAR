@@ -489,8 +489,16 @@ namespace har {
     struct coords {
         using dim = T;
 
-        coord<T> x; ///<X component
-        coord<T> y; ///<Y component
+        union {
+            struct {
+                coord<T> x; ///<X component
+                coord<T> y; ///<Y component
+            };
+            struct {
+                coord<T> w; ///<Width
+                coord<T> h; ///<Height
+            };
+        };
 
         /// \brief Constructs a new coordinate and initializes it with x = y = T() as the standard value
         coords() noexcept: x(T()), y(T()) { };
