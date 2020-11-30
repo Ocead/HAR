@@ -8,6 +8,12 @@
 using namespace har;
 using namespace har::parts;
 
+enum channels {
+    RED = of::VALUE1,
+    GREEN = of::VALUE2,
+    BLUE = of::VALUE3
+};
+
 part duino::parts::rgb_led(part_h offset) {
     part pt{ PART[standard_ids::RGB_LED + offset],
              text("har:rgb_led"),
@@ -15,6 +21,65 @@ part duino::parts::rgb_led(part_h offset) {
              text("RGB LED") };
 
     add_properties_for_traits(pt, 5.);
+
+    pt.add_entry(entry{ of(RED),
+                        text("__RED_CHANNEL"),
+                        text("Red channel"),
+                        value(uint_t()),
+                        ui_access::VISIBLE,
+                        serialize::NO_SERIALIZE,
+                        std::array<uint_t, 3>{ 0, 255, 1 }});
+
+    pt.add_entry(entry{ of(GREEN),
+                        text("__GREEN_CHANNEL"),
+                        text("Green channel"),
+                        value(uint_t()),
+                        ui_access::VISIBLE,
+                        serialize::NO_SERIALIZE,
+                        std::array<uint_t, 3>{ 0, 255, 1 }});
+
+    pt.add_entry(entry{ of(BLUE),
+                        text("__BLUE_CHANNEL"),
+                        text("Green channel"),
+                        value(uint_t()),
+                        ui_access::VISIBLE,
+                        serialize::NO_SERIALIZE,
+                        std::array<uint_t, 3>{ 0, 255, 1 }});
+
+    pt.delegates.cycle = [](cell & cl) {
+        double_t high = double_t(cl[of::HIGH_VOLTAGE]);
+        for (auto &[use, ncl] : cl.as_grid_cell().connected()) {
+            switch (use) {
+                case direction::PIN[0]: {
+                    if (ncl.has(of::POWERING_PIN)) {
+                        cl[of::POWERED_PIN] = ncl[of::POWERING_PIN];
+                    }
+                    break;
+                }
+                case direction::PIN[1]: {
+                    if (ncl.has(of::POWERING_PIN)) {
+                        cl[of(RED)] = uint_t(double_t(ncl[of::POWERING_PIN]) / high * 255);
+                    }
+                    break;
+                }
+                case direction::PIN[2]: {
+                    if (ncl.has(of::POWERING_PIN)) {
+                        cl[of(GREEN)] = uint_t(double_t(ncl[of::POWERING_PIN]) / high * 255);
+                    }
+                    break;
+                }
+                case direction::PIN[3]: {
+                    if (ncl.has(of::POWERING_PIN)) {
+                        cl[of(BLUE)] = uint_t(double_t(ncl[of::POWERING_PIN]) / high * 255);
+                    }
+                    break;
+                }
+                default: {
+                    break;
+                }
+            }
+        }
+    };
 
     pt.delegates.draw = [](cell & cl, image_t & im) {
         if (im.type() == typeid(ImageType)) {
@@ -26,28 +91,9 @@ part duino::parts::rgb_led(part_h offset) {
             color_t color{ 0u, 0u, 0u, 255u };
 
             if (gcl.is_placed()) {
-                auto high_voltage = double_t(cl[of::HIGH_VOLTAGE]);
-                for (auto &[use, ncl] : gcl.connected()) {
-                    if (ncl.has(of::POWERING_PIN)) {
-                        switch (use) {
-                            case direction::PIN[1]: {
-                                color.r = double_t(ncl[of::POWERING_PIN]) / high_voltage * 255.;
-                                break;
-                            }
-                            case direction::PIN[2]: {
-                                color.g = double_t(ncl[of::POWERING_PIN]) / high_voltage * 255.;
-                                break;
-                            }
-                            case direction::PIN[3]: {
-                                color.b = double_t(ncl[of::POWERING_PIN]) / high_voltage * 255.;
-                                break;
-                            }
-                            default: {
-                                break;
-                            }
-                        }
-                    }
-                }
+                color.r = uint_t(gcl[of(RED)]);
+                color.g = uint_t(gcl[of(GREEN)]);
+                color.b = uint_t(gcl[of(BLUE)]);
             }
 
             cr->set_source_rgb(.2, .2, .2);
@@ -98,7 +144,10 @@ part duino::parts::rgb_led(part_h offset) {
 
     pt.add_visuals({
                            of::POWERED_PIN,
-                           of::POWERING_PIN
+                           of::POWERING_PIN,
+                           of(RED),
+                           of(GREEN),
+                           of(BLUE)
                    });
 
     pt.add_connection_uses({
