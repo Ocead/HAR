@@ -75,7 +75,7 @@ namespace har {
     template<>
     inline callback_t random_value<callback_t>() noexcept {
         auto val = random_value<int_t>();
-        return [=](cell &) { return val; };
+        return [=]() { return val; };
     }
 
     template<>
