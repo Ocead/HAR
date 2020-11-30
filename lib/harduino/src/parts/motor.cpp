@@ -38,25 +38,36 @@ part duino::parts::motor(part_h offset) {
                         text("Speed factor"),
                         value(double_t(0.)),
                         ui_access::CHANGEABLE,
-                        serialize::NO_SERIALIZE,
+                        serialize::SERIALIZE,
                         std::array<double_t, 3>{ 0., 1., .001 }});
 
     pt.delegates.cycle = [](cell & cl) {
         double_t speed = 0.;
         double_t dir = 1.;
+        double_t powered;
 
         for (auto &[use, ncl] : cl.as_grid_cell().connected()) {
-            if (use == direction::PIN[0]) {
-                speed = double_t(cl[of::SPEED_FACTOR]) *
-                        (double_t(ncl[of::POWERING_PIN]) / double_t(cl[of::HIGH_VOLTAGE]));
-            } else if (use == direction::PIN[1]) {
-                if (double_t(ncl[of::POWERING_PIN]) > double_t(cl[of::HIGH_VOLTAGE])) {
-                    dir = -1;
+            switch(use) {
+                case direction::PIN[0]: {
+                    powered = double_t(ncl[of::POWERING_PIN]);
+                    speed = double_t(cl[of::SPEED_FACTOR]) *
+                            (powered / double_t(cl[of::HIGH_VOLTAGE]));
+                    break;
+                }
+                case direction::PIN[1]: {
+                    if (double_t(ncl[of::POWERING_PIN]) > double_t(cl[of::HIGH_VOLTAGE])) {
+                        dir = -1;
+                    }
+                    break;
+                }
+                default: {
+                    break;
                 }
             }
         }
 
         speed *= dir;
+        replace(cl[of::POWERED_PIN], powered);
         replace(cl[of::MOTOR_SPEED], speed);
     };
 
