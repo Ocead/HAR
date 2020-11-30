@@ -506,25 +506,28 @@ void parts::draw_voltage(const Cairo::RefPtr<Cairo::Context> & cr, cell & cl, co
     double_t high = double_t(cl[HIGH_VOLTAGE]);
     double_t low = double_t(cl[LOW_VOLTAGE]);
     double_t vol = 0.;
-    uint_t mode;
+    pin_mode mode;
     if (cl.has(PIN_MODE)) {
-        mode = uint_t(cl[PIN_MODE]);
+        mode = pin_mode(uint_t(cl[PIN_MODE]));
         switch (mode) {
-            case uint_t(pin_mode::OUTPUT):
+            case pin_mode::OUTPUT:
                 vol = double_t(cl[POWERING_PIN]);
                 break;
-            case uint_t(pin_mode::INPUT):
+            case pin_mode::INPUT:
                 vol = double_t(cl[POWERED_PIN]);
+                if (std::isnan(vol)) {
+                    vol = 0.;
+                }
                 break;
             default:
                 break;
         }
     } else {
         vol = double_t(cl[POWERING_PIN]);
-        mode = 1u;
+        mode = pin_mode::OUTPUT;
     }
 
-    if (high != 0. && mode != uint_t(pin_mode::TRI_STATE)) {
+    if (high != 0. && mode != pin_mode::TRI_STATE) {
         cr->save();
         if (int_t(color.r) + int_t(color.g) + int_t(color.b) > 384) {
             cr->set_source_rgba(0., 0., 0., .85);
@@ -533,8 +536,9 @@ void parts::draw_voltage(const Cairo::RefPtr<Cairo::Context> & cr, cell & cl, co
         }
         cr->set_line_width(24.);
         cr->set_line_cap(Cairo::LINE_CAP_ROUND);
-        if (low - vol < .1 && vol - high < .1) {
-            double_t pos = .9 - relative(vol, low, high) * .8;
+        auto rel = relative(vol, low, high);
+        if (rel >= 0. && rel <= 1.) {
+            double_t pos = .9 - rel * .8;
             cr->move_to(256. * .15, 256. * pos);
             cr->line_to(256. * .85, 256. * pos);
         } else {
